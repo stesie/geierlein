@@ -38,8 +38,8 @@ else if(typeof(module) !== 'undefined' && module.exports) {
     };
     module.exports = geierlein.crypto = {};
 
-    gzipjs = require('../lib/gzip-js/lib/gzip.js');
-    forge = require('../lib/forge/js/forge.js');
+    gzipjs = require('../gzip-js/lib/gzip.js');
+    forge = require('../forge/js/forge.js');
 }
 
 var elsterPem = '-----BEGIN CERTIFICATE-----\n' +

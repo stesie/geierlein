@@ -29,7 +29,7 @@ if(typeof(window) !== 'undefined') {
 else if(typeof(module) !== 'undefined' && module.exports) {
     geierlein = {
     };
-    Xml = require('../lib/xmlwriter.js');
+    Xml = require('../xmlwriter.js');
 }
 
 geierlein.util = {};
