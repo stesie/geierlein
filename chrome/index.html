@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <title>Geierlein - der freie Elster-Client</title>
+    <meta name="author" content="Stefan Siegl <stesie@brokenpipe.de>">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/geierlein.css" rel="stylesheet">
+</head>
+<body class="native">
+	<div class="navbar navbar-fixed-top">
+		<div class="navbar-inner">
+			<div class="container">
+				<a class="brand" href="#">Geierlein</a>
+				<ul class="nav">
+					<li class="active"><a href="#">Formular</a></li>
+					<li><a data-toggle="modal" href="#about">Info</a></li>
+					<li><a href="#contact">Kontakt</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<div class="container">
+		<form class="form-horizontal">
+	        <fieldset>
+                <legend>Unternehmer</legend>
+
+                <div class="control-group">
+                    <label class="control-label" for="name">Name</label>
+                    <div class="span4">
+                        <input type="text" id="name" class="span4"/>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label" for="strasse">Straße</label>
+                    <div class="span4">
+                        <input type="text" id="strasse" class="span4"/>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label" for="plz">PLZ/Ort</label>
+                    <div class="span1">
+                        <input type="text" id="plz" class="span1"/>
+                    </div>
+                    <div class="span3">
+                        <input type="text" id="ort" class="span3"/>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label" for="land">Bundesland</label>
+                    <div class="span4">
+                        <select id="land" class="span4">
+                            <option value="1">Baden-Württemberg</option>
+                            <option value="2">Bayern</option>
+                            <option value="3">Berlin</option>
+                            <option value="4">Brandenburg</option>
+                            <option value="5">Bremen</option>
+                            <option value="6">Hamburg</option>
+                            <option value="7">Hessen</option>
+                            <option value="8">Mecklenburg-Vorpommern</option>
+                            <option value="9">Niedersachsen</option>
+                            <option value="10">Nordrhein-Westfalen</option>
+                            <option value="11">Rheinland-Pfalz</option>
+                            <option value="12">Saarland</option>
+                            <option value="13">Sachsen</option>
+                            <option value="14">Sachsen-Anhalt</option>
+                            <option value="15">Schleswig-Holstein</option>
+                            <option value="16">Thüringen</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label" for="vorwahl">Telefon</label>
+                    <div class="span2">
+                        <input type="text" id="vorwahl" class="span2"/>
+                    </div>
+                    <div class="span2">
+                        <input type="text" id="anschluss" class="span2"/>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label" for="email">e-mail</label>
+                    <div class="span4">
+                        <input type="text" id="email" class="span4"/>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label" for="steuernummer">Steuernummer</label>
+                    <div class="span4">
+                        <input type="text" id="steuernummer" class="span4"/>
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Voranmeldungszeitraum</legend>
+
+                <div class="control-group">
+                    <label class="control-label" for="jahr">Jahr</label>
+                    <div class="span4">
+                        <select id="jahr" class="span4">
+                            <option>2012</option>
+                            <option>2011</option>
+                            <option>2010</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label" for="monat">Monat</label>
+                    <div class="span4">
+                        <select id="monat" class="span4">
+                            <optgroup label="Monat">
+                                <option value="1">Januar</option>
+                                <option value="2">Februar</option>
+                                <option value="3">März</option>
+                                <option value="4">April</option>
+                                <option value="5">Mai</option>
+                                <option value="6">Juni</option>
+                                <option value="7">Juli</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">Oktober</option>
+                                <option value="11">November</option>
+                                <option value="12">Dezember</option>
+                            </optgroup>
+                            <optgroup label="Quartal">
+                                <option value="41">1. Quartal</option>
+                                <option value="42">2. Quartal</option>
+                                <option value="43">3. Quartal</option>
+                                <option value="44">4. Quartal</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                </div>
+            </fieldset>
+            
+            <fieldset>
+                <legend>Steuerpflichtige Umsätze</legend>
+                <div class="control-group">
+                    <label class="control-label" for="Kz81">19%</label>
+                    <div class="span2 input-append">
+                            <input type="text" id="Kz81" class="span2"/><span class="add-on">,00</span>
+                    </div>
+                    <div class="span2">
+                        <input type="text" id="Kz81-calc" class="span2 multiply"
+                            data-multiply-field="Kz81" data-multiplicand="0.19"
+                            disabled/>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label" for="Kz86">7%</label>
+                    <div class="span2 input-append">
+                            <input type="text" id="Kz86" class="span2"/><span class="add-on">,00</span>
+                    </div>
+                    <div class="span2">
+                        <input type="text" id="Kz86-calc" class="span2 multiply"
+                            data-multiply-field="Kz86" data-multiplicand="0.07"
+                            disabled/>
+                    </div>
+                </div>
+            </fieldset>
+            
+            <fieldset>
+                <div class="control-group">
+                    <label class="control-label" for="ust">
+                        <strong>Umsatzsteuer ...</strong>
+                    </label>
+                    <div class="span2 offset2">
+                            <input type="text" id="ust" class="span2 totalize"
+                                data-totalize-fields="Kz81-calc Kz86-calc"
+                                disabled/>
+                    </div>
+                </div>
+            </fieldset>
+            
+            <fieldset>
+                <legend>Abziehbare Vorsteuerbeträge</legend>
+                <div class="control-group">
+                    <label class="control-label span4" for="Kz66">aus Rechnungen anderer Unternehmer</label>
+                    <div class="span2">
+                        <input type="text" id="Kz66" class="span2"/>
+                    </div>
+                </div>
+            </fieldset>
+            
+            <fieldset>
+                <div class="control-group">
+                    <label class="control-label span4" for="traglast">
+                        <strong>Umsatzsteuer-Vorauszahlung/Überschuss ...</strong>
+                    </label>
+                    <div class="span2">
+                            <input type="text" id="traglast" class="span2 totalize"
+                                data-totalize-fields="ust -Kz66"
+                                disabled/>
+                    </div>
+                </div>
+            </fieldset>
+
+		</form>
+	</div>
+
+	<div class="modal hide" id="about">
+        <div class="modal-header">
+            <a class="close" data-dismiss="modal">×</a>
+            <h3>Über Geierlein</h3>
+        </div>
+        <div class="modal-body">
+            <p>Geierlein ist ein in HTML5 und JavaScript entwickelter
+				Elster-Client.</p>
+				
+            <p>Geierlein ist freie Software.  Du kannst es unter den 
+                Bedingungen der GNU Affero General Public License, wie von der
+                Free Software Foundation veröffentlicht, weitergeben und/oder
+                modifizieren, entweder gemäß Version 3 der Lizenz oder 
+                (nach deiner Option) jeder späteren Version.</p>
+                
+            <p>Copyright &copy; 2012 Stefan Siegl</p> 
+		</div>
+		<div class="modal-footer">
+		    <a href="#" class="btn btn-primary" data-dismiss="modal">Schließen</a>
+		</div>
+    </div>
+
+	<script src="js/jquery-1.7.2.min.js"></script>
+    <script src="js/jquery.input.multiply.js"></script>
+    <script src="js/jquery.input.totalize.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+@CHARSET "UTF-8";
+body.native {
+    padding-top: 60px;
+}
+
+.input-append .add-on {
+    width: 20px;
+    min-width: 20px;
+}
+
+.input-append input.span2 {
+    width: 99px;
+}
+
+.form-horizontal .control-label.span4 {
+    width: 280px;
+}
