@@ -35,11 +35,11 @@ else if(typeof(module) !== 'undefined' && module.exports) {
 /**
  * Create new UStVA instance.
  * 
+ * @param datenlieferant A Datenlieferant instance to use.
  * @param jahr The year of the declaration.
  * @param monat The month (1-12) or quarter specification (41-44) 
- * @param datenlieferant A Datenlieferant instance to use.
  */
-geierlein.UStVA = function(jahr, monat, datenlieferant) {
+geierlein.UStVA = function(datenlieferant, jahr, monat) {
     this.datenlieferant = datenlieferant || new geierlein.Datenlieferant();
     this.jahr = jahr;
     this.monat = monat;
@@ -48,11 +48,85 @@ geierlein.UStVA = function(jahr, monat, datenlieferant) {
 geierlein.UStVA.prototype = new geierlein.Steuerfall();
 geierlein.UStVA.prototype.constructor = geierlein.UStVA;
 
+function ruleRequired(val) {
+    return val !== undefined;
+}
+
+function ruleRange(min, max) {
+    return function(val) {
+        if(val === undefined) {
+            return true;  // ruleRange accepts undefined as valid!
+        }
+
+        val = parseInt(val, 10);
+        return val >= min && val <= max;
+    };
+}
+
+function ruleSignedInt(val) {
+    return val === undefined || parseInt(val, 10) === +val;
+}
+
+function ruleUnsignedInt(val) {
+    return val === undefined || (ruleSignedInt(val) && parseInt(val, 10) >= 0);
+}
+
+function ruleSignedMonetary(val) {
+    return val === undefined || (+val == parseFloat(val).toFixed(2));
+}
+
+var validationRules = {
+    land: [
+        ruleRequired,
+        ruleRange(1, 16)
+    ],
+
+    jahr: [
+        ruleRequired,
+        ruleRange(2010, 2012)
+    ],
+
+    monat: [
+        ruleRequired,
+        function(val) {
+            return ruleRange(1, 12)(val) || ruleRange(41, 44)(val);
+        }
+    ],
+
+    kz81: [ruleSignedInt],
+    kz86: [ruleSignedInt],
+
+    kz66: [ruleSignedMonetary],
+
+    kz39: [ruleUnsignedInt],
+    kz83: [ruleRequired, ruleSignedMonetary]
+};
+
 geierlein.util.extend(geierlein.UStVA.prototype, {
     datenart: 'UStVA',
 
-    validate: function() {
-        console.log('Validate called on UStVA for ' + this.year);        
+    validate: function(field) {
+        var errors = [];
+        var ruleset = {};
+
+        if(field === undefined) {
+            ruleset = validationRules;
+        } else {
+            ruleset[field] = validationRules[field];
+        }
+
+        for(var fieldName in ruleset) {
+            if(ruleset.hasOwnProperty(fieldName)) {
+                var rule = ruleset[fieldName];
+                for(var i = 0, max = rule.length; i < max; i ++) {
+                    if(!rule[i](this[fieldName])) {
+                        errors.push(fieldName);
+                    }
+                }
+            }
+        }
+
+        return errors.length ? errors : true;
     },
 
     /**

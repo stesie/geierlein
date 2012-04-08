@@ -29,31 +29,31 @@
                 <div class="control-group">
                     <label class="control-label" for="name">Name</label>
                     <div class="span4">
-                        <input type="text" id="name" class="span4"/>
+                        <input type="text" id="name" class="span4 datenlieferant"/>
                     </div>
                 </div>
                 
                 <div class="control-group">
                     <label class="control-label" for="strasse">Straße</label>
                     <div class="span4">
-                        <input type="text" id="strasse" class="span4"/>
+                        <input type="text" id="strasse" class="span4 datenlieferant"/>
                     </div>
                 </div>
                 
                 <div class="control-group">
                     <label class="control-label" for="plz">PLZ/Ort</label>
                     <div class="span1">
-                        <input type="text" id="plz" class="span1"/>
+                        <input type="text" id="plz" class="span1 datenlieferant"/>
                     </div>
                     <div class="span3">
-                        <input type="text" id="ort" class="span3"/>
+                        <input type="text" id="ort" class="span3 datenlieferant"/>
                     </div>
                 </div>
                 
                 <div class="control-group">
                     <label class="control-label" for="land">Bundesland</label>
                     <div class="span4">
-                        <select id="land" class="span4">
+                        <select id="land" class="span4 ustva">
                             <option value="1">Baden-Württemberg</option>
                             <option value="2">Bayern</option>
                             <option value="3">Berlin</option>
@@ -77,24 +77,24 @@
                 <div class="control-group">
                     <label class="control-label" for="vorwahl">Telefon</label>
                     <div class="span2">
-                        <input type="text" id="vorwahl" class="span2"/>
+                        <input type="text" id="vorwahl" class="span2 datenlieferant"/>
                     </div>
                     <div class="span2">
-                        <input type="text" id="anschluss" class="span2"/>
+                        <input type="text" id="anschluss" class="span2 datenlieferant"/>
                     </div>
                 </div>
 
                 <div class="control-group">
                     <label class="control-label" for="email">e-mail</label>
                     <div class="span4">
-                        <input type="text" id="email" class="span4"/>
+                        <input type="text" id="email" class="span4 datenlieferant"/>
                     </div>
                 </div>
 
                 <div class="control-group">
                     <label class="control-label" for="steuernummer">Steuernummer</label>
                     <div class="span4">
-                        <input type="text" id="steuernummer" class="span4"/>
+                        <input type="text" id="steuernummer" class="span4 ustva"/>
                     </div>
                 </div>
             </fieldset>
@@ -105,7 +105,7 @@
                 <div class="control-group">
                     <label class="control-label" for="jahr">Jahr</label>
                     <div class="span4">
-                        <select id="jahr" class="span4">
+                        <select id="jahr" class="span4 ustva">
                             <option>2012</option>
                             <option>2011</option>
                             <option>2010</option>
@@ -116,7 +116,7 @@
                 <div class="control-group">
                     <label class="control-label" for="monat">Monat</label>
                     <div class="span4">
-                        <select id="monat" class="span4">
+                        <select id="monat" class="span4 ustva">
                             <optgroup label="Monat">
                                 <option value="1">Januar</option>
                                 <option value="2">Februar</option>
@@ -147,7 +147,7 @@
                 <div class="control-group">
                     <label class="control-label" for="Kz81">19%</label>
                     <div class="span2 input-append">
-                            <input type="text" id="Kz81" class="span2"/><span class="add-on">,00</span>
+                            <input type="text" id="Kz81" class="span2 ustva"/><span class="add-on">,00</span>
                     </div>
                     <div class="span2">
                         <input type="text" id="Kz81-calc" class="span2 multiply"
@@ -159,7 +159,7 @@
                 <div class="control-group">
                     <label class="control-label" for="Kz86">7%</label>
                     <div class="span2 input-append">
-                            <input type="text" id="Kz86" class="span2"/><span class="add-on">,00</span>
+                            <input type="text" id="Kz86" class="span2 ustva"/><span class="add-on">,00</span>
                     </div>
                     <div class="span2">
                         <input type="text" id="Kz86-calc" class="span2 multiply"
@@ -187,7 +187,7 @@
                 <div class="control-group">
                     <label class="control-label span4" for="Kz66">aus Rechnungen anderer Unternehmer</label>
                     <div class="span2">
-                        <input type="text" id="Kz66" class="span2"/>
+                        <input type="text" id="Kz66" class="span2 ustva"/>
                     </div>
                 </div>
             </fieldset>
@@ -205,6 +205,28 @@
                 </div>
             </fieldset>
 
+            <fieldset>
+                <div class="control-group">
+                    <label class="control-label span4" for="Kz39">Anrechnung Sondervorauszahlung
+                    </label>
+                    <div class="span2">
+                            <input type="text" id="Kz39" class="span2 ustva"/>
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <div class="control-group">
+                    <label class="control-label span4" for="Kz83">
+                        <strong>Verbleibende Umsatzsteuer-VZ ...</strong>
+                    </label>
+                    <div class="span2">
+                            <input type="text" id="Kz83" class="span2 totalize ustva"
+                                data-totalize-fields="traglast -Kz39"
+                                disabled/>
+                    </div>
+                </div>
+            </fieldset>
 		</form>
 	</div>
 
@@ -233,6 +255,11 @@
 	<script src="js/jquery-1.7.2.min.js"></script>
     <script src="js/jquery.input.multiply.js"></script>
     <script src="js/jquery.input.totalize.js"></script>
-	<script src="js/bootstrap.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="lib/geierlein/util.js"></script>
+    <script src="lib/geierlein/datenlieferant.js"></script>
+    <script src="lib/geierlein/steuerfall.js"></script>
+    <script src="lib/geierlein/ustva.js"></script>
+    <script src="js/geierlein.js"></script>
 </body>
 </html>
