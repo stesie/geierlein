@@ -1,6 +1,6 @@
-[submodule "chrome/lib/forge"]
-	path = chrome/lib/forge
+[submodule "chrome/content/lib/forge"]
+	path = chrome/content/lib/forge
 	url = git://github.com/stesie/forge.git
-[submodule "chrome/lib/gzip-js"]
-	path = chrome/lib/gzip-js
+[submodule "chrome/content/lib/gzip-js"]
+	path = chrome/content/lib/gzip-js
 	url = git://github.com/stesie/gzip-js.git
