@@ -1,0 +1,22 @@
+@import url(chrome://global/skin/);  
+
+toolbarbutton {
+    -moz-box-orient: vertical;
+    min-width: 72px;
+}
+
+#new {
+    list-style-image: url(chrome://geierlein/content/img/toolbar-new.png);
+}
+
+#open {
+    list-style-image: url(chrome://geierlein/content/img/toolbar-open.png);
+}
+
+#save {
+    list-style-image: url(chrome://geierlein/content/img/toolbar-save.png);
+}
+
+#send {
+    list-style-image: url(chrome://geierlein/content/img/toolbar-convert.png);
+}
