@@ -3,6 +3,10 @@ body.native {
     padding-top: 60px;
 }
 
+body.xulapp #nav {
+    display: none;
+}
+
 .input-append .add-on {
     width: 20px;
     min-width: 20px;

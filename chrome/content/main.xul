@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" id="main" title="Geierlein - der freie Elster Client" width="1024" height="768">
+	<toolbox>
+		<menubar>
+			<menu label="Datei" menuactive="true">
+				<menupopup>
+					<menuitem label="Öffnen ..." oncommand="alert('Hallo');"/>
+					<menuitem label="Speichern"/>
+					<menuitem label="Speichern unter ..."/>
+					<menuseparator/>
+					<menuitem label="Daten senden ..."/>
+					<menuitem label="Als Testfall senden ..."/>
+					<menuseparator/>
+					<menuitem label="Beenden" oncommand="xulapp.shutdown();"/>
+				</menupopup>
+			</menu>
+            <menu label="Werkzeuge">
+                <menupopup>
+                    <menuitem label="DOM Inspector" oncommand="window.open('chrome://inspector/content/inspector.xul', '', 'chrome');"/>
+                    <menuitem label="about:config" oncommand="window.open('chrome://global/content/config.xul', '', 'chrome');"/>
+                </menupopup>
+            </menu>
+			<menu label="Hilfe">
+				<menupopup>
+					<menuitem label="Info" oncommand="xulapp.showInfo();"/>
+				</menupopup>
+			</menu>
+		</menubar>
+</toolbox>
+	<iframe src="chrome://geierlein/content/index.html" id="doc" flex="1"/>
+	<script type="application/javascript" src="chrome://geierlein/content/js/xulapp.js"/>
+</window>
