@@ -22,10 +22,21 @@
 var xulapp = (function() {
     var doc = document.getElementById('doc');
     var cW = null;
+    var DEFAULT_ADDRESS_DATA_SELECTOR = '.datenlieferant, #steuernummer, #land';
+    var prefs = null;
 
     window.addEventListener("load", function() {
         cW = doc.contentWindow;
         cW.$('body').removeClass('native').addClass('xulapp');
+
+        /* Initialize access to preferences system. */
+        var prefService = Components.classes['@mozilla.org/preferences-service;1']
+            .getService(Components.interfaces.nsIPrefService);
+        prefs = prefService.getBranch('geierlein.');
+
+        /* Load default address data from preferences system. */
+        xulapp.loadDefaultAddressData();
+        cW.$('#store-defaults').click(xulapp.storeDefaultAddressData);
     }, false);
 
     window.addEventListener("close", function(event) {
@@ -33,6 +44,20 @@ var xulapp = (function() {
     }, false);
 
     return {
+        loadDefaultAddressData: function() {
+            cW.$(DEFAULT_ADDRESS_DATA_SELECTOR).each(function() {
+                var $el = cW.$(this);
+                $el.val(prefs.getCharPref('defaultAddress.' + this.id));
+                $el.change();
+            });
+        },
+
+        storeDefaultAddressData: function() {
+            cW.$(DEFAULT_ADDRESS_DATA_SELECTOR).each(function() {
+                prefs.setCharPref('defaultAddress.' + this.id, this.value);
+            });
+        },
+
         showInfo: function() {
             cW.$('#about').modal();
         },

@@ -1,5 +1,16 @@
 pref("toolkit.defaultChromeURI", "chrome://geierlein/content/main.xul");
 
+pref("geierlein.defaultAddress.name", "");
+pref("geierlein.defaultAddress.strasse", "");
+pref("geierlein.defaultAddress.plz", "");
+pref("geierlein.defaultAddress.ort", "");
+pref("geierlein.defaultAddress.land", "");
+pref("geierlein.defaultAddress.vorwahl", "");
+pref("geierlein.defaultAddress.anschluss", "");
+pref("geierlein.defaultAddress.email", "");
+pref("geierlein.defaultAddress.steuernummer", "");
+
+
 /* extension manager */
 pref("xpinstall.dialog.confirm", "chrome://mozapps/content/xpinstall/xpinstallConfirm.xul");
 pref("xpinstall.dialog.progress.skin", "chrome://mozapps/content/extensions/extensions.xul?type=themes");
