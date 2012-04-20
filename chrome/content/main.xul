@@ -17,7 +17,9 @@
 			</menu>
 			<menu label="Werkzeuge">
 				<menupopup>
+				    <menuitem label="Extension Manager" oncommand="window.open('chrome://mozapps/content/extensions/extensions.xul?type=extensions', '', 'chrome');"/>
 					<menuitem label="DOM Inspector" oncommand="window.open('chrome://inspector/content/inspector.xul', '', 'chrome');"/>
+                    <menuitem label="JavaScript Shell" oncommand="window.open('chrome://extensiondev/content/shell.xul', '', 'chrome');"/>
 					<menuitem label="about:config" oncommand="window.open('chrome://global/content/config.xul', '', 'chrome');"/>
 				</menupopup>
 			</menu>
