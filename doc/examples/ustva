@@ -1,0 +1,30 @@
+#
+# Umsatzsteuervoranmeldung 2012 für Geierlein
+#
+
+#
+# Adresse des Steuerpflichtigen
+#
+name = Stefan Siegl
+strasse = Philipp-Zorn-Str. 30
+plz = 91522
+ort = Ansbach
+vorwahl = 0981
+anschluss = 9720970
+email = stesie@brokenpipe.de
+
+land = 2	# Bayern
+steuernummer = 203/698/02950
+
+# Voranmeldungszeitraum
+jahr = 2012
+monat = 3
+
+# Umsatzsteuer 19% (Bemessungsgrundlage)
+kz81 = 1000
+
+# Vorsteuer
+kz66 = 90
+
+# Zahllast
+kz83 = 100

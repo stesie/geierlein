@@ -19,10 +19,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 var geierlein = {
-	crypto: require('./crypto.js'),
-	Datenlieferant: require('./datenlieferant.js'),
-	Steuerfall: require('./steuerfall.js'),
-	UStVA: require('./ustva.js')
+    crypto: require('./crypto.js'),
+    Datenlieferant: require('./datenlieferant.js'),
+    Steuerfall: require('./steuerfall.js'),
+    UStVA: require('./ustva.js'),
+    util: require('./util.js')
 };
 
 module.exports = geierlein;
