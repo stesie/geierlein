@@ -20,8 +20,22 @@
  */
 
 (function($, geierlein) {
+    var $jahr = $('#jahr');
+    var $monat = $('#monat');
+    var d = new Date();
+
+    /* Fill year drop-down, supported is 2011 until now. */
+    for(var year = d.getFullYear(); year >= 2011; year --) {
+        $('<option>').text(year).appendTo($jahr);
+    }
+
+    /* Pre-select previous month and year. */
+    d.setMonth(d.getMonth() - 1);
+    $jahr.val(d.getFullYear());
+    $monat.val(d.getMonth() + 1);
+
     var datenlieferant = new geierlein.Datenlieferant();
-    var ustva = new geierlein.UStVA(datenlieferant);
+    var ustva = new geierlein.UStVA(datenlieferant, $jahr.val(), $monat.val());
 
     /* Bind datenlieferant input fields to the model. */
     $('.datenlieferant').on('change', function(ev) {
