@@ -48,6 +48,27 @@ geierlein.UStVA = function(datenlieferant, jahr, monat) {
 geierlein.UStVA.prototype = new geierlein.Steuerfall();
 geierlein.UStVA.prototype.constructor = geierlein.UStVA;
 
+
+var taxNumberRules = [
+    [5, 5],         // Baden Württemberg
+    [3, 3, 5],      // Bayern
+    [2, 3, 5],      // Berlin
+    [3, 3, 5],      // Brandenburg
+    [2, 3, 5],      // Bremen
+    [2, 3, 5],      // Hamburg
+    [3, 3, 5],      // Hessen
+    [3, 3, 5],      // Mecklenburg-Vorpommern
+    [2, 3, 5],      // Niedersachsen
+    [3, 4, 4],      // Nordrhein-Westfalen
+    [2, 3, 4, 1],   // Rheinland-Pfalz
+    [3, 3, 5],      // Saarland
+    [3, 3, 5],      // Sachsen
+    [3, 3, 5],      // Sachsen-Anhalt
+    [2, 3, 5],      // Schleswig-Holstein
+    [3, 3, 5]       // Thüringen
+];
+
+
 function ruleRequired(val) {
     return val !== undefined;
 }
@@ -93,6 +114,8 @@ var validationRules = {
         }
     ],
 
+    steuernummer: [],
+
     kz81: [ruleSignedInt],
     kz86: [ruleSignedInt],
 
@@ -127,6 +150,19 @@ geierlein.util.extend(geierlein.UStVA.prototype, {
         }
 
         return errors.length ? errors : true;
+    },
+
+    getTaxNumberSample: function() {
+        /* Get rule according to choosen federal state (#land).  The options
+         * in the frontend are indexed beginning from one, there subtract one */
+        var rule = taxNumberRules[this.land - 1];
+        var result = "";
+
+        for(var i = 0; i < rule.length; i ++) {
+            result += '/' + '12345'.substring(0, rule[i]);
+        }
+
+        return result.substring(1);
     },
 
     /**

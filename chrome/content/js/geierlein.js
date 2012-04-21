@@ -60,5 +60,9 @@
         } else {
             $cg.addClass('error');
         }
+
+        if(kz === 'land') {
+            $('#steuernummer').attr('placeholder', ustva.getTaxNumberSample());
+        }
     });
 }(jQuery, geierlein));
