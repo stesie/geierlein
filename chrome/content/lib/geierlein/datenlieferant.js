@@ -44,7 +44,7 @@ geierlein.Datenlieferant.prototype = {
      *
      * @return Datenlieferant string according to specification. 
      */
-    toXml: function() {
+    toString: function() {
         return [
             this.name,
             this.vorwahl + '/' + this.anschluss,
@@ -52,6 +52,19 @@ geierlein.Datenlieferant.prototype = {
             this.plz,
             this.land
         ].join(', ');
+    },
+
+    /**
+     * Get XML representation as per Elster XML specification.
+     *
+     * @return Datenlieferant XML block according to specification.
+     */
+    toXml: function() {
+        return '<Name>' + this.name + '</Name>'
+            + '<Strasse>' + this.strasse + '</Strasse>'
+            + '<PLZ>' + this.plz + '</PLZ>'
+            + '<Ort>' + this.ort + '</Ort>'
+            + '<Telefon>' + this.vorwahl + '/' + this.anschluss + '</Telefon>';
     }
 };
 

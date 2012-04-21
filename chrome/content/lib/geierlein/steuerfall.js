@@ -80,7 +80,7 @@ geierlein.Steuerfall.prototype = {
                 }
                 
                 xml.writeElementString('DatenLieferant',
-                    encCb(this.datenlieferant.toXml()));
+                    encCb(this.datenlieferant.toString()));
                 xml.writeStartElement('Datei');
                     xml.writeElementString('Verschluesselung', 'PKCS#7v1.5');
                     xml.writeElementString('Kompression', 'GZIP');

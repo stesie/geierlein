@@ -171,8 +171,7 @@ geierlein.util.extend(geierlein.UStVA.prototype, {
      * @return XML representation of the DatenTeil part as a string.
      */
     getDatenteilXml: function() {
-        var datenteil = new geierlein.util.Xml(),
-            dl = this.datenlieferant;
+        var datenteil = new geierlein.util.Xml();
 
         datenteil.writeStartDocument();
         datenteil.writeStartElement('Nutzdatenblock');
@@ -188,7 +187,7 @@ geierlein.util.extend(geierlein.UStVA.prototype, {
                     datenteil.writeElementString('ProduktVersion', '0.01');
                 datenteil.writeEndElement();
                 datenteil.writeElementString('DatenLieferant', 
-                    this.datenlieferant.toXml());
+                    this.datenlieferant.toString());
             datenteil.writeEndElement();    // NutzdatenHeader
         
             datenteil.writeStartElement('Nutzdaten');
@@ -196,14 +195,8 @@ geierlein.util.extend(geierlein.UStVA.prototype, {
                 datenteil.writeAttributeString('art', 'UStVA');
                 datenteil.writeAttributeString('version', '201201');
         
-                datenteil.writeStartElement('DatenLieferant');
-                    datenteil.writeElementString('Name', dl.name);
-                    datenteil.writeElementString('Strasse', dl.strasse);
-                    datenteil.writeElementString('PLZ', dl.plz);
-                    datenteil.writeElementString('Ort', dl.ort);
-                    datenteil.writeElementString('Telefon', 
-                        dl.vorwahl + '/' + dl.anschluss);
-                datenteil.writeEndElement();
+                datenteil.writeElementString('DatenLieferant',
+                    this.datenlieferant.toXml());
         
                 datenteil.writeElementString('Erstellungsdatum', '20111120');
         
