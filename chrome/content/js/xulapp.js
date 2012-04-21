@@ -53,6 +53,7 @@ var xulapp = (function() {
         },
 
         storeDefaultAddressData: function() {
+            this.blur();
             cW.$(DEFAULT_ADDRESS_DATA_SELECTOR).each(function() {
                 prefs.setCharPref('defaultAddress.' + this.id, this.value);
             });
