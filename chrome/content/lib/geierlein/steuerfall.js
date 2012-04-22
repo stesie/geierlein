@@ -104,11 +104,19 @@ geierlein.Steuerfall.prototype = {
      * @param testcase Whether to declare the taxcase as a testcase.
      * @result XML representation of the taxcase as a string.
      */
-    toEncryptedXml: function(testcase) {
+    toEncryptedXml: function(testcase, sendCb, resultCb) {
         var key = geierlein.crypto.generateKey();
-        return this.toXml(testcase, function(data) {
+        var encData = this.toXml(testcase, function(data) {
             return geierlein.crypto.encryptBlock(data, key);
         });
+
+        if(sendCb !== undefined) {
+            sendCb(encData, function(resData) {
+                console.log(resData);
+            });
+        }
+
+        return encData;
     }
 };
 
