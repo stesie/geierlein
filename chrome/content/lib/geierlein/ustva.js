@@ -127,6 +127,78 @@ var validationRules = {
     kz83: [ruleRequired, ruleSignedMonetary]
 };
 
+function writeOption(val) {
+    return val ? '1' : false;
+}
+
+function writeOptionalInt(val) {
+    return val === undefined ? false : val.toString();
+}
+
+function writeOptionalUnsignedMonetary(val) {
+    return val === undefined ? false : val.toFixed(2);
+}
+
+function writeOptionalSignedMonetary(val) {
+    return val === undefined ? false : val.toFixed(2);
+}
+
+function writeMonetary(val) {
+    return val.toFixed(2);
+}
+
+var xmlWritingRules = {
+    kz10: writeOption,
+    kz21: writeOptionalInt,
+    kz22: writeOption,
+    kz26: writeOption,
+    kz29: writeOption,
+    kz35: writeOptionalInt,
+    kz36: writeOptionalSignedMonetary,
+    kz39: writeOptionalUnsignedMonetary,
+    kz41: writeOptionalInt,
+    kz42: writeOptionalInt,
+    kz43: writeOptionalInt,
+    kz44: writeOptionalInt,
+    kz45: writeOptionalInt,
+    kz46: writeOptionalInt,
+    kz47: writeOptionalSignedMonetary,
+    kz48: writeOptionalInt,
+    kz49: writeOptionalInt,
+    kz52: writeOptionalInt,
+    kz53: writeOptionalSignedMonetary,
+    kz59: writeOptionalSignedMonetary,
+    kz60: writeOptionalInt,
+    kz61: writeOptionalSignedMonetary,
+    kz62: writeOptionalSignedMonetary,
+    kz63: writeOptionalSignedMonetary,
+    kz64: writeOptionalSignedMonetary,
+    kz65: writeOptionalSignedMonetary,
+    kz66: writeOptionalSignedMonetary,
+    kz67: writeOptionalSignedMonetary,
+    kz68: writeOptionalInt,
+    kz69: writeOptionalSignedMonetary,
+    kz73: writeOptionalInt,
+    kz74: writeOptionalSignedMonetary,
+    kz76: writeOptionalInt,
+    kz77: writeOptionalInt,
+    kz78: writeOptionalInt,
+    kz79: writeOptionalSignedMonetary,
+    kz80: writeOptionalSignedMonetary,
+    kz81: writeOptionalInt,
+    kz83: writeMonetary,
+    kz84: writeOptionalInt,
+    kz85: writeOptionalSignedMonetary,
+    kz86: writeOptionalInt,
+    kz89: writeOptionalInt,
+    kz91: writeOptionalInt,
+    kz93: writeOptionalInt,
+    kz94: writeOptionalInt,
+    kz95: writeOptionalInt,
+    kz96: writeOptionalSignedMonetary,
+    kz98: writeOptionalSignedMonetary
+};
+
 geierlein.util.extend(geierlein.UStVA.prototype, {
     datenart: 'UStVA',
 
@@ -203,15 +275,20 @@ geierlein.util.extend(geierlein.UStVA.prototype, {
      * 
      * @return XML representation of the DatenTeil part as a string.
      */
-    getDatenteilXml: function() {
+    getDatenteilXml: function(testcase) {
         var datenteil = new geierlein.util.Xml();
         var stnr = this.getFormattedTaxNumber();
+        var d = new Date();
+        var erstellDatum = d.getFullYear()
+            + ('0' + (d.getMonth() + 1)).substr(-2)
+            + ('0' + d.getDate()).substr(-2);
 
         datenteil.writeStartDocument();
         datenteil.writeStartElement('Nutzdatenblock');
             datenteil.writeStartElement('NutzdatenHeader');
             datenteil.writeAttributeString('version', 10);
-                datenteil.writeElementString('NutzdatenTicket', '7805201');
+                datenteil.writeElementString('NutzdatenTicket',
+                    Math.floor(Math.random() * 9999999).toString());
                 datenteil.writeStartElement('Empfaenger');
                 datenteil.writeAttributeString('id', 'F');
                     datenteil.writeString(stnr.substr(0, 4));
@@ -227,22 +304,30 @@ geierlein.util.extend(geierlein.UStVA.prototype, {
             datenteil.writeStartElement('Nutzdaten');
                 datenteil.writeStartElement('Anmeldungssteuern');
                 datenteil.writeAttributeString('art', 'UStVA');
-                datenteil.writeAttributeString('version', '201201');
+                datenteil.writeAttributeString('version', this.jahr + '01');
         
                 datenteil.writeElementString('DatenLieferant',
                     this.datenlieferant.toXml());
         
-                datenteil.writeElementString('Erstellungsdatum', '20111120');
+                datenteil.writeElementString('Erstellungsdatum', erstellDatum);
         
                 datenteil.writeStartElement('Steuerfall');
                     datenteil.writeStartElement('Umsatzsteuervoranmeldung');
-                        datenteil.writeElementString('Jahr', '2012');
-                        datenteil.writeElementString('Zeitraum', '01');
+                        datenteil.writeElementString('Jahr', this.jahr);
+                        datenteil.writeElementString('Zeitraum',
+                            ('0' + this.monat).substr(-2));
                         datenteil.writeElementString('Steuernummer', stnr);
-                        datenteil.writeElementString('Kz09', '74931');
-                        datenteil.writeElementString('Kz66', '90.00');
-                        datenteil.writeElementString('Kz83', '100.00');
-                        datenteil.writeElementString('Kz81', '1000');
+                        datenteil.writeElementString('Kz09',
+                            testcase ? '74931' : this.herstellerID);
+
+                        for(var key in xmlWritingRules) {
+                            var fmtValue = xmlWritingRules[key](this[key]);
+                            if(fmtValue === false) {
+                                continue;
+                            }
+                            datenteil.writeElementString('Kz' + key.substr(2),
+                                fmtValue);
+                        }
 
         return datenteil.flush(true);
     }

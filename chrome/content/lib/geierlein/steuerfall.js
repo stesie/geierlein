@@ -40,6 +40,8 @@ geierlein.Steuerfall = function() {
 };
 
 geierlein.Steuerfall.prototype = {
+    herstellerID: '00616',
+
     /**
      * Get XML representation of this taxcase.
      *
@@ -58,7 +60,7 @@ geierlein.Steuerfall.prototype = {
             };
         }
         
-        var datenteil = encCb(this.getDatenteilXml());
+        var datenteil = encCb(this.getDatenteilXml(testcase));
 
         var xml = new geierlein.util.Xml('ISO-8859-1', '1.0');
         xml.writeStartDocument();
@@ -76,7 +78,7 @@ geierlein.Steuerfall.prototype = {
                     xml.writeElementString('HerstellerID', '74931');
                 } else {
                     xml.writeElementString('Testmerker', '000000000');
-                    xml.writeElementString('HerstellerID', '00616');
+                    xml.writeElementString('HerstellerID', this.herstellerID);
                 }
                 
                 xml.writeElementString('DatenLieferant',

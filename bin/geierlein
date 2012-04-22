@@ -33,11 +33,13 @@ var ustva = new geierlein.UStVA();
 
 for(var key in data) {
     if(key.substr(0, 2) === 'kz'
-       || key === 'land'
-       || key === 'steuernummer'
+       || key === 'land') {
+        /* Information belongs to the UStVA document and is numeric. */
+        ustva[key] = +data[key];
+    } else if(key === 'steuernummer'
        || key === 'jahr'
        || key === 'monat') {
-        /* Information belongs to the UStVA document. */
+        /* Information belongs to the UStVA document and is a string. */
         ustva[key] = data[key];
     } else {
         ustva.datenlieferant[key] = data[key];
