@@ -68,6 +68,8 @@ var taxNumberRules = [
     [3, 3, 5]       // Thüringen
 ];
 
+var taxNumberPrefixes = [ false, "9", "11", "3", "24", "22", "26", "4", "23",
+    "5", "27", "1", "3", "3", "21", "4" ];
 
 function ruleRequired(val) {
     return val !== undefined;
@@ -166,12 +168,44 @@ geierlein.util.extend(geierlein.UStVA.prototype, {
     },
 
     /**
+     * Get tax number in formatted (12-digit) notation.
+     *
+     * @return The formatted tax number as a string.
+     */
+    getFormattedTaxNumber: function() {
+        var rule = taxNumberRules[this.land - 1];
+        var prefix = taxNumberPrefixes[this.land - 1];
+        var pieces = this.steuernummer.split(/[\/ ]/);
+
+        if(pieces.length !== rule.length) {
+            return false;   // wrong number of pieces
+        }
+
+        for(var i = 0; i < pieces.length; i ++) {
+            if(pieces[i].length !== rule[i]) {
+                return false;   // length mismatch
+            }
+        }
+
+        if(this.land == 1) {
+            /* Special concatenation rule for Baden Württemberg */
+            return '28' + pieces[0].substr(0, 2) + '0'
+                + pieces[0].substr(2) + pieces[1];
+        } else {
+            return prefix + pieces[0].substr(-4 + prefix.length)
+                + "0" + pieces[1] + pieces[2]
+                + (pieces.length == 4 ? pieces[3] : '');
+        }
+    },
+
+    /**
      * Get Elster XML representation of the DatenTeil part.
      * 
      * @return XML representation of the DatenTeil part as a string.
      */
     getDatenteilXml: function() {
         var datenteil = new geierlein.util.Xml();
+        var stnr = this.getFormattedTaxNumber();
 
         datenteil.writeStartDocument();
         datenteil.writeStartElement('Nutzdatenblock');
@@ -180,7 +214,7 @@ geierlein.util.extend(geierlein.UStVA.prototype, {
                 datenteil.writeElementString('NutzdatenTicket', '7805201');
                 datenteil.writeStartElement('Empfaenger');
                 datenteil.writeAttributeString('id', 'F');
-                    datenteil.writeString('9203');
+                    datenteil.writeString(stnr.substr(0, 4));
                 datenteil.writeEndElement();
                 datenteil.writeStartElement('Hersteller');
                     datenteil.writeElementString('ProduktName', 'Geierlein');
@@ -204,7 +238,7 @@ geierlein.util.extend(geierlein.UStVA.prototype, {
                     datenteil.writeStartElement('Umsatzsteuervoranmeldung');
                         datenteil.writeElementString('Jahr', '2012');
                         datenteil.writeElementString('Zeitraum', '01');
-                        datenteil.writeElementString('Steuernummer', '9203069802950');
+                        datenteil.writeElementString('Steuernummer', stnr);
                         datenteil.writeElementString('Kz09', '74931');
                         datenteil.writeElementString('Kz66', '90.00');
                         datenteil.writeElementString('Kz83', '100.00');
