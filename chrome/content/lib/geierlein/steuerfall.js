@@ -112,7 +112,10 @@ geierlein.Steuerfall.prototype = {
 
         if(sendCb !== undefined) {
             sendCb(encData, function(resData) {
-                console.log(resData);
+                if(resData === false) {
+                    return resultCb(false);
+                }
+                resultCb(geierlein.crypto.decryptDocument(resData, key));
             });
         }
 

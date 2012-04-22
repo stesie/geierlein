@@ -80,6 +80,43 @@ geierlein.crypto.encryptBlock = function(data, key) {
     return forge.util.encode64(out.getBytes(), 0);
 };
 
+geierlein.crypto.decryptDocument = function(data, key) {
+    function decryptBlock(regex) {
+        var pieces = data.split(regex);
+        if(pieces.length !== 5) {
+            return;
+        }
+
+        var encBlock = pieces[2].replace(/[\r\n]*/g, '');
+
+        /* Base64-decode block, result is DER-encoded PKCS#7 encrypted data. */
+        encBlock = forge.util.decode64(encBlock);
+
+        /* Convert to Forge ASN.1 object. */
+        encBlock = forge.asn1.fromDer(encBlock);
+
+        /* Convert to Forge PKCS#7 object. */
+        var p7 = forge.pkcs7.messageFromAsn1(encBlock);
+        p7.decrypt(key.copy());
+
+        /* Covert Forge buffer to gzipJS buffer (array of bytes). */
+        var gzippedData = [];
+        while(!p7.content.isEmpty()) {
+            gzippedData.push(p7.content.getByte());
+        }
+
+        /* Gunzip and replace back into pieces. */
+        pieces[2] = gzipjs.charArrayToString(gzipjs.unzip(gzippedData));
+
+        /* Join pieces together again. */
+        data = pieces.join('');
+    }
+
+    decryptBlock(/(<\/?DatenLieferant>)/);
+    decryptBlock(/(<\/?DatenTeil>)/);
+    return data;
+};
+
 geierlein.crypto.generateKey = function() {
     return forge.util.createBuffer(forge.random.getBytes(24));
 };

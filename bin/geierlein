@@ -66,4 +66,6 @@ if(argv['dry-run']) {
     process.exit(0);
 }
 
-ustva.toEncryptedXml(argv.testcase, geierlein.transfer);
+ustva.toEncryptedXml(argv.testcase, geierlein.transfer, function(res) {
+    console.log(res);
+});
