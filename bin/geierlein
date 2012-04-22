@@ -25,8 +25,10 @@ var geierlein = require('../chrome/content/lib/geierlein/geierlein');
 var argv = require('optimist')
     .usage('Geierlein Elster-Client für die Kommandozeile.\nVerwendung: $0')
     .demand('f')
-    .alias('f', 'file')
-    .describe('f', 'Lade aus Datei')
+    .alias('e', 'encrypt-only')
+        .describe('e', 'verschlüsseltes Coala-XML erzeugen, nichts weiter')
+    .alias('f', 'file').describe('f', 'Lade aus Datei')
+    .alias('t', 'testcase').describe('t', 'Testfall erstellen')
     .argv;
 var data = geierlein.util.parseFile(require('fs').readFileSync(argv.file, 'UTF-8'));
 var ustva = new geierlein.UStVA();
@@ -53,4 +55,9 @@ if(validationResult !== true) {
     process.exit(1);
 }
 
-console.log(ustva.toXml());
+if(argv['encrypt-only']) {
+    console.log(ustva.toEncryptedXml(argv.testcase));
+    process.exit(0);
+}
+
+console.log(ustva.toXml(argv.testcase));
