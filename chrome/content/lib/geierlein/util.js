@@ -66,6 +66,15 @@ geierlein.util.parseFile = function(data) {
     return result;
 };
 
+
+geierlein.util.addStylesheetHref = function(xmlstr, xslHref) {
+    var doc = xmlstr.split(/(<\?.*?\?>)/);
+    var tmp = doc.pop();
+    doc.push('<?xml-stylesheet type="text/xsl" href="' + xslHref + '"?>');
+    doc.push(tmp);
+    return doc.join('');
+};
+
 /**
  * Constructor function of XMLWriter objects.
  */
