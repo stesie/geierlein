@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- edited with XML Spy v4.3 U (http://www.xmlspy.com) by Michael Wilz (Rechenzentrum der Finanzverwaltung NRW) -->
+<!-- Version 8.21 -->
+<xs:schema xmlns:headerbasis="http://www.elster.de/headerbasis02/XMLSchema" xmlns:elster="http://www.elster.de/2002/XMLSchema" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.elster.de/2002/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<!-- RootElement = Elster _______________________________________________________________-->
+	<xs:import namespace="http://www.elster.de/headerbasis02/XMLSchema" schemaLocation="./headerbasis000002.xsd"/>
+	<!-- RootElement = Elster _______________________________________________________________-->
+	<xs:element name="TransferHeader" type="elster:TransferHeaderCType"/>
+	<xs:complexType name="TransferHeaderCType">
+		<xs:sequence>
+			<xs:element name="Verfahren" type="headerbasis:VerfahrenSType"/>
+			<xs:element name="DatenArt" type="headerbasis:DatenArtSType"/>
+			<xs:element name="Vorgang" type="headerbasis:VorgangSType"/>
+			<xs:element name="TransferTicket" type="headerbasis:TransferTicketSType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="de">für Rückübermittlung des TransferHeaders aus der Clearingstelle wird in der Clearingstelle eingefügt</xs:documentation>
+					<xs:documentation xml:lang="de">das TAG darf vom Datenlieferant nicht geliefert werden (auch nicht leer)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Testmerker" type="headerbasis:TestmerkerSType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="de">Muss vom Datenlieferant gefüllt werden; wenn nicht vorhanden dann Echtfall ; Echfall aber auch wenn Testmerker = "0" oder = "000000000"</xs:documentation>
+					<xs:documentation xml:lang="de">gilt für die gesamte Datenlieferung !!!</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SigUser" minOccurs="0">
+				<xs:complexType mixed="true">
+					<xs:complexContent mixed="true">
+						<xs:restriction base="xs:anyType">
+							<xs:sequence>
+								<xs:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+							</xs:sequence>
+						</xs:restriction>
+					</xs:complexContent>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="Empfaenger" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Ziel" type="headerbasis:BundeslandSType"/>
+						<!-- kann aktuell nur mit einem Ziel-Bundesland gefuellt werden -->
+					</xs:sequence>
+					<xs:attribute name="id" use="required">
+						<xs:simpleType>
+							<xs:annotation>
+								<xs:documentation xml:lang="DE">Attribut, nur "L" fürAngabe des Länderschluessel erlaubt</xs:documentation>
+							</xs:annotation>
+							<xs:restriction base="headerbasis:BaseStringSType">
+								<xs:enumeration value="L"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="HerstellerID" type="headerbasis:HerstellerIDSType"/>
+			<xs:element name="DatenLieferant">
+				<xs:annotation>
+					<xs:documentation xml:lang="DE">Datenlieferant ist derjenige, der die Datenlieferung an die Finazverwaltung (Cklearingstelle) übermittelt </xs:documentation>
+					<xs:documentation xml:lang="DE">Der Inhalt des Tags "DatenLieferant" ist nach dem selben verfahren zu verschlüsseln, wie die gesamte Datenlieferung</xs:documentation>
+					<xs:documentation xml:lang="DE">Der Inhalt des Tags "DatenLieferant" darf vor Verschlüsselung nicht länger asl 256 Zeichen haben</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="EingangsDatum" type="headerbasis:EingangsDatumSType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="DE">Serverseitiges Eingangsdatum wird erst in der Clearingstelle eingefügt</xs:documentation>
+					<xs:documentation xml:lang="DE">Datum, Uhrzeit, wann die signierten Daten bei Server eingegangen sind Wird serverseitig gefüllt</xs:documentation>
+					<xs:documentation xml:lang="DE">JJJJMMTThhmmss:Zahl, 14-stellig - extern nicht zu füllen - </xs:documentation>
+					<xs:documentation xml:lang="de">Optional für Datenlieferungen (dann aber nur leer !!!) - wird erstmalig in der Clearingstelle gefüllt - bei Antworten aus der CS ist dieses Tag enthalten !</xs:documentation>
+					<xs:documentation xml:lang="de">das TAG soll vom Datenlieferant nicht geliefert werden (auch nicht leer)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Datei">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Verschluesselung" type="headerbasis:VerschluesselungSType"/>
+						<xs:element name="Kompression" type="headerbasis:KompressionSType"/>
+						<xs:element name="DatenGroesse">
+							<xs:simpleType>
+								<xs:annotation>
+									<xs:documentation xml:lang="DE">Grösse des DatenTeil in Byte</xs:documentation>
+									<xs:documentation xml:lang="DE">unverhältnismäßig große Dateien können bereits vor der Entschlüsselung ausgesondert 
+			werden.Schutz vor Sabotage.Die Größe der Datei bezieht sich den DatenTeil nach Komprimierung  und Verschlüsselung inclusive der Tags für den DatenTeil			
+			</xs:documentation>
+								</xs:annotation>
+								<xs:restriction base="xs:positiveInteger">
+									<xs:totalDigits value="42"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+						<xs:element name="TransportSchluessel" type="headerbasis:TransportSchluesselSType"/>
+						<xs:element name="Erstellung" minOccurs="0">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="Eric" minOccurs="0">
+										<xs:complexType mixed="true">
+											<xs:complexContent mixed="true">
+												<xs:restriction base="xs:anyType">
+													<xs:sequence>
+														<xs:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+													</xs:sequence>
+												</xs:restriction>
+											</xs:complexContent>
+										</xs:complexType>
+									</xs:element>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="RC" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="de">ReturnCode ist nur bei Rücklieferungen aus der Clearingstelle vorhanden  wird  in der Clearingstelle eingefüllt</xs:documentation>
+					<xs:documentation xml:lang="de">das TAG darf vom Datenlieferant nicht geliefert werden (auch nicht leer)</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence minOccurs="0">
+						<xs:sequence minOccurs="0">
+							<xs:element name="SigIntern" type="headerbasis:SigInternSType"/>
+							<xs:element name="VerarbeitungsVersion" type="xs:string"/>
+						</xs:sequence>
+						<xs:element name="Rueckgabe">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="Code">
+										<xs:simpleType>
+											<xs:annotation>
+												<xs:documentation xml:lang="DE">Externer Fehlercode</xs:documentation>
+											</xs:annotation>
+											<xs:restriction base="xs:string"/>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="Text" type="xs:string"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+						<xs:element name="Stack">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="Code">
+										<xs:simpleType>
+											<xs:annotation>
+												<xs:documentation xml:lang="DE">Interner Fehlercode</xs:documentation>
+											</xs:annotation>
+											<xs:restriction base="xs:string"/>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="Text" type="xs:string"/>
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="VersionClient" minOccurs="0">
+				<xs:simpleType>
+					<xs:annotation>
+						<xs:documentation xml:lang="DE">Wenn bei einer Verschlüsselungssoftware eine neuere Version eingesetzt wird, ist es u.U. wichtig, ob die erhaltenen Daten schon mit der neuen oder noch mit der alten Verschlüsselung verschlüsselt wurden, um die Daten entschlüsseln zu können.</xs:documentation>
+					</xs:annotation>
+					<xs:restriction base="headerbasis:BaseStringSType">
+						<xs:maxLength value="42"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="Zusatz" minOccurs="0">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Info" minOccurs="0" maxOccurs="unbounded">
+							<xs:simpleType>
+								<xs:annotation>
+									<xs:documentation xml:lang="de">kann vom Datenlieferant für eigene Zusätze / Informationen genutzt werden</xs:documentation>
+								</xs:annotation>
+								<xs:restriction base="xs:string">
+									<xs:minLength value="1"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+						<xs:element name="ElsterInfo" minOccurs="0" maxOccurs="unbounded">
+							<xs:simpleType>
+								<xs:annotation>
+									<xs:documentation xml:lang="de">für Rückübermittlung des TransferHeaders aus der Clearingstelle wird in der Clearingstelle eingefügt</xs:documentation>
+									<xs:documentation xml:lang="de">das TAG darf vom Datenlieferant nicht geliefert werden (auch nicht leer)</xs:documentation>
+								</xs:annotation>
+								<xs:restriction base="xs:string">
+									<xs:minLength value="1"/>
+								</xs:restriction>
+							</xs:simpleType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="version" use="required">
+			<xs:simpleType>
+				<xs:restriction base="headerbasis:BaseStringSType">
+					<xs:enumeration value="8"/>
+					<xs:enumeration value="000008"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+</xs:schema>

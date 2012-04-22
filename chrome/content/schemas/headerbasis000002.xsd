@@ -1,0 +1,1135 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- Version 1.10
+Aenderung bei 
+Empfaenger: BF, DS
+Verfahren: ElsterLKStoDVE, ElsterDVEtoLKS + Datenarten
+
+-->
+<xs:schema xmlns:elsterheaderbasis="http://www.elster.de/headerbasis02/XMLSchema" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.elster.de/headerbasis02/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<!-- Definierung globaler simple Types________________________________________________________-->
+	<!-- A -->
+	<!-- B -->
+	<xs:simpleType name="BaseStringSType">
+		<xs:annotation>
+			<xs:documentation xml:lang="DE">die Einschränkungen sind in der Schnittstellenbeschreibung SST_Arbeitgeber zu entnehmen"</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="elsterheaderbasis:BaseStringNoLeadingOrTrailingSeparators">
+			<xs:pattern value="[\p{L}|\p{P}|\p{Zs}|\p{Nd}]*"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="BaseStringLightSType">
+		<xs:annotation>
+			<xs:documentation xml:lang="DE">Der String muss mindestens 1 Zeichen vom Typ {N} oder {L} beinhalten, zusätzlich gelten die Einschränkungen  des BaseStringNoLeadingOrTrailingSeparators</xs:documentation>
+			<xs:documentation xml:lang="DE">Verweis auf http://www.w3.org/TR/2001/REC-xmlschema-2-20010502/#regexs</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="elsterheaderbasis:BaseStringNoLeadingOrTrailingSeparators">
+			<xs:pattern value=".*([\p{N}]|[\p{L}]).*"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="BaseStringNoLeadingOrTrailingSeparators">
+		<xs:annotation>
+			<xs:documentation xml:lang="DE">das letzte Zeichen darf nicht vom Typ {Z} sein, zusätzlich gelten die Einschränkungen  des BaseStringNoLeadingSeparators</xs:documentation>
+			<xs:documentation xml:lang="DE">Verweis auf http://www.w3.org/TR/2001/REC-xmlschema-2-20010502/#regexs</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="elsterheaderbasis:BaseStringNoLeadingSeparators">
+			<!-- 
+			  modified for purposes of libgeier, original:
+			  <xs:pattern value=".*[\P{Z}]"/>
+			-->
+			<xs:pattern value=".*[^\p{Z}]"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="BaseStringNoLeadingSeparators">
+		<xs:annotation>
+			<xs:documentation xml:lang="DE">das erste Zeichen darf nicht vom Typ {Z} sein, zusätzlich gelten die Einschränkungen  des BaseStringUltraLightSType</xs:documentation>
+			<xs:documentation xml:lang="DE">Verweis auf http://www.w3.org/TR/2001/REC-xmlschema-2-20010502/#regexs</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="elsterheaderbasis:BaseStringUltraLightSType">
+			<!-- 
+			  modified for purposes of libgeier, original:
+			  <xs:pattern value="[\P{Z}].*"/> 
+			-->
+			<xs:pattern value="[^\p{Z}].*" />
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="BaseStringUltraLightSType">
+		<xs:annotation>
+			<xs:documentation xml:lang="DE">alle Zeichen die nicht Kategorien C oder Zl gehören </xs:documentation>
+			<xs:documentation xml:lang="DE">Verweis auf http://www.w3.org/TR/2001/REC-xmlschema-2-20010502/#regexs</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<!-- 
+			  modified for purposes of libgeier, original:
+			  <xs:pattern value="([^\n\r\t\p{C}\p{Zl}])*"/>
+			-->
+			<xs:pattern value="([^\p{C}\p{Zl}])*"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="BundeslandSType">
+		<xs:annotation>
+			<xs:documentation xml:lang="DE">einheitliche Abkürzungen für die Bundesländer gem. Elster Projekthandbuch Datensatzbeschreibung</xs:documentation>
+			<xs:documentation xml:lang="DE">BW = Baden-Würtemberg</xs:documentation>
+			<xs:documentation xml:lang="DE">BY = Bayern</xs:documentation>
+			<xs:documentation xml:lang="DE">BE = Berlin</xs:documentation>
+			<xs:documentation xml:lang="DE">BB = Brandenburg</xs:documentation>
+			<xs:documentation xml:lang="DE">HB = Bremen</xs:documentation>
+			<xs:documentation xml:lang="DE">HH = Hamburg</xs:documentation>
+			<xs:documentation xml:lang="DE">HE = Hessen</xs:documentation>
+			<xs:documentation xml:lang="DE">MV = Mecklenburg-Vorpommern</xs:documentation>
+			<xs:documentation xml:lang="DE">ND = Niedersachsen</xs:documentation>
+			<xs:documentation xml:lang="DE">NW = Nordrhein-Westfalen</xs:documentation>
+			<xs:documentation xml:lang="DE">RP = Rheinland-Pfalz</xs:documentation>
+			<xs:documentation xml:lang="DE">SL = Saarland</xs:documentation>
+			<xs:documentation xml:lang="DE">SN = Sachsen</xs:documentation>
+			<xs:documentation xml:lang="DE">ST = Sachsen-Anhalt</xs:documentation>
+			<xs:documentation xml:lang="DE">SH = Scheswig-Holstein</xs:documentation>
+			<xs:documentation xml:lang="DE">TH = Thüringen</xs:documentation>
+			<xs:documentation xml:lang="DE">EC = ElsterCountry "Testbundesland" - nicht mit Echtdatenlieferung kombinieren ! </xs:documentation>
+			<xs:documentation xml:lang="DE">CS = Clearingstelle"</xs:documentation>
+			<xs:documentation xml:lang="DE">CD = Clearingstelle Düsseldorf"</xs:documentation>
+			<xs:documentation xml:lang="DE">CM = Clearingstelle München"</xs:documentation>
+			<xs:documentation xml:lang="DE">BFF / BF = Bundesamt für Finanzen</xs:documentation>
+			<xs:documentation xml:lang="DE">OP = ElsterOnline Portal</xs:documentation>
+			<xs:documentation xml:lang="DE">TK = Testcenter Konsens</xs:documentation>
+			<xs:documentation xml:lang="DE">ZF = ZFA</xs:documentation>
+			<xs:documentation xml:lang="DE">DS = Destatis </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="elsterheaderbasis:BaseStringSType">
+			<xs:enumeration value="BW"/>
+			<xs:enumeration value="BY"/>
+			<xs:enumeration value="BE"/>
+			<xs:enumeration value="BB"/>
+			<xs:enumeration value="HB"/>
+			<xs:enumeration value="HH"/>
+			<xs:enumeration value="HE"/>
+			<xs:enumeration value="MV"/>
+			<xs:enumeration value="ND"/>
+			<xs:enumeration value="NW"/>
+			<xs:enumeration value="RP"/>
+			<xs:enumeration value="SL"/>
+			<xs:enumeration value="SN"/>
+			<xs:enumeration value="ST"/>
+			<xs:enumeration value="SH"/>
+			<xs:enumeration value="TH"/>
+			<xs:enumeration value="EC"/>
+			<xs:enumeration value="BFF"/>
+			<xs:enumeration value="BF"/>
+			<xs:enumeration value="CS"/>
+			<xs:enumeration value="CD"/>
+			<xs:enumeration value="CM"/>
+			<xs:enumeration value="OP"/>
+			<xs:enumeration value="TK"/>
+			<xs:enumeration value="ZF"/>
+			<xs:enumeration value="DS"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- C -->
+	<xs:simpleType name="CodeExternSType">
+		<xs:annotation>
+			<xs:documentation xml:lang="DE">Externer Fehlercode</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	<xs:simpleType name="CodeInternSType">
+		<xs:annotation>
+			<xs:documentation xml:lang="DE">Interner Fehlercode</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	<!-- D -->
+	<xs:simpleType name="DatumSType">
+		<xs:annotation>
+			<xs:documentation xml:lang="DE">Datum und Uhrzeit 14-stellig ohne Trennzeichen</xs:documentation>
+			<xs:documentation xml:lang="DE">Format : JJJJMMTThhmmss</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="elsterheaderbasis:BaseStringSType">
+			<xs:length value="14"/>
+			<xs:pattern value="\d{14}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="DatenGroesseSType">
+		<xs:annotation>
+			<xs:documentation xml:lang="DE">Grösse des DatenTeil in Byte</xs:documentation>
+			<xs:documentation xml:lang="DE">unverhältnismäßig große Dateien können bereits vor der Entschlüsselung ausgesondert 
+			werden.Schutz vor Sabotage.Die Größe der Datei bezieht sich den DatenTeil nach Komprimierung  und Verschlüsselung inclusive der Tags für den DatenTeil			
+			</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:positiveInteger">
+			<xs:totalDigits value="42"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="DatenLieferantSType">
+		<xs:annotation>
+			<xs:documentation xml:lang="DE">Datenlieferant der Nutzdaten - Arbeitgeber selbst bzw. dessen Lohnbuchhhaltungsbüro / Steuerberater</xs:documentation>
+			<xs:documentation xml:lang="DE">String der Lieferanteninformationen enthält ; Ansprechpartner mit Telephon. Email etc. Bei ESt: Steuerpflichtiger oder Steuerberater/Firma  (entfällt hier u.U. auch)Aufbau: Lieferant (Firma); Ansprechpartner; Telefon; E-Mail Addresse; Ort; PLZ; Strasse; Land;</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="256"/>
+			<xs:minLength value="1"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- E -->
+	<!-- F -->
+	<!-- G -->
+	<!-- H -->
+	<xs:simpleType name="HerstellerIDSType">
+		<xs:annotation>
+			<xs:documentation xml:lang="DE">die 5-stellige eindeutige HerstellerID des Softwareherstellers muss über elster.de beantragt werden</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="elsterheaderbasis:BaseStringSType">
+			<xs:length value="5"/>
+			<xs:pattern value="\d{5}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- I -->
+	<!-- J -->
+	<!-- K -->
+	<!-- M -->
+	<!-- N -->
+	<xs:simpleType name="NachNameSType">
+		<xs:annotation>
+			<xs:documentation xml:lang="DE">Nachname einer Person 30-stellig</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="elsterheaderbasis:BaseStringSType">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="30"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="NutzdatenBlockTicketSType">
+		<xs:annotation>
+			<xs:documentation xml:lang="DE">Ticket für Fehlerbehandlung wird vom Datenlieferant gefüllt muss in der Datenlieferung eindeutig sein</xs:documentation>
+			<xs:documentation xml:lang="DE">20stellig Alphanummerisch</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="elsterheaderbasis:BaseStringSType">
+			<xs:maxLength value="32"/>
+			<xs:minLength value="1"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- O -->
+	<!-- P -->
+	<!-- Q -->
+	<!-- R -->
+	<!-- S -->
+	<xs:simpleType name="BUFANrSType">
+		<xs:annotation>
+			<xs:documentation xml:lang="DE">gemäß Elster Developers Toolkit </xs:documentation>
+			<xs:documentation xml:lang="DE">4-stellig Nummerisch </xs:documentation>
+			<xs:documentation xml:lang="DE">Bundesfinanzamtsnummer</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="elsterheaderbasis:BaseStringSType">
+			<xs:length value="4"/>
+			<xs:pattern value="28\d{2}"/>
+			<xs:pattern value="91\d{2}"/>
+			<xs:pattern value="92\d{2}"/>
+			<xs:pattern value="11\d{2}"/>
+			<xs:pattern value="30\d{2}"/>
+			<xs:pattern value="24\d{2}"/>
+			<xs:pattern value="22\d{2}"/>
+			<xs:pattern value="26\d{2}"/>
+			<xs:pattern value="40\d{2}"/>
+			<xs:pattern value="23\d{2}"/>
+			<xs:pattern value="27\d{2}"/>
+			<xs:pattern value="10\d{2}"/>
+			<xs:pattern value="32\d{2}"/>
+			<xs:pattern value="31\d{2}"/>
+			<xs:pattern value="21\d{2}"/>
+			<xs:pattern value="41\d{2}"/>
+			<xs:pattern value="51\d{2}"/>
+			<xs:pattern value="52\d{2}"/>
+			<xs:pattern value="53\d{2}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="StNrSType">
+		<xs:annotation>
+			<xs:documentation xml:lang="DE">gemäß Elster Developers Toolkit </xs:documentation>
+			<xs:documentation xml:lang="DE">13-stellig Nummerisch </xs:documentation>
+			<xs:documentation xml:lang="DE">Bundesfinanzamtsnummer + 0 + Bezirk +  Unterscheidungsnr. + Prüfziffer</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="elsterheaderbasis:BaseStringSType">
+			<xs:length value="13"/>
+			<xs:pattern value="28\d{2}0\d{8}"/>
+			<xs:pattern value="91\d{2}0\d{8}"/>
+			<xs:pattern value="92\d{2}0\d{8}"/>
+			<xs:pattern value="11\d{2}0\d{8}"/>
+			<xs:pattern value="30\d{2}0\d{8}"/>
+			<xs:pattern value="24\d{2}0\d{8}"/>
+			<xs:pattern value="22\d{2}0\d{8}"/>
+			<xs:pattern value="26\d{2}0\d{8}"/>
+			<xs:pattern value="40\d{2}0\d{8}"/>
+			<xs:pattern value="23\d{2}0\d{8}"/>
+			<xs:pattern value="27\d{2}0\d{8}"/>
+			<xs:pattern value="10\d{2}0\d{8}"/>
+			<xs:pattern value="32\d{2}0\d{8}"/>
+			<xs:pattern value="31\d{2}0\d{8}"/>
+			<xs:pattern value="21\d{2}0\d{8}"/>
+			<xs:pattern value="41\d{2}0\d{8}"/>
+			<xs:pattern value="51\d{2}0\d{8}"/>
+			<xs:pattern value="52\d{2}0\d{8}"/>
+			<xs:pattern value="53\d{2}0\d{8}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- T -->
+	<xs:simpleType name="TransferTicketSType">
+		<xs:annotation>
+			<xs:documentation xml:lang="DE">TransferTicket</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="elsterheaderbasis:BaseStringSType">
+			<xs:pattern value="\d{19}"/>
+			<xs:pattern value="[a-km-z0-9]{32}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- U -->
+	<xs:simpleType name="UStIDNrDESType">
+		<xs:annotation>
+			<xs:documentation xml:lang="DE">deutsche UmsatzsteuerIDNummer</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="elsterheaderbasis:BaseStringSType">
+			<xs:pattern value="DE[0-9]{9}"/>
+			<xs:pattern value="BX[0-9]{9}"/>
+			<xs:pattern value="BZ[0-9]{9}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="UStIDNrEUSType">
+		<xs:annotation>
+			<xs:documentation xml:lang="DE">UmsatzsteuerIidentifikationsnummer EU-Weit</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="elsterheaderbasis:BaseStringSType">
+			<xs:pattern value="BE[0-9]{10}"/>
+			<xs:pattern value="DK[0-9]{8}"/>
+			<xs:pattern value="DE[0-9]{9}"/>
+			<xs:pattern value="EE[0-9]{9}"/>
+			<xs:pattern value="FI[0-9]{8}"/>
+			<xs:pattern value="FR([A-Z]|[0-9]){2}[0-9]{9}"/>
+			<xs:pattern value="EL[0-9]{9}"/>
+			<xs:pattern value="IE[0-9]([A-Z]|[0-9])[0-9]{5}[A-Z]"/>
+			<xs:pattern value="IT[0-9]{11}"/>
+			<xs:pattern value="LV[0-9]{11}"/>
+			<xs:pattern value="LT[0-9]{9}"/>
+			<xs:pattern value="LT[0-9]{12}"/>
+			<xs:pattern value="LU[0-9]{8}"/>
+			<xs:pattern value="MT[0-9]{8}"/>
+			<xs:pattern value="NL([A-Z]|[0-9]){9}(B)([A-Z]|[0-9]){2}"/>
+			<xs:pattern value="AT(U)([A-Z]|[0-9]){8}"/>
+			<xs:pattern value="PL[0-9]{10}"/>
+			<xs:pattern value="PT[0-9]{9}"/>
+			<xs:pattern value="SE[0-9]{10}(01)"/>
+			<xs:pattern value="SK[0-9]{10}"/>
+			<xs:pattern value="SI[0-9]{8}"/>
+			<xs:pattern value="ES[A-Z][0-9]{7}[A-Z]"/>
+			<xs:pattern value="ES[0-9]{8}[A-Z]"/>
+			<xs:pattern value="ES[0-9]{8}"/>
+			<xs:pattern value="CZ[0-9]{8}"/>
+			<xs:pattern value="CZ[0-9]{9}"/>
+			<xs:pattern value="CZ[0-9]{10}"/>
+			<xs:pattern value="HU[0-9]{8}"/>
+			<xs:pattern value="GB[0-9]{9}"/>
+			<xs:pattern value="GB[0-9]{12}"/>
+			<xs:pattern value="GB(GD)([A-Z][0-9]){3}"/>
+			<xs:pattern value="GB(HA)([A-Z][0-9]){3}"/>
+			<xs:pattern value="CY([A-Z][0-9]){8}[A-Z]"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- V -->
+	<xs:simpleType name="AuthSteuernummerSType">
+		<xs:union memberTypes="elsterheaderbasis:UStIDNrDESType elsterheaderbasis:StNrSType"/>
+	</xs:simpleType>
+	<!-- B -->
+	<!-- C -->
+	<!-- D -->
+	<xs:simpleType name="DatenArtSType">
+		<xs:annotation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterKontoabfrage</xs:documentation>
+			<xs:documentation xml:lang="DE">--Registrierung</xs:documentation>
+			<xs:documentation xml:lang="DE">--Kontoabfrage</xs:documentation>
+			<xs:documentation xml:lang="DE">--AntraegeUndRechte</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">Hostabfrage (nur innerhalb der Finanzverwaltung erreichbar)</xs:documentation>
+			<xs:documentation xml:lang="DE">--Brief</xs:documentation>
+			<xs:documentation xml:lang="DE">--Steuernummernpruefung</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterErklaerung</xs:documentation>
+			<xs:documentation xml:lang="DE">--ESt (Einkommensteuer)</xs:documentation>
+			<xs:documentation xml:lang="DE">--USt (Umsatzsteuer)</xs:documentation>
+			<xs:documentation xml:lang="DE">--GewSt (Gewerbesteuer)</xs:documentation>
+			<xs:documentation xml:lang="DE">--GewStZ (Gewerbesteuer-Zerlegung)</xs:documentation>
+			<xs:documentation xml:lang="DE">--KSt (Koerperschaftssteuer)</xs:documentation>
+			<xs:documentation xml:lang="DE">--FEIN</xs:documentation>
+			<xs:documentation xml:lang="DE">--EUER (Einnahme Ueberschuss Rechnung)</xs:documentation>
+			<xs:documentation xml:lang="DE">--34a (Einkünfte gemäß §34a EStG)</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterLohn</xs:documentation>
+			<xs:documentation xml:lang="DE">--LStB (Lohnsteuerbescheinigung nur in V.m. Vorgang: send-NoSig-Offline)</xs:documentation>
+			<xs:documentation xml:lang="DE">--ProtokollAnforderung( nur in V.m. Vorgang: send-NoSig) </xs:documentation>
+			<xs:documentation xml:lang="DE">--BA (Lohnersatzleistungen der BA - nur in V.m. Vorgang: send-NoSig) </xs:documentation>
+			<xs:documentation xml:lang="DE">--RBM (Rentenbezugsmitteilung)</xs:documentation>
+			<xs:documentation xml:lang="DE">--Lohnersatzleistung</xs:documentation>
+			<xs:documentation xml:lang="DE">--Fallliste</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterAnmeldung</xs:documentation>
+			<xs:documentation xml:lang="DE">--UStVA (Umsatzsteuervoranmeldung)</xs:documentation>
+			<xs:documentation xml:lang="DE">--LStA (Lohnsteueranmeldung)</xs:documentation>
+			<xs:documentation xml:lang="DE">-- 50a (Anmeldung gemäß § 50a EStG)</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterExtern</xs:documentation>
+			<xs:documentation xml:lang="DE">--ZMDO (Zusammenfassende Meldung)</xs:documentation>
+			<xs:documentation xml:lang="DE">--MfaStMLF (Mehrfachuebertragung Online Land- und Forstwirtschaft, Antrag Förderung)</xs:documentation>
+			<xs:documentation xml:lang="DE">--VVAEO</xs:documentation>
+			<xs:documentation xml:lang="DE">--VVAEB (Antrag auf Erstattung von Umsatzsteuer von ausländischen Unternehmern)</xs:documentation>
+			<xs:documentation xml:lang="DE">--EUZIO (Europaeische Zinsrichtlinie Online (BFF)</xs:documentation>
+			<xs:documentation xml:lang="DE">--EUZIR (Europaeische Zinsrichtlinie Online (BFF)</xs:documentation>
+			<xs:documentation xml:lang="DE">--VVAEF - Freischaltung zum Verfahren Verus (VVAEO) </xs:documentation>
+			<xs:documentation xml:lang="DE">--SADV - Sammelantraege KSt </xs:documentation>
+			<xs:documentation xml:lang="DE">--SADVF - Freischaltung Verfahren Sammelanträge KSt </xs:documentation>
+			<xs:documentation xml:lang="DE">--VorRegBZSt (BZStPortal)</xs:documentation>
+			<xs:documentation xml:lang="DE">--BZStDiverse</xs:documentation>
+			<xs:documentation xml:lang="DE">--KStR</xs:documentation>
+			<xs:documentation xml:lang="DE">--FSAK</xs:documentation>
+			<xs:documentation xml:lang="DE">--UStVEU</xs:documentation>
+			<xs:documentation xml:lang="DE">--UStVEUF</xs:documentation>
+			<xs:documentation xml:lang="DE">--MELK</xs:documentation>
+			<xs:documentation xml:lang="DE">--EMAK (BOP - §45d Absatz 3 EStG (EMAK))</xs:documentation>
+			<xs:documentation xml:lang="DE">--EMAKF - Freischaltung für EMAK</xs:documentation>
+			<xs:documentation xml:lang="DE">--VERS - Versicherung- und Feuerschutzsteuer</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterElfe</xs:documentation>
+			<xs:documentation xml:lang="DE">--FDSuche</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterSuch</xs:documentation>
+			<xs:documentation xml:lang="DE">--UpdateDatei</xs:documentation>
+			<xs:documentation xml:lang="DE">--Auftrag</xs:documentation>
+			<xs:documentation xml:lang="DE">--Allgemein</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterSuchExtern</xs:documentation>
+			<xs:documentation xml:lang="DE">--Steuernummernsuche</xs:documentation>
+			<xs:documentation xml:lang="DE">--SteuernummernInfo</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterDatenabholung</xs:documentation>
+			<xs:documentation xml:lang="DE">--ElsterFTDaten</xs:documentation>
+			<xs:documentation xml:lang="DE">--ElsterErklaerungDaten</xs:documentation>
+			<xs:documentation xml:lang="DE">--ElsterLohn2Daten</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">Ginster</xs:documentation>
+			<xs:documentation xml:lang="DE">--SteuernummernInfo (Detailsuche mit StNr)</xs:documentation>
+			<xs:documentation xml:lang="DE">--SteuernummernSuche (alle anderen Suchen)</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterKapESt</xs:documentation>
+			<xs:documentation xml:lang="DE">--KapEStA</xs:documentation>
+			<xs:documentation xml:lang="DE">--KapEStInvStG</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterKMV</xs:documentation>
+			<xs:documentation xml:lang="DE">--Kontrollmitteilung</xs:documentation>
+			<xs:documentation xml:lang="DE">--KMAuftrag </xs:documentation>
+			<xs:documentation xml:lang="DE">--KMErgebnis </xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterBilanz</xs:documentation>
+			<xs:documentation xml:lang="DE">--Bilanz</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterMAG </xs:documentation>
+			<xs:documentation xml:lang="DE">--MAG </xs:documentation>
+			<xs:documentation xml:lang="DE">--MAGZ </xs:documentation>
+			<xs:documentation xml:lang="DE">--MAGD </xs:documentation>
+			<xs:documentation xml:lang="DE">--MAGA </xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterFSE</xs:documentation>
+			<xs:documentation xml:lang="DE">--EUn </xs:documentation>
+			<xs:documentation xml:lang="DE">--PersG</xs:documentation>
+			<xs:documentation xml:lang="DE">--KapG</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterNachricht</xs:documentation>
+			<xs:documentation xml:lang="DE">-- Einspruch </xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterZANS</xs:documentation>
+			<xs:documentation xml:lang="DE">-- Suchanfrage </xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterIDRecherche</xs:documentation>
+			<xs:documentation xml:lang="DE">-- IDNrSuche  </xs:documentation>
+			<xs:documentation xml:lang="DE">-- IDNrInfo  </xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterZObEL</xs:documentation>
+			<xs:documentation xml:lang="DE">-- GINSTERLieferung  </xs:documentation>
+			<xs:documentation xml:lang="DE">-- ZObELBestaetigung  </xs:documentation>
+			<xs:documentation xml:lang="DE">-- SteuernummernSuche  </xs:documentation>
+			<xs:documentation xml:lang="DE">-- SteuernummernInfo  </xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterLohn2</xs:documentation>
+			<xs:documentation xml:lang="DE">--  DUeAnmelden </xs:documentation>
+			<xs:documentation xml:lang="DE">--  DUeAbmelden </xs:documentation>
+			<xs:documentation xml:lang="DE">--  DUeUmmelden </xs:documentation>
+			<xs:documentation xml:lang="DE">--  DialogLesen (intern)</xs:documentation>
+			<xs:documentation xml:lang="DE">--  DialogSchreiben (intern) </xs:documentation>
+			<xs:documentation xml:lang="DE">--  DialogSperreAufheben (intern)</xs:documentation>
+			<xs:documentation xml:lang="DE">--  DialogLoeschen (intern)</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterDatenbereitstellung (intern) </xs:documentation>
+			<xs:documentation xml:lang="DE">-- BLZ</xs:documentation>
+			<xs:documentation xml:lang="DE">-- DEICH</xs:documentation>
+			<xs:documentation xml:lang="DE">-- ESSGS</xs:documentation>
+			<xs:documentation xml:lang="DE">-- ESTGS</xs:documentation>
+			<xs:documentation xml:lang="DE">-- FEIGS</xs:documentation>
+			<xs:documentation xml:lang="DE">-- GDA</xs:documentation>
+			<xs:documentation xml:lang="DE">-- GELF</xs:documentation>
+			<xs:documentation xml:lang="DE">-- GEWGI</xs:documentation>
+			<xs:documentation xml:lang="DE">-- GEWGS</xs:documentation>
+			<xs:documentation xml:lang="DE">-- GEWMB</xs:documentation>
+			<xs:documentation xml:lang="DE">-- GEWTP</xs:documentation>
+			<xs:documentation xml:lang="DE">-- GMB</xs:documentation>
+			<xs:documentation xml:lang="DE">-- GMBAE</xs:documentation>
+			<xs:documentation xml:lang="DE">-- GMBAS</xs:documentation>
+			<xs:documentation xml:lang="DE">-- GMBV</xs:documentation>
+			<xs:documentation xml:lang="DE">-- GRSTE</xs:documentation>
+			<xs:documentation xml:lang="DE">-- GWPH1</xs:documentation>
+			<xs:documentation xml:lang="DE">-- HHRE</xs:documentation>
+			<xs:documentation xml:lang="DE">-- HWKD</xs:documentation>
+			<xs:documentation xml:lang="DE">-- KATEW</xs:documentation>
+			<xs:documentation xml:lang="DE">-- KBL</xs:documentation>
+			<xs:documentation xml:lang="DE">-- KFZB</xs:documentation>
+			<xs:documentation xml:lang="DE">-- KFZE</xs:documentation>
+			<xs:documentation xml:lang="DE">-- KFZR</xs:documentation>
+			<xs:documentation xml:lang="DE">-- KISTM</xs:documentation>
+			<xs:documentation xml:lang="DE">-- KSTGS</xs:documentation>
+			<xs:documentation xml:lang="DE">-- KV</xs:documentation>
+			<xs:documentation xml:lang="DE">-- RDAL</xs:documentation>
+			<xs:documentation xml:lang="DE">-- SV</xs:documentation>
+			<xs:documentation xml:lang="DE">-- TEST7</xs:documentation>
+			<xs:documentation xml:lang="DE">-- USTGS</xs:documentation>
+			<xs:documentation xml:lang="DE">-- VWDVG</xs:documentation>
+			<xs:documentation xml:lang="DE">-- WPMBR</xs:documentation>
+			<xs:documentation xml:lang="DE">-- ESB</xs:documentation>
+			<xs:documentation xml:lang="DE">-- USB</xs:documentation>
+			<xs:documentation xml:lang="DE">-- AVZF</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterDatenversand (intern)</xs:documentation>
+			<xs:documentation xml:lang="DE">-- AAZD</xs:documentation>
+			<xs:documentation xml:lang="DE">-- AIFA</xs:documentation>
+			<xs:documentation xml:lang="DE">-- ASPZ</xs:documentation>
+			<xs:documentation xml:lang="DE">-- ASPZR</xs:documentation>
+			<xs:documentation xml:lang="DE">-- AWST</xs:documentation>
+			<xs:documentation xml:lang="DE">-- AWSTR</xs:documentation>
+			<xs:documentation xml:lang="DE">-- BBANK</xs:documentation>
+			<xs:documentation xml:lang="DE">-- BUCH</xs:documentation>
+			<xs:documentation xml:lang="DE">-- BUKON</xs:documentation>
+			<xs:documentation xml:lang="DE">-- BUKOR</xs:documentation>
+			<xs:documentation xml:lang="DE">-- ESSGS</xs:documentation>
+			<xs:documentation xml:lang="DE">-- ESTGS</xs:documentation>
+			<xs:documentation xml:lang="DE">-- ESTRM</xs:documentation>
+			<xs:documentation xml:lang="DE">-- F15L</xs:documentation>
+			<xs:documentation xml:lang="DE">-- FSLOG</xs:documentation>
+			<xs:documentation xml:lang="DE">-- GEWGS</xs:documentation>
+			<xs:documentation xml:lang="DE">-- GRIPR</xs:documentation>
+			<xs:documentation xml:lang="DE">-- GRIRM</xs:documentation>
+			<xs:documentation xml:lang="DE">-- HWKR</xs:documentation>
+			<xs:documentation xml:lang="DE">-- IDAKT</xs:documentation>
+			<xs:documentation xml:lang="DE">-- IDARM</xs:documentation>
+			<xs:documentation xml:lang="DE">-- KIGE</xs:documentation>
+			<xs:documentation xml:lang="DE">-- KOFL</xs:documentation>
+			<xs:documentation xml:lang="DE">-- KPAD</xs:documentation>
+			<xs:documentation xml:lang="DE">-- KPAF</xs:documentation>
+			<xs:documentation xml:lang="DE">-- KPAP</xs:documentation>
+			<xs:documentation xml:lang="DE">-- KPID</xs:documentation>
+			<xs:documentation xml:lang="DE">-- KAPIF</xs:documentation>
+			<xs:documentation xml:lang="DE">-- KAPIP</xs:documentation>
+			<xs:documentation xml:lang="DE">-- KPKAU</xs:documentation>
+			<xs:documentation xml:lang="DE">-- KPKRM</xs:documentation>
+			<xs:documentation xml:lang="DE">-- KPZAD</xs:documentation>
+			<xs:documentation xml:lang="DE">-- KSTGS</xs:documentation>
+			<xs:documentation xml:lang="DE">-- MATIM</xs:documentation>
+			<xs:documentation xml:lang="DE">-- MATMI</xs:documentation>
+			<xs:documentation xml:lang="DE">-- MAVIM</xs:documentation>
+			<xs:documentation xml:lang="DE">-- MAVMI</xs:documentation>
+			<xs:documentation xml:lang="DE">-- POSLJ</xs:documentation>
+			<xs:documentation xml:lang="DE">-- POSLM</xs:documentation>
+			<xs:documentation xml:lang="DE">-- RFSB</xs:documentation>
+			<xs:documentation xml:lang="DE">-- RIAIM</xs:documentation>
+			<xs:documentation xml:lang="DE">-- RIAMI</xs:documentation>
+			<xs:documentation xml:lang="DE">-- RITIM</xs:documentation>
+			<xs:documentation xml:lang="DE">-- RITMI</xs:documentation>
+			<xs:documentation xml:lang="DE">-- RME</xs:documentation>
+			<xs:documentation xml:lang="DE">-- STE</xs:documentation>
+			<xs:documentation xml:lang="DE">-- STK</xs:documentation>
+			<xs:documentation xml:lang="DE">-- USTGS</xs:documentation>
+			<xs:documentation xml:lang="DE">-- VFSPR</xs:documentation>
+			<xs:documentation xml:lang="DE">-- VWDVG</xs:documentation>
+			<xs:documentation xml:lang="DE">-- WPML</xs:documentation>
+			<xs:documentation xml:lang="DE">-- WPMLR</xs:documentation>
+			<xs:documentation xml:lang="DE">-- AVZFR</xs:documentation>
+			<xs:documentation xml:lang="DE">-- ZMEWJ</xs:documentation>
+			<xs:documentation xml:lang="DE">-- EAWRB</xs:documentation>
+			<xs:documentation xml:lang="DE">-- BUKRD</xs:documentation>
+			<xs:documentation xml:lang="DE">-- BUKWZ</xs:documentation>
+			<xs:documentation xml:lang="DE">-- ASPZF</xs:documentation>
+			<xs:documentation xml:lang="DE">-- UVVGS</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterFT</xs:documentation>
+			<xs:documentation xml:lang="DE">-- ALB</xs:documentation>
+			<xs:documentation xml:lang="DE">-- AVFG</xs:documentation>
+			<xs:documentation xml:lang="DE">-- BBANK</xs:documentation>
+			<xs:documentation xml:lang="DE">-- BUCH</xs:documentation>
+			<xs:documentation xml:lang="DE">-- DAAL</xs:documentation>
+			<xs:documentation xml:lang="DE">-- DFP1</xs:documentation>
+			<xs:documentation xml:lang="DE">-- DSAP1</xs:documentation>
+			<xs:documentation xml:lang="DE">-- EMAIL</xs:documentation>
+			<xs:documentation xml:lang="DE">-- ESSRM</xs:documentation>
+			<xs:documentation xml:lang="DE">-- F15K</xs:documentation>
+			<xs:documentation xml:lang="DE">-- F15L</xs:documentation>
+			<xs:documentation xml:lang="DE">-- FEINB</xs:documentation>
+			<xs:documentation xml:lang="DE">-- FISCH</xs:documentation>
+			<xs:documentation xml:lang="DE">-- FSADE</xs:documentation>
+			<xs:documentation xml:lang="DE">-- FSADV</xs:documentation>
+			<xs:documentation xml:lang="DE">-- GEWHN</xs:documentation>
+			<xs:documentation xml:lang="DE">-- HWKR</xs:documentation>
+			<xs:documentation xml:lang="DE">-- KFZD</xs:documentation>
+			<xs:documentation xml:lang="DE">-- KFZDB</xs:documentation>
+			<xs:documentation xml:lang="DE">-- KFZL</xs:documentation>
+			<xs:documentation xml:lang="DE">-- KIGE</xs:documentation>
+			<xs:documentation xml:lang="DE">-- KIWI</xs:documentation>
+			<xs:documentation xml:lang="DE">-- KIWIT</xs:documentation>
+			<xs:documentation xml:lang="DE">-- KOF</xs:documentation>
+			<xs:documentation xml:lang="DE">-- KVABG</xs:documentation>
+			<xs:documentation xml:lang="DE">-- NVB</xs:documentation>
+			<xs:documentation xml:lang="DE">-- PUBKY</xs:documentation>
+			<xs:documentation xml:lang="DE">-- SEPA</xs:documentation>
+			<xs:documentation xml:lang="DE">-- TOT</xs:documentation>
+			<xs:documentation xml:lang="DE">-- VOBU</xs:documentation>
+			<xs:documentation xml:lang="DE">-- VOEA</xs:documentation>
+			<xs:documentation xml:lang="DE">-- VVAM</xs:documentation>
+			<xs:documentation xml:lang="DE">-- WPMB</xs:documentation>
+			<xs:documentation xml:lang="DE">-- VCSYN</xs:documentation>
+			<xs:documentation xml:lang="DE">-- VOERS</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterLKStoDVE</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterDVEtoLKS</xs:documentation>
+			<xs:documentation xml:lang="DE">--UStBStat"</xs:documentation>
+			<xs:documentation xml:lang="DE">--UStBStatRM</xs:documentation>
+			<xs:documentation xml:lang="DE">--UStVABStat</xs:documentation>
+			<xs:documentation xml:lang="DE">--UStVABStatRM</xs:documentation>
+			<xs:documentation xml:lang="DE">--EStGStat</xs:documentation>
+			<xs:documentation xml:lang="DE">--EStGStatRM</xs:documentation>
+			<xs:documentation xml:lang="DE">--EStBStat</xs:documentation>
+			<xs:documentation xml:lang="DE">--EStBStatRM</xs:documentation>
+			<xs:documentation xml:lang="DE">--PersGBStat</xs:documentation>
+			<xs:documentation xml:lang="DE">--PersGBStatRM</xs:documentation>
+			<xs:documentation xml:lang="DE">--GewStGStat</xs:documentation>
+			<xs:documentation xml:lang="DE">--GewStGStatRM</xs:documentation>
+			<xs:documentation xml:lang="DE">--GewStBStat</xs:documentation>
+			<xs:documentation xml:lang="DE">--GewStBStatRM</xs:documentation>
+			<xs:documentation xml:lang="DE">--KStGStat</xs:documentation>
+			<xs:documentation xml:lang="DE">--KStGStatRM</xs:documentation>
+			<xs:documentation xml:lang="DE">--KStBStat</xs:documentation>
+			<xs:documentation xml:lang="DE">--KStBStatRM</xs:documentation>
+			<xs:documentation xml:lang="DE">--ErbStBStat</xs:documentation>
+			<xs:documentation xml:lang="DE">--ErbStBStatRM</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="elsterheaderbasis:BaseStringSType">
+			<xs:enumeration value="Registrierung"/>
+			<xs:enumeration value="Kontoabfrage"/>
+			<xs:enumeration value="AntraegeUndRechte"/>
+			<xs:enumeration value="Brief"/>
+			<xs:enumeration value="Steuernummernpruefung"/>
+			<xs:enumeration value="ESt"/>
+			<xs:enumeration value="USt"/>
+			<xs:enumeration value="GewSt"/>
+			<xs:enumeration value="GewStZ"/>
+			<xs:enumeration value="KSt"/>
+			<xs:enumeration value="EUER"/>
+			<xs:enumeration value="FEIN"/>
+			<xs:enumeration value="34a"/>
+			<xs:enumeration value="LStB"/>
+			<xs:enumeration value="Lohnersatzleistung"/>
+			<xs:enumeration value="Fallliste"/>
+			<xs:enumeration value="BA"/>
+			<xs:enumeration value="ProtokollAnforderung"/>
+			<xs:enumeration value="RBM"/>
+			<xs:enumeration value="DialogLesen"/>
+			<xs:enumeration value="DialogSchreiben"/>
+			<xs:enumeration value="DialogSperreAufheben"/>
+			<xs:enumeration value="DialogLoeschen"/>
+			<xs:enumeration value="DUeAnmelden"/>
+			<xs:enumeration value="DUeAbmelden"/>
+			<xs:enumeration value="DUeUmmelden"/>
+			<xs:enumeration value="DUeDatenAbholen"/>
+			<xs:enumeration value="LStA"/>
+			<xs:enumeration value="UStVA"/>
+			<xs:enumeration value="ZMDO"/>
+			<xs:enumeration value="MfaStMLF"/>
+			<xs:enumeration value="VVAEO"/>
+			<xs:enumeration value="VVAEF"/>
+			<xs:enumeration value="VVAEB"/>
+			<xs:enumeration value="EUZIO"/>
+			<xs:enumeration value="EUZIR"/>
+			<xs:enumeration value="SADV"/>
+			<xs:enumeration value="SADVF"/>
+			<xs:enumeration value="VorRegBZSt"/>
+			<xs:enumeration value="BZStDiverse"/>
+			<xs:enumeration value="KStR"/>
+			<xs:enumeration value="FSAK"/>
+			<xs:enumeration value="UStVEU"/>
+			<xs:enumeration value="UStVEUF"/>
+			<xs:enumeration value="MELK"/>
+			<xs:enumeration value="FDSuche"/>
+			<xs:enumeration value="UpdateDatei"/>
+			<xs:enumeration value="Auftrag"/>
+			<xs:enumeration value="Allgemein"/>
+			<xs:enumeration value="GINSTERLieferung"/>
+			<xs:enumeration value="ZObELBestaetigung"/>
+			<xs:enumeration value="SteuernummernInfo"/>
+			<xs:enumeration value="SteuernummernSuche"/>
+			<xs:enumeration value="KapEStA"/>
+			<xs:enumeration value="KapEStInvStG"/>
+			<xs:enumeration value="Kontrollmitteilung"/>
+			<xs:enumeration value="KMAuftrag"/>
+			<xs:enumeration value="KMErgebnis"/>
+			<xs:enumeration value="Bilanz"/>
+			<xs:enumeration value="MAG"/>
+			<xs:enumeration value="MAGZ"/>
+			<xs:enumeration value="MAGD"/>
+			<xs:enumeration value="MAGA"/>
+			<xs:enumeration value="EUn"/>
+			<xs:enumeration value="PersG"/>
+			<xs:enumeration value="KapG"/>
+			<xs:enumeration value="ElsterFTDaten"/>
+			<xs:enumeration value="ElsterErklaerungDaten"/>
+			<xs:enumeration value="ElsterLohn2Daten"/>
+			<xs:enumeration value="BLZ"/>
+			<xs:enumeration value="DEICH"/>
+			<xs:enumeration value="ESSGS"/>
+			<xs:enumeration value="FEIGS"/>
+			<xs:enumeration value="GDA"/>
+			<xs:enumeration value="GELF"/>
+			<xs:enumeration value="GEWGI"/>
+			<xs:enumeration value="GEWGS"/>
+			<xs:enumeration value="GEWMB"/>
+			<xs:enumeration value="GEWTP"/>
+			<xs:enumeration value="GMB"/>
+			<xs:enumeration value="GMBAE"/>
+			<xs:enumeration value="GMBAS"/>
+			<xs:enumeration value="GMBV"/>
+			<xs:enumeration value="GRSTE"/>
+			<xs:enumeration value="GWPH1"/>
+			<xs:enumeration value="HHRE"/>
+			<xs:enumeration value="HWKD"/>
+			<xs:enumeration value="KATEW"/>
+			<xs:enumeration value="KBL"/>
+			<xs:enumeration value="KFZB"/>
+			<xs:enumeration value="KFZE"/>
+			<xs:enumeration value="KFZR"/>
+			<xs:enumeration value="KISTM"/>
+			<xs:enumeration value="KV"/>
+			<xs:enumeration value="RDAL"/>
+			<xs:enumeration value="SV"/>
+			<xs:enumeration value="TEST7"/>
+			<xs:enumeration value="WPMBR"/>
+			<xs:enumeration value="ESB"/>
+			<xs:enumeration value="USB"/>
+			<xs:enumeration value="AVZF"/>
+			<xs:enumeration value="AAZD"/>
+			<xs:enumeration value="AIFA"/>
+			<xs:enumeration value="ASPZ"/>
+			<xs:enumeration value="ASPZR"/>
+			<xs:enumeration value="AWST"/>
+			<xs:enumeration value="AWSTR"/>
+			<xs:enumeration value="BUKON"/>
+			<xs:enumeration value="BUKOR"/>
+			<xs:enumeration value="ESTGS"/>
+			<xs:enumeration value="ESTRM"/>
+			<xs:enumeration value="FSLOG"/>
+			<xs:enumeration value="GRIPR"/>
+			<xs:enumeration value="GRIRM"/>
+			<xs:enumeration value="IDAKT"/>
+			<xs:enumeration value="IDARM"/>
+			<xs:enumeration value="KOFL"/>
+			<xs:enumeration value="KPAD"/>
+			<xs:enumeration value="KPAF"/>
+			<xs:enumeration value="KPAP"/>
+			<xs:enumeration value="KPID"/>
+			<xs:enumeration value="KAPIF"/>
+			<xs:enumeration value="KAPIP"/>
+			<xs:enumeration value="KPKAU"/>
+			<xs:enumeration value="KPKRM"/>
+			<xs:enumeration value="KPZAD"/>
+			<xs:enumeration value="KSTGS"/>
+			<xs:enumeration value="MATIM"/>
+			<xs:enumeration value="MATMI"/>
+			<xs:enumeration value="MAVIM"/>
+			<xs:enumeration value="MAVMI"/>
+			<xs:enumeration value="POSLJ"/>
+			<xs:enumeration value="POSLM"/>
+			<xs:enumeration value="RFSB"/>
+			<xs:enumeration value="RIAIM"/>
+			<xs:enumeration value="RIAMI"/>
+			<xs:enumeration value="RITIM"/>
+			<xs:enumeration value="RITMI"/>
+			<xs:enumeration value="RME"/>
+			<xs:enumeration value="STE"/>
+			<xs:enumeration value="USTGS"/>
+			<xs:enumeration value="VFSPR"/>
+			<xs:enumeration value="VWDVG"/>
+			<xs:enumeration value="WPML"/>
+			<xs:enumeration value="WPMLR"/>
+			<xs:enumeration value="AVZFR"/>
+			<xs:enumeration value="ZMEWJ"/>
+			<xs:enumeration value="EAWRB"/>
+			<xs:enumeration value="ALB"/>
+			<xs:enumeration value="AVFG"/>
+			<xs:enumeration value="BBANK"/>
+			<xs:enumeration value="BUCH"/>
+			<xs:enumeration value="DAAL"/>
+			<xs:enumeration value="DFP1"/>
+			<xs:enumeration value="DSAP1"/>
+			<xs:enumeration value="EMAIL"/>
+			<xs:enumeration value="ESSRM"/>
+			<xs:enumeration value="F15K"/>
+			<xs:enumeration value="F15L"/>
+			<xs:enumeration value="FEINB"/>
+			<xs:enumeration value="FISCH"/>
+			<xs:enumeration value="FSADE"/>
+			<xs:enumeration value="FSADV"/>
+			<xs:enumeration value="GEWHN"/>
+			<xs:enumeration value="HWKR"/>
+			<xs:enumeration value="KFZD"/>
+			<xs:enumeration value="KFZDB"/>
+			<xs:enumeration value="KFZL"/>
+			<xs:enumeration value="KIWI"/>
+			<xs:enumeration value="KIWIT"/>
+			<xs:enumeration value="KOF"/>
+			<xs:enumeration value="KVABG"/>
+			<xs:enumeration value="NVB"/>
+			<xs:enumeration value="PUBKY"/>
+			<xs:enumeration value="SEPA"/>
+			<xs:enumeration value="TOT"/>
+			<xs:enumeration value="TEST"/>
+			<xs:enumeration value="VOBU"/>
+			<xs:enumeration value="VOEA"/>
+			<xs:enumeration value="VVAM"/>
+			<xs:enumeration value="WPMB"/>
+			<xs:enumeration value="VCSYN"/>
+			<xs:enumeration value="Einspruch"/>
+			<xs:enumeration value="50a"/>
+			<xs:enumeration value="Suchanfrage"/>
+			<xs:enumeration value="IDNrSuche"/>
+			<xs:enumeration value="IDNrInfo"/>
+			<xs:enumeration value="EMAK"/>
+			<xs:enumeration value="BUKRD"/>
+			<xs:enumeration value="BUKWZ"/>
+			<xs:enumeration value="ASPZF"/>
+			<xs:enumeration value="VOERS"/>
+			<xs:enumeration value="EMAKF"/>
+			<xs:enumeration value="VERS"/>
+			<xs:enumeration value="UVVGS"/>
+			<xs:enumeration value="UStBStat"/>
+			<xs:enumeration value="UStBStatRM"/>
+			<xs:enumeration value="UStVABStat"/>
+			<xs:enumeration value="UStVABStatRM"/>
+			<xs:enumeration value="EStGStat"/>
+			<xs:enumeration value="EStGStatRM"/>
+			<xs:enumeration value="EStBStat"/>
+			<xs:enumeration value="EStBStatRM"/>
+			<xs:enumeration value="PersGBStat"/>
+			<xs:enumeration value="PersGBStatRM"/>
+			<xs:enumeration value="GewStGStat"/>
+			<xs:enumeration value="GewStGStatRM"/>
+			<xs:enumeration value="GewStBStat"/>
+			<xs:enumeration value="GewStBStatRM"/>
+			<xs:enumeration value="KStGStat"/>
+			<xs:enumeration value="KStGStatRM"/>
+			<xs:enumeration value="KStBStat"/>
+			<xs:enumeration value="KStBStatRM"/>
+			<xs:enumeration value="ErbStBStat"/>
+			<xs:enumeration value="ErbStBStatRM"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- E -->
+	<xs:simpleType name="EingangsDatumSType">
+		<xs:union memberTypes="elsterheaderbasis:LeerSType elsterheaderbasis:DatumSType"/>
+	</xs:simpleType>
+	<!-- F -->
+	<!-- G -->
+	<!-- H -->
+	<!-- I -->
+	<!-- J -->
+	<!-- K -->
+	<xs:simpleType name="KompressionSType">
+		<xs:annotation>
+			<xs:documentation xml:lang="DE">Mit welcher Kompression wurden die Daten komprimiert.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="elsterheaderbasis:BaseStringSType">
+			<xs:enumeration value="GZIP"/>
+			<xs:enumeration value="none"/>
+			<xs:enumeration value="NO_BASE64"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- L -->
+	<xs:simpleType name="LeerSType">
+		<xs:annotation>
+			<xs:documentation xml:lang="DE">Für Tags die Grundsätzlich nicht geliefert werden dürfen - wird hilfsweise zugelassen diese leer zu liefern ! </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value=""/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- M -->
+	<!-- N -->
+	<!-- O -->
+	<!-- P -->
+	<!-- Q -->
+	<!-- R -->
+	<!-- S -->
+	<xs:complexType name="SigSType" mixed="true">
+		<xs:complexContent mixed="true">
+			<xs:restriction base="xs:anyType">
+				<xs:sequence>
+					<xs:any processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+				</xs:sequence>
+			</xs:restriction>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:simpleType name="SigPruefungSType">
+		<xs:restriction base="elsterheaderbasis:BaseStringSType">
+			<xs:pattern value="\d{14}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="SigInternSType">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	<!-- T -->
+	<xs:simpleType name="TestmerkerSType">
+		<xs:annotation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">Verfahrensunabhängig</xs:documentation>
+			<xs:documentation xml:lang="DE">--0               Echtfall</xs:documentation>
+			<xs:documentation xml:lang="DE">--000000000 Echtfall</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterLohn</xs:documentation>
+			<xs:documentation xml:lang="DE">--220002000 Protokollerzeugung und weiterleiten ins Bundesland</xs:documentation>
+			<xs:documentation xml:lang="DE">--220000000 nur Protokollerzeugung in der Clearingstelle</xs:documentation>
+			<xs:documentation xml:lang="DE">--400000010 - TEST ELAD ElsterLohn (nur für interne Zwecke der Finanzverwaltung) </xs:documentation>
+			<xs:documentation xml:lang="DE">--400000050 - TEST ELAD ElsterLohn (nur für interne Zwecke der Finanzverwaltung) </xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterKontoabfrage</xs:documentation>
+			<xs:documentation xml:lang="DE">--230000001 - Komplettest </xs:documentation>
+			<xs:documentation xml:lang="DE">--230000002 - Komplettest - mit Rollback</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterKMV</xs:documentation>
+			<xs:documentation xml:lang="DE">--240000000</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">für Portal</xs:documentation>
+			<xs:documentation xml:lang="DE">--700000002</xs:documentation>
+			<xs:documentation xml:lang="DE">--500000003</xs:documentation>
+			<xs:documentation xml:lang="DE">--500000004</xs:documentation>
+			<xs:documentation xml:lang="DE">--500000005</xs:documentation>
+			<xs:documentation xml:lang="DE">--500000006</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">für Elster Phase I Verfahren</xs:documentation>
+			<xs:documentation xml:lang="DE">--700000001</xs:documentation>
+			<xs:documentation xml:lang="DE">--700000004</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">für ElsterKapESt</xs:documentation>
+			<xs:documentation xml:lang="DE">--160000001</xs:documentation>
+			<xs:documentation xml:lang="DE">--160000002</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">für EMS / ERiClet</xs:documentation>
+			<xs:documentation xml:lang="DE">--010000001</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="elsterheaderbasis:BaseStringSType">
+			<xs:enumeration value="0"/>
+			<xs:enumeration value="000000000"/>
+			<xs:enumeration value="220002000"/>
+			<xs:enumeration value="220000000"/>
+			<xs:enumeration value="230000001"/>
+			<xs:enumeration value="230000002"/>
+			<xs:enumeration value="240000000"/>
+			<xs:enumeration value="300000001"/>
+			<xs:enumeration value="400000010"/>
+			<xs:enumeration value="400000050"/>
+			<xs:enumeration value="500000003"/>
+			<xs:enumeration value="500000004"/>
+			<xs:enumeration value="500000005"/>
+			<xs:enumeration value="500000006"/>
+			<xs:enumeration value="700000001"/>
+			<xs:enumeration value="700000002"/>
+			<xs:enumeration value="700000004"/>
+			<xs:enumeration value="160000001"/>
+			<xs:enumeration value="160000002"/>
+			<xs:enumeration value="010000001"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="TransportSchluesselSType">
+		<xs:annotation>
+			<xs:documentation xml:lang="DE">Öffentlicher Schlüssel des Clients</xs:documentation>
+			<xs:documentation xml:lang="DE">Für die Transportverschlüsselung vom Server zum Client ist der öffentlicher Schlüssel des Clients/Datenlieferers nötig, dieser muss beim Hinweg zum Server mitgeschickt werden</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	<!-- U -->
+	<!-- V -->
+	<xs:simpleType name="VerschluesselungSType">
+		<xs:annotation>
+			<xs:documentation xml:lang="DE">Mit welcher Verschlüsselungsart wurden die Daten verschlüsselt</xs:documentation>
+			<xs:documentation xml:lang="DE">Protokoll der Verschlüsselung. Es kann vorkommen, dass verschieden Verschlüsselungsarten eingesetzt werden, eine Unterscheidung ist hier nötig, um das richtige Entschlüsselungstool anzusteuern, Protokoll der Verschlüsselung</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="elsterheaderbasis:BaseStringSType">
+			<xs:enumeration value="PKCS#7v1.5"/>
+			<xs:enumeration value="PKCS#7v1.5enveloped"/>
+			<xs:enumeration value="NO_BASE64"/>
+			<xs:enumeration value="none"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="VerfahrenSType">
+		<xs:annotation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">DummyWorker</xs:documentation>
+			<xs:documentation xml:lang="DE">internes Verfahren der Finanzverwaltung</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterAnmeldung</xs:documentation>
+			<xs:documentation xml:lang="DE">Verfahern zur Übermittlung von Anmeldesteuern (Lohnsteueranmeldung und Umsatzsteuervoranmeldung</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterAuswertung</xs:documentation>
+			<xs:documentation xml:lang="DE">internes Verfahren der Finanzverwaltung</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterElfe</xs:documentation>
+			<xs:documentation xml:lang="DE">internes Verfahren der Finanzverwaltung</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterErklaerung</xs:documentation>
+			<xs:documentation xml:lang="DE">zur Übermittlung von Steuererklärungen z.B. Einkommensteuer, Umsatzsteuer (Jahreserklärung) und Gewerbesteuer</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterExtern</xs:documentation>
+			<xs:documentation xml:lang="DE">internes Verfahren der Finanzverwaltung</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterFT</xs:documentation>
+			<xs:documentation xml:lang="DE">für Daten die mittels ElsterFT übermittelt wurden</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterKontoabfrage</xs:documentation>
+			<xs:documentation xml:lang="DE">Steuerkontenabfrage insbes. für Steuerberater bzw. über Portal</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterLohn</xs:documentation>
+			<xs:documentation xml:lang="DE">Übermittlung von Lohnsteuerbescheinigungen bzw. Lohnersatzleistungen</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterPortal</xs:documentation>
+			<xs:documentation xml:lang="DE">internes Verfahren der Finanzverwaltung</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterSuch und ElsterSuchExtern</xs:documentation>
+			<xs:documentation xml:lang="DE">interne Verfahren der Finanzverwaltung</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterDatenabholung</xs:documentation>
+			<xs:documentation xml:lang="DE">Verfahren zum Abholen von Daten</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterKapESt</xs:documentation>
+			<xs:documentation xml:lang="DE">Verfahren Kapitalertragssteuer-Anmeldung</xs:documentation>
+			<xs:documentation xml:lang="DE">			---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterKMV</xs:documentation>
+			<xs:documentation xml:lang="DE">Verfahren für Kontrollmitteilung</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterBilanz</xs:documentation>
+			<xs:documentation xml:lang="DE">Verfahren für Bilanz</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterFSE</xs:documentation>
+			<xs:documentation xml:lang="DE">Verfahren für den Fragebogen zur steuerlichen Erfassung</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterMAG</xs:documentation>
+			<xs:documentation xml:lang="DE">maschinelle Abfrageverfahren Arbeitgeber (IDNr)</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterNachricht</xs:documentation>
+			<xs:documentation xml:lang="DE">unformatierte Nachrichten (Einspruch)</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterFT</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterLohn2</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterIDRecherche</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterZObEL</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterLKStoDVE</xs:documentation>
+			<xs:documentation xml:lang="DE">Statistik Datenlieferungen</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+			<xs:documentation xml:lang="DE">ElsterDVEtoLKS</xs:documentation>
+			<xs:documentation xml:lang="DE">Statistik Datenlieferungen</xs:documentation>
+			<xs:documentation xml:lang="DE">---------------------------------------------------------------------------------------------------------------------------</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="elsterheaderbasis:BaseStringSType">
+			<xs:enumeration value="DummyWorker"/>
+			<xs:enumeration value="ElsterAnmeldung"/>
+			<xs:enumeration value="ElsterAuswertung"/>
+			<xs:enumeration value="ElsterBilanz"/>
+			<xs:enumeration value="ElsterDatenabholung"/>
+			<xs:enumeration value="ElsterDatenbereitstellung"/>
+			<xs:enumeration value="ElsterDatenversand"/>
+			<xs:enumeration value="ElsterElfe"/>
+			<xs:enumeration value="ElsterErklaerung"/>
+			<xs:enumeration value="ElsterExtern"/>
+			<xs:enumeration value="ElsterFSE"/>
+			<xs:enumeration value="ElsterFT"/>
+			<xs:enumeration value="ElsterIDRecherche"/>
+			<xs:enumeration value="ElsterKapESt"/>
+			<xs:enumeration value="ElsterKMV"/>
+			<xs:enumeration value="ElsterKontoabfrage"/>
+			<xs:enumeration value="ElsterLohn"/>
+			<xs:enumeration value="ElsterLohn2"/>
+			<xs:enumeration value="ElsterMAG"/>
+			<xs:enumeration value="ElsterNachricht"/>
+			<xs:enumeration value="ElsterPortal"/>
+			<xs:enumeration value="ElsterSuch"/>
+			<xs:enumeration value="ElsterSuchExtern"/>
+			<xs:enumeration value="ElsterZANS"/>
+			<xs:enumeration value="ElsterZObEL"/>
+			<xs:enumeration value="ElsterDVEtoLKS"/>
+			<xs:enumeration value="ElsterLKStoDVE"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="VorgangSType">
+		<xs:annotation>
+			<xs:documentation>send-NoSig Datenlieferung wird unauthentifiziert übermittelt bei Online-Verfahren.</xs:documentation>
+			<xs:documentation>send-Auth Datenlieferung wird authentifiziert übermittelt bei Online-Verfahren. Signaturinformationen stehen im TransferHeader.</xs:documentation>
+			<xs:documentation>send-Sig (Altverfahren) Datenlieferung wird authentifiziert übermittelt bei Online-Verfahren. Signaturinformationen stehen im NutzdatenHeader.</xs:documentation>
+						<xs:documentation>send-NoSig-Offline Datenlieferung wird unauthentifiziert übermittelt bei Offline-Verfahren.</xs:documentation>
+			<xs:documentation>send-Auth-Offline Datenlieferung wird authentifiziert übermittelt bei Offline-Verfahren. Signaturinformationen stehen im TransferHeader</xs:documentation>
+			<xs:documentation>send-Sig-Offline (Altverfahren) Datenlieferung wird authentifiziert übermittelt bei Offline-Verfahren. Signaturinformationen stehen im NutzdatenHeader.</xs:documentation>
+			<xs:documentation>send-NoSig-Offline-Part Datenlieferung wird unauthentifiziert übermittelt bei Offline-Verfahren. Das -Part steht für partielle Annahme, wenn bei Sammellieferungen einzelne Lieferungen fehlerhaft sind, werden dennoch die fehlerfreien angenommen. </xs:documentation>
+			<xs:documentation>send-Auth-Offline-Part Datenlieferung wird authentifiziert übermittelt bei Offline-Verfahren. Signaturinformationen stehen im TransferHeader.  Das -Part steht für partielle Annahme, wenn bei Sammellieferungen einzelne Lieferungen fehlerhaft sind, werden dennoch die fehlerfreien angenommen.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="elsterheaderbasis:BaseStringSType">
+			<xs:enumeration value="get-Sig"/>
+			<xs:enumeration value="get-NoSig"/>
+			<xs:enumeration value="send-Auth"/>
+			<xs:enumeration value="send-Sig"/>
+			<xs:enumeration value="send-NoSig"/>
+			<xs:enumeration value="vis-NoSig"/>
+			<xs:enumeration value="send-Auth-Offline"/>
+			<xs:enumeration value="send-NoSig-Offline"/>
+			<xs:enumeration value="send-Sig-Offline"/>
+			<xs:enumeration value="send-Auth-Offline-Part"/>
+			<xs:enumeration value="send-NoSig-Offline-Part"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="VersionClientSType">
+		<xs:annotation>
+			<xs:documentation xml:lang="DE">Wenn bei einer Verschlüsselungssoftware eine neuere Version eingesetzt wird, ist es u.U. wichtig, ob die erhaltenen Daten schon mit der neuen oder noch mit der alten Verschlüsselung verschlüsselt wurden, um die Daten entschlüsseln zu können.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="elsterheaderbasis:BaseStringSType">
+			<xs:maxLength value="42"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="EmpfaengerSType">
+		<xs:annotation>
+			<xs:documentation xml:lang="DE">Bundeslandkürzel oder Finanzamtsnummer</xs:documentation>
+		</xs:annotation>
+		<xs:union memberTypes="elsterheaderbasis:BundeslandSType elsterheaderbasis:BUFANrSType"/>
+	</xs:simpleType>
+	<xs:simpleType name="EmpfaengerIDSType">
+		<xs:annotation>
+			<xs:documentation xml:lang="DE">
+							Attribut, ob Länderschlüssel oder BundesFinanzamtsnummer
+							L= Länderschlüssel (z.B. bei LStB.)
+							F= BundesFinanzamtsnummer (z.B. bei ESt)
+						</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="elsterheaderbasis:BaseStringSType">
+			<xs:length value="1"/>
+			<xs:enumeration value="L"/>
+			<xs:enumeration value="F"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!--	Z -->
+	<!-- Definierung globaler complex Types __________________________________________________ -->
+	<!-- nur noch in den einzelnen Schemata zu den Fachverfahren -->
+</xs:schema>
