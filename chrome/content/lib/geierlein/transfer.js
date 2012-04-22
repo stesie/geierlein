@@ -39,8 +39,8 @@ if(typeof(window) !== 'undefined') {
 // define node.js module
 else if(typeof(module) !== 'undefined' && module.exports) {
     module.exports = function(encData, callback) {
-    	var http = require('http');
-    	var ipaddr = getRandomIpAddress();
+        var http = require('http');
+        var ipaddr = getRandomIpAddress();
 		var post_options = {
 		    host: ipaddr,
 		    port: '80',

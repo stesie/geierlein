@@ -261,12 +261,12 @@ geierlein.util.extend(geierlein.UStVA.prototype, {
 
         if(this.land == 1) {
             /* Special concatenation rule for Baden Württemberg */
-            return '28' + pieces[0].substr(0, 2) + '0'
-                + pieces[0].substr(2) + pieces[1];
+            return '28' + pieces[0].substr(0, 2) + '0' +
+                pieces[0].substr(2) + pieces[1];
         } else {
-            return prefix + pieces[0].substr(-4 + prefix.length)
-                + "0" + pieces[1] + pieces[2]
-                + (pieces.length == 4 ? pieces[3] : '');
+            return prefix + pieces[0].substr(-4 + prefix.length) +
+                "0" + pieces[1] + pieces[2] +
+                (pieces.length == 4 ? pieces[3] : '');
         }
     },
 
@@ -279,9 +279,9 @@ geierlein.util.extend(geierlein.UStVA.prototype, {
         var datenteil = new geierlein.util.Xml();
         var stnr = this.getFormattedTaxNumber();
         var d = new Date();
-        var erstellDatum = d.getFullYear()
-            + ('0' + (d.getMonth() + 1)).substr(-2)
-            + ('0' + d.getDate()).substr(-2);
+        var erstellDatum = d.getFullYear() +
+            ('0' + (d.getMonth() + 1)).substr(-2) +
+            ('0' + d.getDate()).substr(-2);
 
         datenteil.writeStartDocument();
         datenteil.writeStartElement('Nutzdatenblock');
