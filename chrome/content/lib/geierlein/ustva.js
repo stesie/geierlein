@@ -86,6 +86,10 @@ function ruleRange(min, max) {
     };
 }
 
+function ruleOption(val) {
+    return val === undefined || parseInt(val, 10) === 1;
+}
+
 function ruleSignedInt(val) {
     return val === undefined || parseInt(val, 10) === +val;
 }
@@ -96,6 +100,22 @@ function ruleUnsignedInt(val) {
 
 function ruleSignedMonetary(val) {
     return val === undefined || (+val == parseFloat(val).toFixed(2));
+}
+
+function ruleUnsignedMonetary(val) {
+    return val === undefined || (+val >= 0 && +val == parseFloat(val).toFixed(2));
+}
+
+function ruleLessThan(otherKz) {
+    return function(val) {
+        if(val === undefined) {
+            return true;
+        }
+        if(this[otherKz] === undefined) {
+            return false;
+        }
+        return parseFloat(val) < parseFloat(this[otherKz]);
+    };
 }
 
 var validationRules = {
@@ -118,13 +138,55 @@ var validationRules = {
 
     steuernummer: [],
 
-    kz81: [ruleSignedInt],
-    kz86: [ruleSignedInt],
-
+    kz10: [ruleOption],
+    kz21: [ruleSignedInt],
+    kz22: [ruleOption],
+    kz26: [ruleOption],
+    kz29: [ruleOption],
+    kz35: [ruleSignedInt],
+    kz36: [ruleSignedMonetary, ruleLessThan('kz35')],
+    kz39: [ruleUnsignedMonetary],
+    kz41: [ruleSignedInt],
+    kz42: [ruleSignedInt],
+    kz43: [ruleSignedInt],
+    kz44: [ruleSignedInt],
+    kz45: [ruleSignedInt],
+    kz46: [ruleSignedInt],
+    kz47: [ruleSignedMonetary, ruleLessThan('kz46')],
+    kz48: [ruleSignedInt],
+    kz49: [ruleSignedInt],
+    kz52: [ruleSignedInt],
+    kz53: [ruleSignedMonetary, ruleLessThan('kz52')],
+    kz59: [ruleSignedMonetary],
+    kz60: [ruleSignedInt],
+    kz61: [ruleSignedMonetary],
+    kz62: [ruleSignedMonetary],
+    kz63: [ruleSignedMonetary],
+    kz64: [ruleSignedMonetary],
+    kz65: [ruleSignedMonetary],
     kz66: [ruleSignedMonetary],
-
-    kz39: [ruleUnsignedInt],
-    kz83: [ruleRequired, ruleSignedMonetary]
+    kz67: [ruleSignedMonetary],
+    kz68: [ruleSignedInt],
+    kz69: [ruleSignedMonetary],
+    kz73: [ruleSignedInt],
+    kz74: [ruleSignedMonetary, ruleLessThan('kz73')],
+    kz76: [ruleSignedInt],
+    kz77: [ruleSignedInt],
+    kz78: [ruleSignedInt],
+    kz79: [ruleSignedMonetary, ruleLessThan('kz78')],
+    kz80: [ruleSignedMonetary, ruleLessThan('kz76')],
+    kz81: [ruleSignedInt],
+    kz83: [ruleRequired, ruleSignedMonetary],
+    kz84: [ruleSignedInt],
+    kz85: [ruleSignedMonetary, ruleLessThan('kz84')],
+    kz86: [ruleSignedInt],
+    kz89: [ruleSignedInt],
+    kz91: [ruleSignedInt],
+    kz93: [ruleSignedInt],
+    kz94: [ruleSignedInt],
+    kz95: [ruleSignedInt],
+    kz96: [ruleSignedMonetary, ruleLessThan('kz94')],
+    kz98: [ruleSignedMonetary, ruleLessThan('kz95')]
 };
 
 function writeOption(val) {
@@ -216,7 +278,7 @@ geierlein.util.extend(geierlein.UStVA.prototype, {
             if(ruleset.hasOwnProperty(fieldName)) {
                 var rule = ruleset[fieldName];
                 for(var i = 0, max = rule.length; i < max; i ++) {
-                    if(!rule[i](this[fieldName])) {
+                    if(!rule[i].call(this, this[fieldName])) {
                         errors.push(fieldName);
                     }
                 }
