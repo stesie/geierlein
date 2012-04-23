@@ -33,11 +33,19 @@ function getRandomIpAddress() {
 	return ipAddrs[i];
 }
 
+var geierlein = {};
+
 if(typeof(window) !== 'undefined') {
 	// @todo
 }
 // define node.js module
 else if(typeof(module) !== 'undefined' && module.exports) {
+    geierlein = {
+        util: require('./util.js')
+    };
+
+    var Iconv = require('iconv').Iconv;
+
     module.exports = function(encData, callback) {
         var http = require('http');
         var ipaddr = getRandomIpAddress();
@@ -58,13 +66,21 @@ else if(typeof(module) !== 'undefined' && module.exports) {
 				return;
 			}
 
-			var resData = '';
-			res.setEncoding('utf8');
+			var buf = new Buffer(parseInt(res.headers['content-length'], 10));
+			var ptr = 0;
+
+            /* Receive chunks and add them to the Buffer object. */
 			res.on('data', function(chunk) {
-				resData += chunk;
+			    chunk.copy(buf, ptr);
+			    ptr += chunk.length;
 			});
+
+            /* Convert buffer from ISO8859-1 to UTF-8 to conveniently
+               handle it in Node.js. */
 			res.on('end', function() {
-				callback(resData);
+			    var iconv = new Iconv('ISO8859-1', 'UTF-8');
+			    var resData = iconv.convert(buf).toString('utf8');
+				callback(geierlein.util.rewriteEncoding(resData, 'UTF-8'));
 			});
 		});
 

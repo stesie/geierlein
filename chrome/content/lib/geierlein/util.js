@@ -66,6 +66,13 @@ geierlein.util.parseFile = function(data) {
     return result;
 };
 
+geierlein.util.rewriteEncoding = function(xmlstr, newEncoding) {
+    var doc = xmlstr.split(/(<\?.*?\?>)/);
+    doc[1] = doc[1].replace(/encoding=['"][^'"]+['"]/,
+        'encoding="' + newEncoding +'"');
+    return doc.join('');
+};
+
 
 geierlein.util.addStylesheetHref = function(xmlstr, xslHref) {
     var doc = xmlstr.split(/(<\?.*?\?>)/);
