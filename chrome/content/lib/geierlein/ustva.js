@@ -118,6 +118,30 @@ function ruleLessThan(otherKz) {
     };
 }
 
+function ruleTaxNumber(val) {
+    if(val === undefined) {
+        return true;
+    }
+    if(this.land === undefined) {
+        return false;
+    }
+
+    var rule = taxNumberRules[this.land - 1];
+    var pieces = val.split(/[\/ ]/);
+
+    if(pieces.length !== rule.length) {
+        return false;   // wrong number of pieces
+    }
+
+    for(var i = 0; i < pieces.length; i ++) {
+        if(pieces[i].length !== rule[i]) {
+            return false;   // length mismatch
+        }
+    }
+
+    return true;
+}
+
 var validationRules = {
     land: [
         ruleRequired,
@@ -136,7 +160,7 @@ var validationRules = {
         }
     ],
 
-    steuernummer: [],
+    steuernummer: [ruleRequired, ruleTaxNumber],
 
     kz10: [ruleOption],
     kz21: [ruleSignedInt],
