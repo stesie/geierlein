@@ -65,4 +65,12 @@
             $('#steuernummer').attr('placeholder', ustva.getTaxNumberSample());
         }
     });
+
+    $('#send-testcase').on('click', function(ev) {
+        ustva.toEncryptedXml(true, geierlein.transfer, function(res) {
+            alert(res);
+        });
+
+        return false;
+    });
 }(jQuery, geierlein));

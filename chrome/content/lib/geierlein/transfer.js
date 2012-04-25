@@ -36,7 +36,26 @@ function getRandomIpAddress() {
 var geierlein = {};
 
 if(typeof(window) !== 'undefined') {
-	// @todo
+    geierlein = window.geierlein = window.geierlein || {};
+
+	geierlein.transfer = function(encData, callback) {
+	    var targetUrl = 'http://' + getRandomIpAddress() +
+            '/Elster2/EMS/ElsterAnmeldung';
+        $.ajax(targetUrl, {
+            type: 'POST',
+            data: encData,
+            dataType: 'text',   // jQuery should not process the result itself
+            contentType: 'text/xml',
+            error: function(xhr, status, err) {
+                callback(false);
+            },
+            success: function(data, status, xhr) {
+                /* Rewrite encoding from ISO8859-1 (as specified in the XML)
+                   to UTF-8, since the XHR already converted it for us. */
+                callback(geierlein.util.rewriteEncoding(data, 'UTF-8'));
+            }
+        });
+    };
 }
 // define node.js module
 else if(typeof(module) !== 'undefined' && module.exports) {
