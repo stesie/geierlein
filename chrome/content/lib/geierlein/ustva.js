@@ -218,19 +218,19 @@ function writeOption(val) {
 }
 
 function writeOptionalInt(val) {
-    return val === undefined ? false : val.toString();
+    return val === undefined ? false : (+val).toString();
 }
 
 function writeOptionalUnsignedMonetary(val) {
-    return val === undefined ? false : val.toFixed(2);
+    return val === undefined ? false : (+val).toFixed(2);
 }
 
 function writeOptionalSignedMonetary(val) {
-    return val === undefined ? false : val.toFixed(2);
+    return val === undefined ? false : (+val).toFixed(2);
 }
 
 function writeMonetary(val) {
-    return val.toFixed(2);
+    return (+val).toFixed(2);
 }
 
 var xmlWritingRules = {

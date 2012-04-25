@@ -42,6 +42,8 @@ else if(typeof(module) !== 'undefined' && module.exports) {
     forge = require('../forge/js/forge.js');
 }
 
+var crypto = geierlein.crypto = geierlein.crypto || {};
+
 var elsterPem = '-----BEGIN CERTIFICATE-----\n' +
                 'MIIDKjCCAhICAQAwDQYJKoZIhvcNAQEEBQAwWTELMAkGA1UEBhMCREUxDzANBgNV\n' +
                 'BAoTBkVMU1RFUjEMMAoGA1UECxMDRUJBMQ8wDQYDVQQDEwZDb2RpbmcxGjAYBgNV\n' +
@@ -63,7 +65,7 @@ var elsterPem = '-----BEGIN CERTIFICATE-----\n' +
                 '-----END CERTIFICATE-----',
     elsterCert = forge.pki.certificateFromPem(elsterPem);
 
-geierlein.crypto.encryptBlock = function(data, key) {
+crypto.encryptBlock = function(data, key) {
     // gzip data
     var out = gzipjs.zip(data, { level: 9 });
     out = gzipjs.charArrayToString(out);
@@ -80,7 +82,7 @@ geierlein.crypto.encryptBlock = function(data, key) {
     return forge.util.encode64(out.getBytes(), 0);
 };
 
-geierlein.crypto.decryptDocument = function(data, key) {
+crypto.decryptDocument = function(data, key) {
     function decryptBlock(regex) {
         var pieces = data.split(regex);
         if(pieces.length !== 5) {
@@ -117,7 +119,7 @@ geierlein.crypto.decryptDocument = function(data, key) {
     return data;
 };
 
-geierlein.crypto.generateKey = function() {
+crypto.generateKey = function() {
     return forge.util.createBuffer(forge.random.getBytes(24));
 };
 
