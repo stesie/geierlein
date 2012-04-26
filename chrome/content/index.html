@@ -32,14 +32,14 @@
                         <input type="text" id="name" class="span4 datenlieferant"/>
                     </div>
                 </div>
-                
+
                 <div class="control-group">
                     <label class="control-label" for="strasse">Straße</label>
                     <div class="span4">
                         <input type="text" id="strasse" class="span4 datenlieferant"/>
                     </div>
                 </div>
-                
+
                 <div class="control-group">
                     <label class="control-label" for="plz">PLZ/Ort</label>
                     <div class="span1">
@@ -49,7 +49,7 @@
                         <input type="text" id="ort" class="span3 datenlieferant"/>
                     </div>
                 </div>
-                
+
                 <div class="control-group">
                     <label class="control-label" for="land">Bundesland</label>
                     <div class="span4">
@@ -143,11 +143,63 @@
                     </div>
                 </div>
             </fieldset>
-            
+
+            <h2>Lieferungen und sonstige Leistungen ...</h2>
+
+            <h3>Steuerfreie Umsätze mit Vorsteuerabzug ...</h3>
+
             <fieldset>
-                <legend>Steuerpflichtige Umsätze</legend>
+                <legend>Innergemeinschaftliche Lieferungen ...</legend>
                 <div class="control-group">
-                    <label class="control-label" for="Kz81">19%</label>
+                    <label class="control-label" for="Kz41">Abnehmer <b>mit</b> USt-ID</label>
+                    <div class="span2 input-append">
+                            <input type="text" id="Kz41" class="span2 ustva"/><span class="add-on">,00</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label" for="Kz44">neuer Fahrzeuge an Abnehmer <b>ohne</b> USt-IDNr.</label>
+                    <div class="span2 input-append">
+                            <input type="text" id="Kz44" class="span2 ustva"/><span class="add-on">,00</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label" for="Kz49">neuer Fahrzeuge außerhalb eines Unternehmens</label>
+                    <div class="span2 input-append">
+                            <input type="text" id="Kz49" class="span2 ustva"/><span class="add-on">,00</span>
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Weitere steuerfreie Umsätze mit Vorsteuerabzug ...</legend>
+                <div class="control-group">
+                    <label class="control-label" for="Kz43"><b>Ausfuhrlieferungen</b>, Umsätze § 4 Nr. 2 bis 7 UStG</label>
+                    <div class="span2 input-append">
+                            <input type="text" id="Kz43" class="span2 ustva"/><span class="add-on">,00</span>
+                    </div>
+                </div>
+            </fieldset>
+
+            <h3>Steuerfreie Umsätze ohne Vorsteuerabzug ...</h3>
+
+            <fieldset>
+                <div class="control-group">
+                    <label class="control-label" for="Kz48">Umsätze nach § 4 Nr. 8 bis 28 UStG</label>
+                    <div class="span2 input-append">
+                            <input type="text" id="Kz48" class="span2 ustva"/><span class="add-on">,00</span>
+                    </div>
+                </div>
+            </fieldset>
+
+
+
+            <h2>Steuerpflichtige Umsätze ...</h2>
+
+            <fieldset>
+                <div class="control-group">
+                    <label class="control-label" for="Kz81">zum Steuersatz von 19%</label>
                     <div class="span2 input-append">
                             <input type="text" id="Kz81" class="span2 ustva"/><span class="add-on">,00</span>
                     </div>
@@ -159,7 +211,7 @@
                 </div>
 
                 <div class="control-group">
-                    <label class="control-label" for="Kz86">7%</label>
+                    <label class="control-label" for="Kz86">zum Steuersatz von 7%</label>
                     <div class="span2 input-append">
                             <input type="text" id="Kz86" class="span2 ustva"/><span class="add-on">,00</span>
                     </div>
@@ -180,30 +232,281 @@
                     </div>
                 </div>
             </fieldset>
-            
+
+            <h3>Umsätze Land-/Forstwirtschaft (§ 24 UStG)</h3>
+
             <fieldset>
                 <div class="control-group">
-                    <label class="control-label" for="ust">
+                    <label class="control-label" for="Kz77">Lief. übriges Gemeinschaftsgeb., an Abnehmer <b>mit</b> USt-IdNr.</label>
+                    <div class="span2 input-append">
+                            <input type="text" id="Kz77" class="span2 ustva"/><span class="add-on">,00</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label" for="Kz76">Umsätze, Steuer nach § 24 UStG</label>
+                    <div class="span2 input-append">
+                            <input type="text" id="Kz76" class="span2 ustva"/><span class="add-on">,00</span>
+                    </div>
+                    <div class="span2">
+                        <input type="text" id="Kz80" class="span2 ustva"/>
+                    </div>
+                </div>
+            </fieldset>
+
+            <h2>Innergemeinschaftliche Erwerbe...</h2>
+
+            <h3>Steuerfreie innergemeinschaftliche Erwerbe ...</h3>
+
+            <fieldset>
+                <div class="control-group">
+                    <label class="control-label" for="Kz91">steuerfrei, §§ 4b und 25c UStG</label>
+                    <div class="span2 input-append">
+                            <input type="text" id="Kz91" class="span2 ustva"/><span class="add-on">,00</span>
+                    </div>
+                </div>
+            </fieldset>
+
+            <h3>Steuerpflichtige innergemeinschaftliche Erwerbe ...</h3>
+
+            <fieldset>
+                <div class="control-group">
+                    <label class="control-label" for="Kz89">zum Steuersatz von 19%</label>
+                    <div class="span2 input-append">
+                            <input type="text" id="Kz89" class="span2 ustva"/><span class="add-on">,00</span>
+                    </div>
+                    <div class="span2">
+                        <input type="text" id="Kz89-calc" class="span2 multiply"
+                            data-multiply-field="Kz89" data-multiplicand="0.19"
+                            disabled/>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label" for="Kz93">zum Steuersatz von 7%</label>
+                    <div class="span2 input-append">
+                            <input type="text" id="Kz93" class="span2 ustva"/><span class="add-on">,00</span>
+                    </div>
+                    <div class="span2">
+                        <input type="text" id="Kz93-calc" class="span2 multiply"
+                            data-multiply-field="Kz93" data-multiplicand="0.07"
+                            disabled/>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label" for="Kz95">andere Steuersätze</label>
+                    <div class="span2 input-append">
+                            <input type="text" id="Kz95" class="span2 ustva"/><span class="add-on">,00</span>
+                    </div>
+                    <div class="span2">
+                        <input type="text" id="Kz98" class="span2 ustva"/>
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>neuer Fahrzeuge ...</legend>
+                <div class="control-group">
+                    <label class="control-label" for="Kz94">von Lieferern <b>ohne</b> USt-IdNr. zum allgemeinen Steuersatz</label>
+                    <div class="span2 input-append">
+                            <input type="text" id="Kz94" class="span2 ustva"/><span class="add-on">,00</span>
+                    </div>
+                    <div class="span2">
+                        <input type="text" id="Kz96" class="span2 ustva"/>
+                    </div>
+                </div>
+            </fieldset>
+
+            <h2>Ergänzende Angaben zu Umsätzen ...</h2>
+
+            <fieldset>
+                <div class="control-group">
+                    <label class="control-label" for="Kz42">Lief. des 1. Abnehmers bei <b>innergem. Dreiecksgesch.</b></label>
+                    <div class="span2 input-append">
+                            <input type="text" id="Kz42" class="span2 ustva"/><span class="add-on">,00</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label" for="Kz68">Steuerpflichtige Umsätze nach § 13b Abs. 5 i.V.m. Abs. 2 Nr. 10 UStG</label>
+                    <div class="span2 input-append">
+                            <input type="text" id="Kz68" class="span2 ustva"/><span class="add-on">,00</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label" for="Kz60">Übrige steuerpflichtige Umsätze nach § 13b UStG</label>
+                    <div class="span2 input-append">
+                            <input type="text" id="Kz60" class="span2 ustva"/><span class="add-on">,00</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label" for="Kz21">Nicht steuerbare sonstige Leistungen gem. § 18b Satz 1 Nr. 2 UStG</label>
+                    <div class="span2 input-append">
+                            <input type="text" id="Kz21" class="span2 ustva"/><span class="add-on">,00</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label" for="Kz45"><b>Übrige nicht steuerbare Umsätze</b> (Leistungsort nicht Inland)</label>
+                    <div class="span2 input-append">
+                            <input type="text" id="Kz45" class="span2 ustva"/><span class="add-on">,00</span>
+                    </div>
+                </div>
+            </fieldset>
+
+            <h2>Umsätze § 13b Abs. 2 UStG ...</h2>
+
+            <fieldset>
+                <div class="control-group">
+                    <label class="control-label" for="Kz46">Leistungen von Unternehmern im übrigen Gemeinschaftsgebiet</label>
+                    <div class="span2 input-append">
+                            <input type="text" id="Kz46" class="span2 ustva"/><span class="add-on">,00</span>
+                    </div>
+                    <div class="span2">
+                        <input type="text" id="Kz47" class="span2 ustva"/>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label" for="Kz52">andere Leistungen eines im Ausland ansässigen Unternehmers</label>
+                    <div class="span2 input-append">
+                            <input type="text" id="Kz52" class="span2 ustva"/><span class="add-on">,00</span>
+                    </div>
+                    <div class="span2">
+                        <input type="text" id="Kz53" class="span2 ustva"/>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label" for="Kz73">Lief. sichergsübereig. Gegenst., Umsätze unter GrEStG fallend</label>
+                    <div class="span2 input-append">
+                            <input type="text" id="Kz73" class="span2 ustva"/><span class="add-on">,00</span>
+                    </div>
+                    <div class="span2">
+                        <input type="text" id="Kz74" class="span2 ustva"/>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label" for="Kz78">Lief. von Mobilfunkgeräten und integrierten Schaltkreisen</label>
+                    <div class="span2 input-append">
+                            <input type="text" id="Kz78" class="span2 ustva"/><span class="add-on">,00</span>
+                    </div>
+                    <div class="span2">
+                        <input type="text" id="Kz79" class="span2 ustva"/>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label" for="Kz84">Bauleistungen eines Unternehmers im Inland</label>
+                    <div class="span2 input-append">
+                            <input type="text" id="Kz84" class="span2 ustva"/><span class="add-on">,00</span>
+                    </div>
+                    <div class="span2">
+                        <input type="text" id="Kz85" class="span2 ustva"/>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label span4" for="Kz65">Steuer infolge Wechsels der Besteuerungsform sowie Nachsteuer auf versteuerte Anzahlungen</label>
+                    <div class="span2">
+                        <input type="text" id="Kz65" class="span2 ustva"/>
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <div class="control-group">
+                    <label class="control-label span4" for="ust">
                         <strong>Umsatzsteuer ...</strong>
                     </label>
-                    <div class="span2 offset2">
+                    <div class="span2">
                             <input type="text" id="ust" class="span2 totalize"
                                 data-totalize-fields="Kz81-calc Kz86-calc Kz36"
                                 disabled/>
                     </div>
                 </div>
             </fieldset>
-            
+
+            <h2>Abziehbare Vorsteuerbeträge</h2>
+
             <fieldset>
-                <legend>Abziehbare Vorsteuerbeträge</legend>
                 <div class="control-group">
                     <label class="control-label span4" for="Kz66">aus Rechnungen anderer Unternehmer</label>
                     <div class="span2">
                         <input type="text" id="Kz66" class="span2 ustva"/>
                     </div>
                 </div>
+
+                <div class="control-group">
+                    <label class="control-label span4" for="Kz61">Vorsteuerbeträge aus innergem. Erwerb</label>
+                    <div class="span2">
+                        <input type="text" id="Kz61" class="span2 ustva"/>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label span4" for="Kz62">Einfuhrumsatzsteuer</label>
+                    <div class="span2">
+                        <input type="text" id="Kz62" class="span2 ustva"/>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label span4" for="Kz67">Vorsteuer aus Leistungen im Sinne des § 13b UStG</label>
+                    <div class="span2">
+                        <input type="text" id="Kz67" class="span2 ustva"/>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label span4" for="Kz63">Vorsteuer, nach allgemeinenen Durchschnittsätzen</label>
+                    <div class="span2">
+                        <input type="text" id="Kz63" class="span2 ustva"/>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label span4" for="Kz64">Berichtigung des Vorsteuerabzugs (§ 15a UStG)</label>
+                    <div class="span2">
+                        <input type="text" id="Kz64" class="span2 ustva"/>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label span4" for="Kz59">Vorsteuerabzug für innergem. Lieferungen neuer Fahrzeuge</label>
+                    <div class="span2">
+                        <input type="text" id="Kz59" class="span2 ustva"/>
+                    </div>
+                </div>
             </fieldset>
-            
+
+
+            <fieldset>
+                <div class="control-group">
+                    <label class="control-label span4" for="ust-vost">
+                        <strong>Verbleibender Betrag ...</strong>
+                    </label>
+                    <div class="span2">
+                            <input type="text" id="ust-vost" class="span2 totalize"
+                                data-totalize-fields="Kz81-calc Kz86-calc Kz36"
+                                disabled/>
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <div class="control-group">
+                    <label class="control-label span4" for="Kz69">Diverse Sonstige (Kz69)</label>
+                    <div class="span2">
+                        <input type="text" id="Kz69" class="span2 ustva"/>
+                    </div>
+                </div>
+            </fieldset>
+
             <fieldset>
                 <div class="control-group">
                     <label class="control-label span4" for="traglast">
@@ -257,14 +560,14 @@
         <div class="modal-body">
             <p>Geierlein ist ein in HTML5 und JavaScript entwickelter
 				Elster-Client.</p>
-				
-            <p>Geierlein ist freie Software.  Du kannst es unter den 
+
+            <p>Geierlein ist freie Software.  Du kannst es unter den
                 Bedingungen der GNU Affero General Public License, wie von der
                 Free Software Foundation veröffentlicht, weitergeben und/oder
-                modifizieren, entweder gemäß Version 3 der Lizenz oder 
+                modifizieren, entweder gemäß Version 3 der Lizenz oder
                 (nach deiner Option) jeder späteren Version.</p>
-                
-            <p>Copyright &copy; 2012 Stefan Siegl</p> 
+
+            <p>Copyright &copy; 2012 Stefan Siegl</p>
 		</div>
 		<div class="modal-footer">
 		    <a href="#" class="btn btn-primary" data-dismiss="modal">Schließen</a>
