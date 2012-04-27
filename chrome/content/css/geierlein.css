@@ -3,23 +3,52 @@ body.native {
     padding-top: 60px;
 }
 
-body.xulapp #nav {
-    display: none;
-}
-
+body.xulapp #nav,
 body.native .hide-native {
     display: none;
 }
 
+/* Use fixed size for .add-on, to make sure it fits into a div.span2
+   together with a input.span2. */
 .input-append .add-on {
     width: 20px;
     min-width: 20px;
 }
-
 .input-append input.span2 {
     width: 99px;
 }
 
-.form-horizontal .control-label.span4 {
+/* Redefine width of .control-label to match a span4,
+  define .control-label.span6 to match a span6. */
+.form-horizontal .control-label {
     width: 280px;
+}
+.form-horizontal .control-label.span6 {
+    width: 420px;
+}
+
+
+h2 + div.control-group, h3 + div.control-group, h4 + div.control-group {
+    border-top: 1px solid #eee;
+    padding-top: 23px;
+}
+
+h2 {
+    margin-top: 40px;
+}
+
+h3 {
+    margin-top: 30px;
+}
+
+h2 + h3 {
+    margin-top: 10px;
+}
+
+h4 {
+    margin-top: 20px;
+}
+
+h3 + h4 {
+    margin-top: 10px;
 }
