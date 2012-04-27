@@ -66,6 +66,14 @@
         }
     });
 
+    $('#schnell').on('click', function(ev) {
+        if($('#schnell').prop('checked')) {
+            $('.schnell').hide('slow');
+        } else {
+            $('.schnell').show('slow');
+        }
+    });
+
     $('#send-testcase').on('click', function(ev) {
         ustva.toEncryptedXml(true, geierlein.transfer, function(res) {
             alert(res);

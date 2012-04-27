@@ -143,8 +143,45 @@
                     </div>
                 </div>
             </fieldset>
-
+            
             <fieldset>
+                <div class="control-group">
+                    <label class="control-label" for="schnell">Schnellerfassung</label>
+                    <div class="span1">
+                        <input type="checkbox" id="schnell" checked="checked"/>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label" for="Kz10">Berichtigte Anmeldung</label>
+                    <div class="span1">
+                        <input type="checkbox" id="Kz10" class="ustva" value="1"/>
+                    </div>
+                </div>
+
+                <div class="control-group schnell">
+                    <label class="control-label" for="Kz22">Belege werden eingereicht</label>
+                    <div class="span1">
+                        <input type="checkbox" id="Kz22" class="ustva" value="1"/>
+                    </div>
+                </div>
+
+                <div class="control-group schnell">
+                    <label class="control-label" for="Kz29">Verrechnung erwünscht</label>
+                    <div class="span1">
+                        <input type="checkbox" id="Kz29" class="ustva" value="1"/>
+                    </div>
+                </div>
+
+                <div class="control-group schnell">
+                    <label class="control-label" for="Kz26">Widerruf Einzugsermächtigung</label>
+                    <div class="span1">
+                        <input type="checkbox" id="Kz26" class="ustva" value="1"/>
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset class="schnell">
                 <h4>Innergemeinschaftliche Lieferungen ...</h4>
                 <div class="control-group">
                     <label class="control-label" for="Kz41">Abnehmer <b>mit</b> USt-ID</label>
@@ -168,7 +205,7 @@
                 </div>
             </fieldset>
 
-            <fieldset>
+            <fieldset class="schnell">
                 <h4>Weitere steuerfreie Umsätze mit Vorsteuerabzug ...</h4>
                 <div class="control-group">
                     <label class="control-label" for="Kz43"><b>Ausfuhrlieferungen</b>, Umsätze § 4 Nr. 2 bis 7 UStG</label>
@@ -178,7 +215,7 @@
                 </div>
             </fieldset>
 
-            <fieldset>
+            <fieldset class="schnell">
                 <h3>Steuerfreie Umsätze ohne Vorsteuerabzug ...</h3>
 
                 <div class="control-group">
@@ -218,7 +255,7 @@
                     </div>
                 </div>
 
-                <div class="control-group">
+                <div class="control-group schnell">
                     <label class="control-label" for="Kz35">andere Steuersätze</label>
                     <div class="span2 input-append">
                             <input type="text" id="Kz35" class="span2 ustva"/><span class="add-on">,00</span>
@@ -229,7 +266,7 @@
                 </div>
             </fieldset>
 
-            <fieldset>
+            <fieldset class="schnell">
                 <h3>Umsätze Land-/Forstwirtschaft (§ 24 UStG)</h3>
 
                 <div class="control-group">
@@ -253,9 +290,9 @@
             <fieldset>
 	            <h2>Innergemeinschaftliche Erwerbe...</h2>
 	
-	            <h3>Steuerfreie innergemeinschaftliche Erwerbe ...</h3>
+	            <h3 class="schnell">Steuerfreie innergemeinschaftliche Erwerbe ...</h3>
 	
-                <div class="control-group">
+                <div class="control-group schnell">
                     <label class="control-label" for="Kz91">steuerfrei, §§ 4b und 25c UStG</label>
                     <div class="span2 input-append">
                             <input type="text" id="Kz91" class="span2 ustva"/><span class="add-on">,00</span>
@@ -264,7 +301,7 @@
             </fieldset>
 
             <fieldset>
-                <h3>Steuerpflichtige innergemeinschaftliche Erwerbe ...</h3>
+                <h3 class="schnell">Steuerpflichtige innergemeinschaftliche Erwerbe ...</h3>
 
                 <div class="control-group">
                     <label class="control-label" for="Kz89">zum Steuersatz von 19%</label>
@@ -290,7 +327,7 @@
                     </div>
                 </div>
 
-                <div class="control-group">
+                <div class="control-group schnell">
                     <label class="control-label" for="Kz95">andere Steuersätze</label>
                     <div class="span2 input-append">
                             <input type="text" id="Kz95" class="span2 ustva"/><span class="add-on">,00</span>
@@ -301,7 +338,7 @@
                 </div>
             </fieldset>
 
-            <fieldset>
+            <fieldset class="schnell">
                 <h4>neuer Fahrzeuge ...</h4>
                 <div class="control-group">
                     <label class="control-label" for="Kz94">von Lieferern <b>ohne</b> USt-IdNr. zum allgemeinen Steuersatz</label>
@@ -314,7 +351,7 @@
                 </div>
             </fieldset>
 
-            <fieldset>
+            <fieldset class="schnell">
                 <h2>Ergänzende Angaben zu Umsätzen ...</h2>
 
                 <div class="control-group">
@@ -353,7 +390,7 @@
                 </div>
             </fieldset>
 
-            <fieldset>
+            <fieldset class="schnell">
                 <h2>Umsätze § 13b Abs. 2 UStG ...</h2>
 
                 <div class="control-group">
@@ -451,28 +488,28 @@
                     </div>
                 </div>
 
-                <div class="control-group">
+                <div class="control-group schnell">
                     <label class="control-label span6" for="Kz67">Vorsteuer aus Leistungen im Sinne des § 13b UStG</label>
                     <div class="span2">
                         <input type="text" id="Kz67" class="span2 ustva"/>
                     </div>
                 </div>
 
-                <div class="control-group">
+                <div class="control-group schnell">
                     <label class="control-label span6" for="Kz63">Vorsteuer, nach allgemeinenen Durchschnittsätzen</label>
                     <div class="span2">
                         <input type="text" id="Kz63" class="span2 ustva"/>
                     </div>
                 </div>
 
-                <div class="control-group">
+                <div class="control-group schnell">
                     <label class="control-label span6" for="Kz64">Berichtigung des Vorsteuerabzugs (§ 15a UStG)</label>
                     <div class="span2">
                         <input type="text" id="Kz64" class="span2 ustva"/>
                     </div>
                 </div>
 
-                <div class="control-group">
+                <div class="control-group schnell">
                     <label class="control-label span6" for="Kz59">Vorsteuerabzug für innergem. Lieferungen neuer Fahrzeuge</label>
                     <div class="span2">
                         <input type="text" id="Kz59" class="span2 ustva"/>
@@ -481,7 +518,7 @@
             </fieldset>
 
 
-            <fieldset>
+            <fieldset class="schnell">
                 <div class="control-group">
                     <label class="control-label span6" for="ust-vost">
                         <strong>Verbleibender Betrag ...</strong>
@@ -494,7 +531,7 @@
                 </div>
             </fieldset>
 
-            <fieldset>
+            <fieldset class="schnell">
                 <div class="control-group">
                     <label class="control-label span6" for="Kz69">Diverse Sonstige (Kz69)</label>
                     <div class="span2">

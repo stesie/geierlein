@@ -27,6 +27,9 @@ body.native .hide-native {
     width: 420px;
 }
 
+.schnell {
+    display: none;
+}
 
 h2 + div.control-group, h3 + div.control-group, h4 + div.control-group {
     border-top: 1px solid #eee;
