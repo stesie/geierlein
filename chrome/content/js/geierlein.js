@@ -48,6 +48,20 @@
     $('#protocol-print').click(function() {
         printIframe('protocol-frame');
     });
+    
+    function sendData(asTestcase) {
+        ustva.toEncryptedXml(asTestcase, function(data, cb) {
+            $('#wait').modal();
+            geierlein.transfer(data, cb);
+        }, function(res) {
+            $('#wait').modal('hide');
+            if(res === false) {
+                alert('Bei der Datenübertragung ist ein Fehler aufgetreten.');
+                return;
+            }
+            showProtocol(res);
+        });
+    }
 
     var $jahr = $('#jahr');
     var $monat = $('#monat');
@@ -104,9 +118,7 @@
     });
 
     $('#send-testcase').on('click', function(ev) {
-        ustva.toEncryptedXml(true, geierlein.transfer, function(res) {
-            showProtocol(res);
-        });
+        sendData(true);
         return false;
     });
 
