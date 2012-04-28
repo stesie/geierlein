@@ -115,6 +115,9 @@
 						}
 					</xsl:text>
 				</style>
+				<script>
+				    function printPage() { print(); }
+				</script>
 			</head>
 			<body>
 				<div id="content">

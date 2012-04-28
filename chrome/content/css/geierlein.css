@@ -8,6 +8,21 @@ body.native .hide-native {
     display: none;
 }
 
+#protocol {
+    width: 800px;
+    margin-left: -400px;
+}
+
+#protocol iframe {
+    height: 370px;
+    width: 100%;
+    border: 0;
+}
+
+a.left {
+    float: left;
+}
+
 /* Use fixed size for .add-on, to make sure it fits into a div.span2
    together with a input.span2. */
 .input-append .add-on {

@@ -20,6 +20,35 @@
  */
 
 (function($, geierlein) {
+
+    /**
+     * Print iframe by element ID.
+     *
+     * http://stackoverflow.com/questions/472951/how-do-i-print-an-iframe-from-javascript-in-safari-chrome
+     *
+     * @param id The iframe element's ID.
+     */
+    function printIframe(id) {
+        var iframe = document.frames ? document.frames[id] : document.getElementById(id);
+        var ifWin = iframe.contentWindow || iframe;
+        ifWin.focus();
+        ifWin.printPage();
+        return false;
+    }
+
+    function showProtocol(res) {
+        /* Add XSL reference to XML document. */
+        var xslUrl = location.href.replace(/[^\/]+$/, 'stylesheets/ustva.xsl');
+        res = geierlein.util.addStylesheetHref(res, xslUrl);
+
+        $('#protocol-frame')[0].src = 'data:text/xml;charset=ISO8859-1,' + escape(res);
+        $('#protocol').modal();
+    }
+
+    $('#protocol-print').click(function() {
+        printIframe('protocol-frame');
+    });
+
     var $jahr = $('#jahr');
     var $monat = $('#monat');
     var d = new Date();
@@ -76,11 +105,10 @@
 
     $('#send-testcase').on('click', function(ev) {
         ustva.toEncryptedXml(true, geierlein.transfer, function(res) {
-            alert(res);
+            showProtocol(res);
         });
-
         return false;
     });
-    
+
     $('.ustva').tooltip();
 }(jQuery, geierlein));
