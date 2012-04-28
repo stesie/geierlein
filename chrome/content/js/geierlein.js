@@ -38,7 +38,7 @@
 
     function showProtocol(res) {
         /* Add XSL reference to XML document. */
-        var xslUrl = location.href.replace(/[^\/]+$/, 'stylesheets/ustva.xsl');
+        var xslUrl = location.href.replace(/[^\/]+$/, 'xsl/ustva.xsl');
         res = geierlein.util.addStylesheetHref(res, xslUrl);
 
         $('#protocol-frame')[0].src = 'data:text/xml;charset=ISO8859-1,' + escape(res);

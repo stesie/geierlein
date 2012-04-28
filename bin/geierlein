@@ -68,6 +68,6 @@ if(argv['dry-run']) {
 
 ustva.toEncryptedXml(argv.testcase, geierlein.transfer, function(res) {
     res = geierlein.util.addStylesheetHref(res,
-        __dirname + '/../chrome/content/stylesheets/ustva.xsl');
+        __dirname + '/../chrome/content/xsl/ustva.xsl');
     console.log(res);
 });
