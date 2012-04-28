@@ -23,6 +23,11 @@ a.left {
     float: left;
 }
 
+#logo {
+    position: absolute;
+    right: 23px;
+}
+
 /* Use fixed size for .add-on, to make sure it fits into a div.span2
    together with a input.span2. */
 .input-append .add-on {
