@@ -81,4 +81,6 @@
 
         return false;
     });
+    
+    $('.ustva').tooltip();
 }(jQuery, geierlein));
