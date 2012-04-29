@@ -21,8 +21,16 @@
 
 (function($, geierlein) {
 
+    /*
+     * private functions
+     */
+
+
     /**
      * Print iframe by element ID.
+     *
+     * Requires printPage javascript function on the document loaded into
+     * the iframe.  File ustva.xsl is extended accordingly.
      *
      * http://stackoverflow.com/questions/472951/how-do-i-print-an-iframe-from-javascript-in-safari-chrome
      *
@@ -36,6 +44,15 @@
         return false;
     }
 
+    /**
+     * Show the modal protocol dialog and display the provided protocol.
+     *
+     * A reference to the XSL file needed to display the protocol is
+     * added automatically.
+     *
+     * @param res The XML result document as a string.
+     * @return void
+     */
     function showProtocol(res) {
         /* Add XSL reference to XML document. */
         var xslUrl = location.href.replace(/[^\/]+$/, 'xsl/ustva.xsl');
@@ -45,10 +62,12 @@
         $('#protocol').modal();
     }
 
-    $('#protocol-print').click(function() {
-        printIframe('protocol-frame');
-    });
-    
+    /**
+     * Submit the tax declaration and display protocol afterwards.
+     *
+     * @param asTestcase Whether to set test-marker in the declaration or not.
+     * @return void
+     */
     function sendData(asTestcase) {
         ustva.toEncryptedXml(asTestcase, function(data, cb) {
             $('#wait').modal();
@@ -62,6 +81,11 @@
             showProtocol(res);
         });
     }
+
+
+    /*
+     * Model handling.
+     */
 
     var $jahr = $('#jahr');
     var $monat = $('#monat');
@@ -119,6 +143,15 @@
        should trigger and update the data as needed. */
     $('.datenlieferant, .ustva').change();
 
+
+
+    /*
+     * Further event listeners needed to make the GUI work.
+     */
+
+    /**
+     * Show/hide rarely used elements, when fast entry checkbox is toggled.
+     */
     $('#schnell').on('click', function(ev) {
         if($('#schnell').prop('checked')) {
             $('.schnell').hide('slow');
@@ -127,10 +160,25 @@
         }
     });
 
+    /**
+     * Send-as-testcase button, click event.
+     */
     $('#send-testcase').on('click', function(ev) {
         sendData(true);
         return false;
     });
 
+    /**
+     * Initialize tooltips on all input elements.
+     */
     $('.ustva').tooltip();
+
+    /**
+     * Trigger browser's print functionality when print-button is clicked in
+     * protocol dialog.
+     */
+    $('#protocol-print').click(function() {
+        printIframe('protocol-frame');
+    });
+
 }(jQuery, geierlein));

@@ -44,6 +44,11 @@ else if(typeof(module) !== 'undefined' && module.exports) {
 
 var crypto = geierlein.crypto = geierlein.crypto || {};
 
+/**
+ * The X.509 certificate with the Elster project's public key.
+ *
+ * The public key is used to encrypt the tax case.
+ */
 var elsterPem = '-----BEGIN CERTIFICATE-----\n' +
                 'MIIDKjCCAhICAQAwDQYJKoZIhvcNAQEEBQAwWTELMAkGA1UEBhMCREUxDzANBgNV\n' +
                 'BAoTBkVMU1RFUjEMMAoGA1UECxMDRUJBMQ8wDQYDVQQDEwZDb2RpbmcxGjAYBgNV\n' +
@@ -62,9 +67,24 @@ var elsterPem = '-----BEGIN CERTIFICATE-----\n' +
                 'qB8F9m72Ud9kmZsV1Letl/qog0El4QHNnU9rSoI+MpchfDaoGvdqoVa+729SEBlc\n' +
                 'agWaHE8RNF43+aaVZQScvuwQZBrTJq2kqKmPm4Kg7GYuIGMqrm2/g0ldRrm8KfI2\n' +
                 'vxZIknBdmDknjnQHGMuLXmV3HKZTeN1F6I9BgmBXXqzTJu4gEDpY5n/h7mM+bA==\n' +
-                '-----END CERTIFICATE-----',
-    elsterCert = forge.pki.certificateFromPem(elsterPem);
+                '-----END CERTIFICATE-----';
 
+/**
+ * The Elster project's X.509 certificate as a Forge PKI instance.
+ */
+var elsterCert = forge.pki.certificateFromPem(elsterPem);
+
+/**
+ * Perform whole encoding process of one XML piece as required by Elster specs.
+ *
+ * This is, take the provided data, GZIP it, encrypt it with DES3-EDE & RSA,
+ * encode the DER encoding of the resulting PKCS#7 enveloped document with
+ * Base64 and return it.
+ *
+ * @param {string} data The data block to encode.
+ * @param {object} key The key to use to encrypt the data (as a Forge buffer)
+ * @return {string} Base64-encoded result.
+ */
 crypto.encryptBlock = function(data, key) {
     // gzip data
     var out = gzipjs.zip(data, { level: 9 });
@@ -82,6 +102,15 @@ crypto.encryptBlock = function(data, key) {
     return forge.util.encode64(out.getBytes(), 0);
 };
 
+/**
+ * Decrypt all the encoded parts of a response document from Elster the servers. 
+ *
+ * This function performs the full decoding process, i.e. it decrypts the
+ * PKCS#7 encrypted data blocks and unzips them.
+ *
+ * @param {string} data The XML document.
+ * @param {object} key A Forge buffer containing the decryption key.
+ */
 crypto.decryptDocument = function(data, key) {
     function decryptBlock(regex) {
         var pieces = data.split(regex);
@@ -119,6 +148,11 @@ crypto.decryptDocument = function(data, key) {
     return data;
 };
 
+/**
+ * Generate a key suitable for encryptBlock function.
+ * 
+ * @return {object} A new random DES3 key as a Forge buffer.
+ */
 crypto.generateKey = function() {
     return forge.util.createBuffer(forge.random.getBytes(24));
 };
