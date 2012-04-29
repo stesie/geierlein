@@ -91,11 +91,16 @@
     $('.ustva').on('change keyup', function(ev) {
         var kz = this.id.toLowerCase();
         var $cg = $(this).parents('.control-group');
+        var value = this.value;
 
-        if(this.value === '') {
+        if(this.type === 'checkbox' && !this.checked) {
+            value = '';
+        }
+
+        if(value === '') {
             delete ustva[kz];
         } else {
-            ustva[kz] = this.value.replace(',', '.');
+            ustva[kz] = value.replace(',', '.');
         }
 
         if(ustva.validate(kz) === true) {
@@ -108,6 +113,11 @@
             $('#steuernummer').attr('placeholder', ustva.getTaxNumberSample());
         }
     });
+
+    /* There might already be date auto-filled by the browser, therefore
+       import the data of all fields once.  Afterwards the change listeners
+       should trigger and update the data as needed. */
+    $('.datenlieferant, .ustva').change();
 
     $('#schnell').on('click', function(ev) {
         if($('#schnell').prop('checked')) {
