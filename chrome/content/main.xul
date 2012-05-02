@@ -10,8 +10,8 @@
 					<menuitem label="Speichern"/>
 					<menuitem label="Speichern unter ..."/>
 					<menuseparator/>
-					<menuitem label="Daten senden ..."/>
-					<menuitem label="Als Testfall senden ..."/>
+					<menuitem label="Daten senden ..." oncommand="xulapp.send(false);"/>
+					<menuitem label="Als Testfall senden ..." oncommand="xulapp.send(true);"/>
 					<menuseparator/>
 					<menuitem label="Beenden" oncommand="xulapp.shutdown();"/>
 				</menupopup>
@@ -35,7 +35,7 @@
 			<toolbarbutton label="Öffnen" id="open"/>
 			<toolbarbutton label="Speichern" id="save"/>
 			<toolbarseparator/>
-			<toolbarbutton label="Daten senden" id="send"/>
+			<toolbarbutton label="Daten senden" id="send" oncommand="xulapp.send(false);"/>
 		</toolbar>
 	</toolbox>
 	<iframe src="chrome://geierlein/content/index.html" id="doc" flex="1"/>

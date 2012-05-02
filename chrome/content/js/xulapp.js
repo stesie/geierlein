@@ -63,6 +63,10 @@ var xulapp = (function() {
             cW.geierlein.resetForm();
             xulapp.loadDefaultAddressData();
         },
+        
+        send: function(asTestcase) {
+            return cW.geierlein.sendData(asTestcase);
+        },
 
         showInfo: function() {
             cW.$('#about').modal();

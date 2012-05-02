@@ -72,7 +72,12 @@
      * @param asTestcase Whether to set test-marker in the declaration or not.
      * @return void
      */
-    function sendData(asTestcase) {
+    geierlein.sendData = function(asTestcase) {
+        if(!asTestcase && !confirm('Die Daten werden als Echtfall an die Finanzverwaltung übergeben\n' +
+            'Bist du sicher?')) {
+            return;
+        }
+
         ustva.toEncryptedXml(asTestcase, function(data, cb) {
             $('#wait').modal();
             geierlein.transfer(data, cb);
@@ -84,7 +89,7 @@
             }
             showProtocol(res);
         });
-    }
+    };
 
 
     /*
@@ -175,10 +180,18 @@
     });
 
     /**
+     * Send button, click event.
+     */
+    $('#send').on('click', function(ev) {
+        geierlein.sendData(false);
+        return false;
+    });
+
+    /**
      * Send-as-testcase button, click event.
      */
     $('#send-testcase').on('click', function(ev) {
-        sendData(true);
+        geierlein.sendData(true);
         return false;
     });
 
