@@ -20,6 +20,10 @@
  */
 
 (function($, geierlein) {
+    var $jahr = $('#jahr');
+    var $monat = $('#monat');
+
+    var datenlieferant, ustva;
 
     /*
      * private functions
@@ -84,25 +88,38 @@
 
 
     /*
+     * Public API
+     */
+    geierlein.resetForm = function() {
+        $('form')[0].reset();
+
+        /* Pre-select previous month and year. */
+        var d = new Date();
+        d.setMonth(d.getMonth() - 1);
+        $jahr.val(d.getFullYear());
+        $monat.val(d.getMonth() + 1);
+        
+        /* Copy over all field data initially to consider browser's
+         * auto-fill data, etc.pp
+         */
+        $('.datenlieferant, .ustva').change();
+    };
+
+
+    /*
      * Model handling.
      */
 
-    var $jahr = $('#jahr');
-    var $monat = $('#monat');
-    var d = new Date();
+    (function() {
+        /* Fill year drop-down, supported is 2011 until now. */
+        var d = new Date();
+        for(var year = d.getFullYear(); year >= 2011; year --) {
+            $('<option>').text(year).appendTo($jahr);
+        }
+    })();
 
-    /* Fill year drop-down, supported is 2011 until now. */
-    for(var year = d.getFullYear(); year >= 2011; year --) {
-        $('<option>').text(year).appendTo($jahr);
-    }
-
-    /* Pre-select previous month and year. */
-    d.setMonth(d.getMonth() - 1);
-    $jahr.val(d.getFullYear());
-    $monat.val(d.getMonth() + 1);
-
-    var datenlieferant = new geierlein.Datenlieferant();
-    var ustva = new geierlein.UStVA(datenlieferant, $jahr.val(), $monat.val());
+    datenlieferant = new geierlein.Datenlieferant();
+    ustva = new geierlein.UStVA(datenlieferant);
 
     /* Bind datenlieferant input fields to the model. */
     $('.datenlieferant').on('change', function(ev) {
@@ -138,10 +155,7 @@
         }
     });
 
-    /* There might already be date auto-filled by the browser, therefore
-       import the data of all fields once.  Afterwards the change listeners
-       should trigger and update the data as needed. */
-    $('.datenlieferant, .ustva').change();
+    geierlein.resetForm();
 
 
 
@@ -180,5 +194,4 @@
     $('#protocol-print').click(function() {
         printIframe('protocol-frame');
     });
-
 }(jQuery, geierlein));

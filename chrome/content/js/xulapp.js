@@ -59,6 +59,11 @@ var xulapp = (function() {
             });
         },
 
+        resetForm: function() {
+            cW.geierlein.resetForm();
+            xulapp.loadDefaultAddressData();
+        },
+
         showInfo: function() {
             cW.$('#about').modal();
         },
