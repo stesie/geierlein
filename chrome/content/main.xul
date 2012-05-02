@@ -6,7 +6,7 @@
 			<menu label="Datei" menuactive="true">
 				<menupopup>
 				    <menuitem label="Neu" oncommand="xulapp.resetForm();"/>
-					<menuitem label="Öffnen ..." oncommand="alert('Hallo');"/>
+					<menuitem label="Öffnen ..." oncommand="xulapp.openFile();"/>
 					<menuitem label="Speichern"/>
 					<menuitem label="Speichern unter ..."/>
 					<menuseparator/>
@@ -32,7 +32,7 @@
 		</menubar>
 		<toolbar>
 			<toolbarbutton label="Neu" id="new" oncommand="xulapp.resetForm();"/>
-			<toolbarbutton label="Öffnen" id="open"/>
+			<toolbarbutton label="Öffnen" id="open" oncommand="xulapp.openFile();"/>
 			<toolbarbutton label="Speichern" id="save"/>
 			<toolbarseparator/>
 			<toolbarbutton label="Daten senden" id="send" oncommand="xulapp.send(false);"/>

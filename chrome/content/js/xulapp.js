@@ -20,6 +20,8 @@
  */
 
 var xulapp = (function() {
+    Components.utils.import("resource://gre/modules/NetUtil.jsm");
+
     var doc = document.getElementById('doc');
     var cW = null;
     var DEFAULT_ADDRESS_DATA_SELECTOR = '.datenlieferant, #steuernummer, #land';
@@ -62,6 +64,52 @@ var xulapp = (function() {
         resetForm: function() {
             cW.geierlein.resetForm();
             xulapp.loadDefaultAddressData();
+        },
+
+        openFile: function() {
+            var nsIFilePicker = Components.interfaces.nsIFilePicker;
+            var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+
+            fp.init(window, 'Datei öffnen', nsIFilePicker.modeOpen);
+            fp.appendFilters(nsIFilePicker.filterText | nsIFilePicker.filterAll);
+
+            var res = fp.show();
+            if (res !== nsIFilePicker.returnOK) {
+                return;
+            }
+
+            NetUtil.asyncFetch(fp.file, function(inStream, status) {
+                if(!Components.isSuccessCode(status)) {
+                    alert('Beim Lesen der Datei ist ein Fehler aufgetreten!');
+                    return;
+                }
+
+                var data = NetUtil.readInputStreamToString(inStream,
+                    inStream.available(), { charset: 'UTF-8' });
+
+                data = cW.geierlein.util.parseFile(data);
+                cW.geierlein.resetForm();
+
+                for(var key in data) {
+                    if(data.hasOwnProperty(key)) {
+                        /* The IDs of the input elements in the form start with
+                         * an upper-case K.
+                         */
+                        var newValue = data[key];
+
+                        if(key.substr(0, 2) === 'kz') {
+                            key = 'K' + key.substr(1);
+                        }
+
+                        var $el = cW.$('#' + key);
+                        if($el.length) {
+                            $el.val(newValue).change();
+                        } else {
+                            alert('No element found for ' + key);
+                        }
+                    }
+                }
+            });
         },
         
         send: function(asTestcase) {
