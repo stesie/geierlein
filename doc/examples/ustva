@@ -13,18 +13,244 @@ vorwahl = 0981
 anschluss = 9720970
 email = stesie@brokenpipe.de
 
+# Angabe des Bundeslandes
+#
+#   1  -> Baden-Württemberg
+#   2  -> Bayern
+#   3  -> Berlin
+#   4  -> Brandenburg
+#   5  -> Bremen
+#   6  -> Hamburg
+#   7  -> Hessen
+#   8  -> Mecklenburg-Vorpommern
+#   9  -> Niedersachsen
+#   10 -> Nordrhein-Westfalen
+#   11 -> Rheinland-Pfalz
+#   12 -> Saarland
+#   13 -> Sachsen
+#   14 -> Sachsen-Anhalt
+#   15 -> Schleswig-Holstein
+#   16 -> Thüringen
+#
+# Hier die Zahl des gewünschten Bundeslandes angeben.
 land = 2	# Bayern
+
 steuernummer = 203/698/02950
 
 # Voranmeldungszeitraum
 jahr = 2012
-monat = 3
+monat = 4
 
-# Umsatzsteuer 19% (Bemessungsgrundlage)
+
+#
+# "Ankreuzfelder" des Formulars.
+#
+# Wenn die jeweilige Option im Formular gesetzt werden soll, das
+# Kommentarzeichen am Zeilenanfang entfernen.
+#
+
+# Berichtigte Anmeldung
+# kz10 = 1
+
+# Belege (Verträge, Rechnungen, Erläuterungen usw.) werden gesondert
+# eingereicht
+# kz22 = 1
+
+# Verrechnung des Erstattungsbetrags erwünscht / Erstattungsbetrag ist
+# abgetreten
+# kz29 = 1
+
+# Die Einzugsermächtigung wird ausnahmsweise (z.B. wegen
+# Verrechnungswünschen) für diesen Voranmeldungszeitraum widerrufen.
+# Ein ggf. verbleibender Restbetrag ist gesondert zu entrichten.
+# kz26 = 1
+
+
+
+
+# Innergemeinschaftliche Lieferungen (§ 4 Nr. 1 Buchst. b UStG) an
+# Abnehmer mit USt-IdNr.
+kz41 = 
+
+# Innergem. Lieferungen neuer Fahrzeuge an Abnehmer ohne USt-IdNr.
+kz44 = 
+
+# Innergemeinschaftliche Lieferungen neuer Fahrzeuge außerhalb eines
+# Unternehmens (§ 2a UStG)
+kz49 = 
+
+# Weitere steuerfreie Umsätze mit Vorsteuerabzug
+# (z.B. Ausfuhrlieferungen, Umsätze nach § 4 Nr. 2 bis 7 UStG)
+kz43 = 
+
+# Umsätze nach § 4 Nr. 8 bis 28 UStG (steuerfreie Umsätze ohne
+# Vorsteuerabzug)
+kz48 = 
+
+# Lieferungen und sonstige Leistungen einschl. unentgeltlicher Wertabgaben
+# zum Steuersatz von 19 v.H.
 kz81 = 1000
 
-# Vorsteuer
-kz66 = 90
+# Lieferungen und sonstige Leistungen einschl. unentgeltlicher Wertabgaben
+# zum Steuersatz von 7 v.H.
+kz86 = 500
 
-# Zahllast
-kz83 = 100
+# Lieferungen und sonstige Leistungen einschl. unentgeltlicher
+# Wertabgaben, Umsätze, die anderen Steuersätzen unterliegen (Umsatz)
+kz35 = 
+
+# Umsätze, die anderen Steuersätzen unterliegen (Steuer)
+kz36 = 
+
+# Umsätze land- und forstwirtschaftl. Betriebe nach § 24 UStG an
+# Abnehmer mit USt-IdNr.
+kz77 = 
+
+# Umsätze land- und forstwirtschaftl. Betriebe nach § 24 UStG;
+# Umsätze für die eine Steuer nach § 24 UStG zu entrichten ist
+# (Sägewerkserzeugnisse, Getränke und alkohol. Flüssigkeiten,
+# z. B. Wein) - Umsatz
+kz76 = 
+
+# Umsätze land- und forstwirtschaftl. Betriebe nach § 24 UStG;
+# Umsätze für die eine Steuer nach § 24 UStG zu entrichten ist
+# (Sägewerkserzeugnisse, Getränke und alkohol. Flüssigkeiten,
+# z. B. Wein) - Steuer
+kz80 = 
+
+# Steuerfreie innergemeinschaftliche Erwerbe nach §§ 4b und 25c UStG
+kz91 = 
+
+# Steuerpflichtige innergemeinschaftliche Erwerbe zum Steuersatz von
+# 19 v.H.
+kz89 = 123
+
+# Steuerpflichtige innergemeinschaftliche Erwerbe zum Steuersatz von
+# 7 v.H.
+kz93 = 
+
+# Steuerpflichtige innergemeinschaftliche Erwerbe, die anderen
+# Steuersätzen unterliegen (Umsatz)
+kz95 = 
+
+# Steuerpflichtige innergemeinschaftliche Erwerbe, die anderen
+# Steuersätzen unterliegen (Steuer)
+kz98 = 
+
+# Steuerpflichtige innergemeinschaftliche Erwerbe, neuer Fahrzeuge von
+# Lieferern ohne USt-IdNr. zum allgemeinen Steuersatz (Umsatz)
+kz94 = 
+
+# Steuerpflichtige innergemeinschaftliche Erwerbe, neuer Fahrzeuge von
+# Lieferern ohne USt-IdNr. zum allgemeinen Steuersatz (Steuer)
+kz96 = 
+
+# Umsätze aus Lieferungen des ersten Abnehmers bei
+# innergemeinschaftlichen Dreiecksgeschäften (§ 25b Abs. 2 UStG)
+kz42 = 
+
+# Steuerpflichtige Umsätze, für die der Leistungsempfänger die Steuer
+# nach § 13b Abs. 5 Satz 1 i.V.m. Abs. 2 Nr. 10 UStG schuldet
+kz68 = 
+
+# Übrige steuerpflichtige Umsätze, für die der Leistungsempfänger
+# die Steuer nach § 13b Abs. 5 UStG schuldet
+kz60 = 
+
+# Nicht steuerbare sonstige Leistungen gem. § 18b Satz 1 Nr. 2 UStG
+kz21 = 
+
+# Übrige nicht steuerbare Umsätze (Leistungsort nicht im Inland)
+kz45 = 
+
+# Im Inland steuerpflichtige sonstige Leistungen von im übrigen
+# Gemeinschaftsgebiet ansässigen Unternehmern - Umsatz
+kz46 = 
+
+# Im Inland steuerpflichtige sonstige Leistungen von im übrigen
+# Gemeinschaftsgebiet ansässigen Unternehmern - Steuer
+kz47 = 
+
+# Andere Leistungen eines im Ausland ansässigen Unternehmers (§ 13b
+# Abs. 1 Satz 1 Nr. 1 und 5 UStG) - Umsatz
+kz52 = 
+
+# Andere Leistungen eines im Ausland ansässigen Unternehmers (§ 13b
+# Abs. 1 Satz 1 Nr. 1 und 5 UStG) - Steuer
+kz53 = 
+
+# Lieferungen sicherungsübereigneter Gegenstände und Umsätze, die
+# unter das GrEStG fallen (§ 13b Abs. 2 Nr. 2 und 3 UStG), für die
+# als Leistungsempfänger Steuer geschuldet wird - (Umsatz)
+kz73 = 
+
+# Lieferungen sicherungsübereigneter Gegenstände und Umsätze, die
+# unter das GrEStG fallen (§ 13b Abs. 2 Nr. 2 und 3 UStG), für die
+# als Leistungsempfänger Steuer geschuldet wird - (Steuer)
+kz74 = 
+
+# Lieferungen von Mobilfunkgeräten und integrierten Schaltkreisen
+# (§ 13b Abs. 2 Nr. 10 UStG), für die als Leistungsempfänger Steuer
+# geschuldet wird - (Umsatz)
+kz78 = 
+
+# Lieferungen von Mobilfunkgeräten und integrierten Schaltkreisen
+# (§ 13b Abs. 2 Nr. 10 UStG), für die als Leistungsempfänger Steuer
+# geschuldet wird - (Steuer)
+kz79 = 
+
+# Andere Umsätze eines im Inland ansässigen Unternehmers (§ 13b
+# Abs. 2 Nr. 4, 6 bis 9 UStG), für die als Leistungsempfänger Steuer
+# geschuldet wird - (Umsatz)
+kz84 = 
+
+# Andere Umsätze eines im Inland ansässigen Unternehmers (§ 13b
+# Abs. 2 Nr. 4, 6 bis 9 UStG), für die als Leistungsempfänger Steuer
+# geschuldet wird - (Steuer)
+kz85 = 
+
+# Steuer infolge Wechsels der Besteuerungsform sowie Nachsteuer auf
+# versteuerte Anzahlungen wegen Steuersatzerhöhung
+kz65 = 
+
+# Vorsteuerbeträge aus Rechnungen von anderen Unternehmern (§ 15 Abs. 1
+# Satz 1 Nr. 1 UStG), aus Leistungen im Sinne des § 13a Abs. 1 Nr. 6
+# UStG (§ 15 Abs. 1 Satz 1 Nr. 5 UStG) und aus innergemeinschaftlichen
+# Dreiecksgeschäften (§ 25b Abs. 5 UStG)
+kz66 = 25
+
+# Vorsteuerbeträge aus dem innergemeinschaftlichen Erwerb von
+# Gegenständen (§ 15 Abs. 1 Satz 1 Nr. 3 UStG)
+kz61 = 
+
+# Entrichtete Einfuhrumsatzsteuer (§ 15 Abs. 1 Satz 1 Nr. 2 UStG)
+kz62 = 
+
+# Vorsteuerbeträge aus Leistungen im Sinne des § 13b UStG (§ 15 Abs. 1
+# Satz 1 Nr. 4 UStG)
+kz67 = 
+
+# Vorsteuerbeträge, die nach allgemeinen Durchschnittsätzen berechnet
+# sind (§§ 23 und 23a UStG)
+kz63 = 
+
+# Berichtigung des Vorsteuerabzugs (§ 15a UStG)
+kz64 = 
+
+# Vorsteuerabzug für innergemeinschaftliche Lieferungen neuer Fahrzeuge
+# außerhalb eines Unternehmens (§ 2a UStG) sowie von Kleinunternehmern
+# im Sinne des § 19 Abs. 1 UStG (§ 15 Abs. 4a UStG)
+kz59 = 
+
+# in Rechnungen unrichtig oder unberechtigt ausgewiesene Steuerbeträge
+# (§ 14c UStG) sowie Steuerbeträge, die nach § 4 Nr. 4a Satz 1
+# Buchst. a Satz 2, § 6a Abs. 4 Satz 2, § 17 Abs. 1 Satz 6 oder §
+# 25b Abs. 2 UStG geschuldet werden
+kz69 = 
+
+# Anrechnung (Abzug) der festgesetzten Sondervorauszahlung für
+# Dauerfristverlängerung (nur auszufüllen in der letzten Voranmeldung
+# des Besteuerungszeitraums, in der Regel Dezember)
+kz39 = 
+
+kz83 = 223,37
