@@ -21,11 +21,24 @@
 
 var xulapp = (function() {
     Components.utils.import("resource://gre/modules/NetUtil.jsm");
+    Components.utils.import("resource://gre/modules/FileUtils.jsm");
 
     var doc = document.getElementById('doc');
     var cW = null;
     var DEFAULT_ADDRESS_DATA_SELECTOR = '.datenlieferant, #steuernummer, #land';
     var prefs = null;
+    var filePath;
+    
+    function modalFileSaveAsDialog() {
+        var nsIFilePicker = Components.interfaces.nsIFilePicker;
+        var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+
+        fp.init(window, 'Datei speichern', nsIFilePicker.modeSave);
+        fp.appendFilters(nsIFilePicker.filterText | nsIFilePicker.filterAll);
+
+        var res = fp.show();
+        return (res === nsIFilePicker.returnOK) ? fp : undefined;
+    }
 
     window.addEventListener("load", function() {
         cW = doc.contentWindow;
@@ -63,6 +76,7 @@ var xulapp = (function() {
 
         resetForm: function() {
             cW.geierlein.resetForm();
+            filePath = undefined;
             xulapp.loadDefaultAddressData();
         },
 
@@ -87,6 +101,7 @@ var xulapp = (function() {
                 var data = NetUtil.readInputStreamToString(inStream,
                     inStream.available(), { charset: 'UTF-8' });
 
+                filePath = fp.file;
                 data = cW.geierlein.util.parseFile(data);
                 cW.geierlein.resetForm();
 
@@ -111,7 +126,38 @@ var xulapp = (function() {
                 }
             });
         },
+
+        saveFile: function() {
+            if(filePath === undefined) {
+                return xulapp.saveFileAs();
+            }
+
+            var data = cW.geierlein.serialize();
+            var converter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"]
+                .createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
+            converter.charset = "UTF-8";
+
+            var ostream = FileUtils.openSafeFileOutputStream(filePath);
+            var istream = converter.convertToInputStream(data);
+
+            NetUtil.asyncCopy(istream, ostream, function(status) {
+                if(!Components.isSuccessCode(status)) {
+                    alert('Beim Schreiben der Datei ist ein Fehler aufgetreten!');
+                }
+            });  
+        },
         
+        saveFileAs: function() {
+            var fp = modalFileSaveAsDialog();
+            if(fp === undefined) {  /* action cancelled by user. */
+                return;
+            }
+            
+            /* Store chosen filepath and call the saveFile function (again). */
+            filePath = fp.file;
+            xulapp.saveFile();
+        },
+
         send: function(asTestcase) {
             return cW.geierlein.sendData(asTestcase);
         },

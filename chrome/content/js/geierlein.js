@@ -66,6 +66,12 @@
         $('#protocol').modal();
     }
 
+
+    /*
+     * Public API
+     */
+
+
     /**
      * Submit the tax declaration and display protocol afterwards.
      *
@@ -91,10 +97,6 @@
         });
     };
 
-
-    /*
-     * Public API
-     */
     geierlein.resetForm = function() {
         $('form')[0].reset();
 
@@ -110,6 +112,34 @@
         $('.datenlieferant, .ustva').change();
     };
 
+    geierlein.serialize = function() {
+        var res = '#\n# Adresse des Steuerpflichtigen\n#\n';
+        $('.datenlieferant').each(function(i, el) {
+            res += el.id + ' = ' + el.value + '\n';
+        });
+
+        res += '\n';
+        $('.ustva').each(function(i, el) {
+            var field = el.id;
+            var help = $(el).data('original-title');
+
+            if(field.substr(0, 2) === 'Kz') {
+                field = 'k' + field.substr(1);
+            }
+
+            if(help !== '') {
+                help = help.replace(/<br\/>Kennzahl im Formular: \d+/, '');
+                res += '# ' + help + '\n';
+            }
+
+            if(el.type === 'checkbox' && !el.checked) {
+                res += '# '; /* Comment out next line */
+            }
+            res += field + ' = ' + el.value + '\n\n';
+        });
+
+        return res;
+    };
 
     /*
      * Model handling.
