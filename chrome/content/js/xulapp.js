@@ -31,7 +31,8 @@ var xulapp = (function() {
     var DEFAULT_ADDRESS_DATA_SELECTOR = '.datenlieferant, #steuernummer, #land';
     var prefs = null;
     var filePath;
-    
+    var fileChanged = false;
+
     function modalFileSaveAsDialog() {
         var nsIFilePicker = I.nsIFilePicker;
         var fp = C["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
@@ -41,6 +42,29 @@ var xulapp = (function() {
 
         var res = fp.show();
         return (res === nsIFilePicker.returnOK) ? fp : undefined;
+    }
+
+    function modalAskSaveChanges() {
+        if(!fileChanged) {
+            return false;
+        }
+
+        var ps = C["@mozilla.org/embedcomp/prompt-service;1"].getService(I.nsIPromptService);
+        var rv = ps.confirmEx(window, 'Geierlein',
+            'Am Formular wurden Änderungen vorgenommen, die noch nicht ' +
+            'gespeichert wurden.  Sollen diese gespeichert werden?',
+            ps.BUTTON_TITLE_SAVE * ps.BUTTON_POS_0 +
+            ps.BUTTON_TITLE_DONT_SAVE * ps.BUTTON_POS_1 +
+            ps.BUTTON_TITLE_CANCEL * ps.BUTTON_POS_2,
+            null, null, null, null, {});
+
+        if(rv === 0) {  /* save */
+            xulapp.saveFile();
+        } else if(rv === 2) {   /* cancel */
+            return true;
+        }
+
+        return false;   /* proceed to new/open/quit. */
     }
 
     window.addEventListener("load", function() {
@@ -86,7 +110,14 @@ var xulapp = (function() {
             xulapp.loadDefaultAddressData();
         }
 
+        /* Bind store defaults button. */
         cW.$('#store-defaults').click(xulapp.storeDefaultAddressData);
+
+        /* Bind change-handler on form to notice changes. */
+        cW.$('.ustva, .datenlieferant').on('change keyup', function() {
+            fileChanged = true;
+        });
+
         /* Show developer menu if allowed by pref. */
         if(prefs.getBoolPref('debug.showDevelMenu')) {
             document.getElementsByClassName('hideDevel')[0].className = '';
@@ -94,7 +125,9 @@ var xulapp = (function() {
     }, false);
 
     window.addEventListener("close", function(event) {
-        return xulapp.shutdownQuery();
+        if(!xulapp.shutdownQuery()) {
+            event.preventDefault();
+        }
     }, false);
 
     return {
@@ -114,12 +147,21 @@ var xulapp = (function() {
         },
 
         resetForm: function() {
+            if(modalAskSaveChanges()) {
+                return; /* User asked to cancel. */
+            }
+
             cW.geierlein.resetForm();
             filePath = undefined;
             xulapp.loadDefaultAddressData();
+            fileChanged = false;
         },
 
         openFile: function(loadFilePath) {
+            if(modalAskSaveChanges()) {
+                return; /* User asked to cancel. */
+            }
+
             if(loadFilePath === undefined) {
                 var nsIFilePicker = I.nsIFilePicker;
                 var fp = C["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
@@ -146,6 +188,7 @@ var xulapp = (function() {
 
                 if(cW.geierlein.unserialize(data)) {
                     filePath = loadFilePath;
+                    fileChanged = false;
                 }
             });
         },
@@ -166,7 +209,10 @@ var xulapp = (function() {
             NetUtil.asyncCopy(istream, ostream, function(status) {
                 if(!Components.isSuccessCode(status)) {
                     alert('Beim Schreiben der Datei ist ein Fehler aufgetreten!');
+                    return;
                 }
+
+                fileChanged = false;
             });  
         },
         
@@ -190,7 +236,7 @@ var xulapp = (function() {
         },
 
         shutdownQuery: function() {
-            return true;
+            return !modalAskSaveChanges();
         },
 
         shutdown: function() {
