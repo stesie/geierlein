@@ -141,6 +141,43 @@
         return res;
     };
 
+    /**
+     * Unserialize data from "geierlein file format" into the form.
+     *
+     * @param data The file's content as a string.
+     * @return <boolean> True if file was loaded successfully, false otherwise.
+     */
+    geierlein.unserialize = function(data) {
+        try {
+            data = geierlein.util.parseFile(data);
+        } catch(e) {
+            alert('Das Format der Datei ist fehlerhaft.  ' +
+                'Die Datei kann nicht geöffnet werden');
+            return false;
+        }
+
+        geierlein.resetForm();
+        for(var key in data) {
+            if(data.hasOwnProperty(key)) {
+                /* The IDs of the input elements in the form start with
+                 * an upper-case K.
+                 */
+                var newValue = data[key];
+
+                if(key.substr(0, 2) === 'kz') {
+                    key = 'K' + key.substr(1);
+                }
+
+                var $el = $('#' + key);
+                if($el.length) {
+                    $el.val(newValue).change();
+                }
+            }
+        }
+
+        return true;
+    };
+
     /*
      * Model handling.
      */

@@ -101,28 +101,8 @@ var xulapp = (function() {
                 var data = NetUtil.readInputStreamToString(inStream,
                     inStream.available(), { charset: 'UTF-8' });
 
-                filePath = fp.file;
-                data = cW.geierlein.util.parseFile(data);
-                cW.geierlein.resetForm();
-
-                for(var key in data) {
-                    if(data.hasOwnProperty(key)) {
-                        /* The IDs of the input elements in the form start with
-                         * an upper-case K.
-                         */
-                        var newValue = data[key];
-
-                        if(key.substr(0, 2) === 'kz') {
-                            key = 'K' + key.substr(1);
-                        }
-
-                        var $el = cW.$('#' + key);
-                        if($el.length) {
-                            $el.val(newValue).change();
-                        } else {
-                            alert('No element found for ' + key);
-                        }
-                    }
+                if(cW.geierlein.unserialize(data)) {
+                    filePath = fp.file;
                 }
             });
         },
