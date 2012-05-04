@@ -87,6 +87,10 @@ var xulapp = (function() {
         }
 
         cW.$('#store-defaults').click(xulapp.storeDefaultAddressData);
+        /* Show developer menu if allowed by pref. */
+        if(prefs.getBoolPref('debug.showDevelMenu')) {
+            document.getElementsByClassName('hideDevel')[0].className = '';
+        }
     }, false);
 
     window.addEventListener("close", function(event) {

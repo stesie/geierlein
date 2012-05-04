@@ -16,7 +16,7 @@
 					<menuitem label="Beenden" oncommand="xulapp.shutdown();"/>
 				</menupopup>
 			</menu>
-			<menu label="Werkzeuge">
+			<menu label="Werkzeuge" class="hideDevel">
 				<menupopup>
 				    <menuitem label="Extension Manager" oncommand="window.open('chrome://mozapps/content/extensions/extensions.xul?type=extensions', '', 'chrome');"/>
 					<menuitem label="DOM Inspector" oncommand="window.open('chrome://inspector/content/inspector.xul', '', 'chrome');"/>

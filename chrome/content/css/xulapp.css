@@ -1,5 +1,9 @@
 @import url(chrome://global/skin/);  
 
+menu.hideDevel {
+    display: none;
+}
+
 toolbarbutton {
     -moz-box-orient: vertical;
     min-width: 72px;

@@ -10,6 +10,8 @@ pref("geierlein.defaultAddress.anschluss", "");
 pref("geierlein.defaultAddress.email", "");
 pref("geierlein.defaultAddress.steuernummer", "");
 
+pref("geierlein.debug.showDevelMenu", false);
+
 
 /* extension manager */
 pref("xpinstall.dialog.confirm", "chrome://mozapps/content/xpinstall/xpinstallConfirm.xul");
