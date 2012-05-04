@@ -61,7 +61,8 @@ var xulapp = (function() {
         fp.appendFilters(nsIFilePicker.filterText | nsIFilePicker.filterAll);
 
         var res = fp.show();
-        return (res === nsIFilePicker.returnOK) ? fp : undefined;
+        return (res === nsIFilePicker.returnOK ||
+            res === nsIFilePicker.returnReplace) ? fp : undefined;
     }
 
     function modalAskSaveChanges() {
