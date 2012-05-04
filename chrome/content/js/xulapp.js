@@ -23,6 +23,9 @@ var xulapp = (function() {
     Components.utils.import("resource://gre/modules/NetUtil.jsm");
     Components.utils.import("resource://gre/modules/FileUtils.jsm");
 
+    const C = Components.classes;
+    const I = Components.interfaces;
+
     var doc = document.getElementById('doc');
     var cW = null;
     var DEFAULT_ADDRESS_DATA_SELECTOR = '.datenlieferant, #steuernummer, #land';
@@ -30,8 +33,8 @@ var xulapp = (function() {
     var filePath;
     
     function modalFileSaveAsDialog() {
-        var nsIFilePicker = Components.interfaces.nsIFilePicker;
-        var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+        var nsIFilePicker = I.nsIFilePicker;
+        var fp = C["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
 
         fp.init(window, 'Datei speichern', nsIFilePicker.modeSave);
         fp.appendFilters(nsIFilePicker.filterText | nsIFilePicker.filterAll);
@@ -45,12 +48,44 @@ var xulapp = (function() {
         cW.$('body').removeClass('native').addClass('xulapp');
 
         /* Initialize access to preferences system. */
-        var prefService = Components.classes['@mozilla.org/preferences-service;1']
-            .getService(Components.interfaces.nsIPrefService);
+        var prefService = C['@mozilla.org/preferences-service;1']
+            .getService(I.nsIPrefService);
         prefs = prefService.getBranch('geierlein.');
 
-        /* Load default address data from preferences system. */
-        xulapp.loadDefaultAddressData();
+        /* Get nsICommandLine instance. */
+        var cmdLine = window.arguments[0];
+        cmdLine = cmdLine.QueryInterface(I.nsICommandLine);
+
+        /* Check command line arguments for -load flag. */
+        var loadFlag = cmdLine.handleFlagWithParam('load', false);
+        if(loadFlag) {
+            var fp;
+
+            if(loadFlag.substr(0, 1) === '/') {
+                /* Absolute path name */
+                fp = C["@mozilla.org/file/local;1"].createInstance(I.nsILocalFile);
+                fp.initWithPath(loadFlag);
+            } else {
+                /* Relative path name */
+                var dirService = C["@mozilla.org/file/directory_service;1"].getService(I.nsIProperties);
+                var curProcDir = dirService.get("CurProcD", I.nsIFile);
+
+                fp = curProcDir.clone().QueryInterface(I.nsILocalFile);
+                fp.appendRelativePath(loadFlag);
+            }
+
+            if(!fp.exists()) {
+                alert('Die angegebene Datei existiert nicht.');
+            } else if(!fp.isReadable()) {
+                alert('Die angegebene Datei kann nicht gelesen werden.');
+            } else {
+                xulapp.openFile(fp);
+            }
+        } else {
+            /* Load default address data from preferences system. */
+            xulapp.loadDefaultAddressData();
+        }
+
         cW.$('#store-defaults').click(xulapp.storeDefaultAddressData);
     }, false);
 
@@ -80,19 +115,23 @@ var xulapp = (function() {
             xulapp.loadDefaultAddressData();
         },
 
-        openFile: function() {
-            var nsIFilePicker = Components.interfaces.nsIFilePicker;
-            var fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+        openFile: function(loadFilePath) {
+            if(loadFilePath === undefined) {
+                var nsIFilePicker = I.nsIFilePicker;
+                var fp = C["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
 
-            fp.init(window, 'Datei öffnen', nsIFilePicker.modeOpen);
-            fp.appendFilters(nsIFilePicker.filterText | nsIFilePicker.filterAll);
+                fp.init(window, 'Datei öffnen', nsIFilePicker.modeOpen);
+                fp.appendFilters(nsIFilePicker.filterText | nsIFilePicker.filterAll);
 
-            var res = fp.show();
-            if (res !== nsIFilePicker.returnOK) {
-                return;
+                var res = fp.show();
+                if (res !== nsIFilePicker.returnOK) {
+                    return;
+                }
+
+                loadFilePath = fp.file;
             }
 
-            NetUtil.asyncFetch(fp.file, function(inStream, status) {
+            NetUtil.asyncFetch(loadFilePath, function(inStream, status) {
                 if(!Components.isSuccessCode(status)) {
                     alert('Beim Lesen der Datei ist ein Fehler aufgetreten!');
                     return;
@@ -102,7 +141,7 @@ var xulapp = (function() {
                     inStream.available(), { charset: 'UTF-8' });
 
                 if(cW.geierlein.unserialize(data)) {
-                    filePath = fp.file;
+                    filePath = loadFilePath;
                 }
             });
         },
@@ -113,8 +152,8 @@ var xulapp = (function() {
             }
 
             var data = cW.geierlein.serialize();
-            var converter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"]
-                .createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
+            var converter = C["@mozilla.org/intl/scriptableunicodeconverter"]
+                .createInstance(I.nsIScriptableUnicodeConverter);
             converter.charset = "UTF-8";
 
             var ostream = FileUtils.openSafeFileOutputStream(filePath);
@@ -155,8 +194,8 @@ var xulapp = (function() {
                 return;
             }
 
-            var appStartup = Components.classes['@mozilla.org/toolkit/app-startup;1'].getService(Components.interfaces.nsIAppStartup);
-            appStartup.quit(Components.interfaces.nsIAppStartup.eAttemptQuit);
+            var appStartup = C['@mozilla.org/toolkit/app-startup;1'].getService(I.nsIAppStartup);
+            appStartup.quit(I.nsIAppStartup.eAttemptQuit);
         }
     };
 }());
