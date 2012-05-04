@@ -79,6 +79,12 @@
      * @return void
      */
     geierlein.sendData = function(asTestcase) {
+        if(ustva.validate() !== true) {
+            alert('Das Formular enthält noch ungültige Feldwerte, ' +
+                'Übertragung nicht möglich.');
+            return;
+        }
+
         if(!asTestcase && !confirm('Die Daten werden als Echtfall an die Finanzverwaltung übergeben\n' +
             'Bist du sicher?')) {
             return;

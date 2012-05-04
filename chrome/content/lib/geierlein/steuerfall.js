@@ -54,6 +54,10 @@ geierlein.Steuerfall.prototype = {
      * @result XML representation of the taxcase as a string.
      */
     toXml: function(testcase, encCb) {
+        if(this.validate() !== true) {
+            return false;
+        }
+
         if(encCb === undefined) {
             encCb = function(data) {
                 return data;
@@ -110,7 +114,7 @@ geierlein.Steuerfall.prototype = {
             return geierlein.crypto.encryptBlock(data, key);
         });
 
-        if(sendCb !== undefined) {
+        if(encData && sendCb !== undefined) {
             sendCb(encData, function(resData) {
                 if(resData === false) {
                     return resultCb(false);
