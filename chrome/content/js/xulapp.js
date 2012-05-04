@@ -32,6 +32,26 @@ var xulapp = (function() {
     var prefs = null;
     var filePath;
     var fileChanged = false;
+    
+    function storeStringToFile(data, filePath, cb) {
+        var converter = C["@mozilla.org/intl/scriptableunicodeconverter"]
+            .createInstance(I.nsIScriptableUnicodeConverter);
+        converter.charset = "UTF-8";
+
+        var ostream = FileUtils.openSafeFileOutputStream(filePath);
+        var istream = converter.convertToInputStream(data);
+
+        NetUtil.asyncCopy(istream, ostream, function(status) {
+            if(!Components.isSuccessCode(status)) {
+                alert('Beim Schreiben der Datei ist ein Fehler aufgetreten!');
+                return;
+            }
+
+            if(typeof(cb) === 'function') {
+                cb();
+            }
+        });
+    }
 
     function modalFileSaveAsDialog() {
         var nsIFilePicker = I.nsIFilePicker;
@@ -118,6 +138,19 @@ var xulapp = (function() {
             fileChanged = true;
         });
 
+        /* Bind save-button in protocol popup. */
+        cW.$('#protocol-save').click(function() {
+            var fp = modalFileSaveAsDialog();
+            if(fp === undefined) {
+                return; /* user hit cancel */
+            }
+
+            var src = cW.$('#protocol-frame')[0].src;
+            src = unescape(src.substr(src.indexOf(',') + 1));
+            storeStringToFile(src, fp.file);
+        });
+
+
         /* Show developer menu if allowed by pref. */
         if(prefs.getBoolPref('debug.showDevelMenu')) {
             document.getElementsByClassName('hideDevel')[0].className = '';
@@ -199,21 +232,9 @@ var xulapp = (function() {
             }
 
             var data = cW.geierlein.serialize();
-            var converter = C["@mozilla.org/intl/scriptableunicodeconverter"]
-                .createInstance(I.nsIScriptableUnicodeConverter);
-            converter.charset = "UTF-8";
-
-            var ostream = FileUtils.openSafeFileOutputStream(filePath);
-            var istream = converter.convertToInputStream(data);
-
-            NetUtil.asyncCopy(istream, ostream, function(status) {
-                if(!Components.isSuccessCode(status)) {
-                    alert('Beim Schreiben der Datei ist ein Fehler aufgetreten!');
-                    return;
-                }
-
+            if(storeStringToFile(data, filePath, function() {
                 fileChanged = false;
-            });  
+            }));
         },
         
         saveFileAs: function() {
