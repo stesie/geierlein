@@ -27,6 +27,7 @@ if(typeof(window) !== 'undefined') {
 else if(typeof(module) !== 'undefined' && module.exports) {
     geierlein = {
         crypto: require('./crypto.js'),
+        taxnumber: require('./taxnumber.js'),
         util: require('./util.js')
     };
 }
@@ -41,6 +42,20 @@ geierlein.Steuerfall = function() {
 
 geierlein.Steuerfall.prototype = {
     herstellerID: '00616',
+
+    getTaxNumberSample: function() {
+        return geierlein.taxnumber.getSample(this.land);
+    },
+
+    /**
+     * Get tax number in formatted (12-digit) notation.
+     *
+     * @return The formatted tax number as a string.
+     */
+    getFormattedTaxNumber: function() {
+        return geierlein.taxnumber.format(this.land, this.steuernummer);
+    },
+
 
     /**
      * Get XML representation of this taxcase.

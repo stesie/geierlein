@@ -28,7 +28,6 @@ else if(typeof(module) !== 'undefined' && module.exports) {
     geierlein = {
         Datenlieferant: require('./datenlieferant.js'),
         Steuerfall: require('./steuerfall.js'),
-		taxnumber: require('./taxnumber.js'),
         util: require('./util.js'),
 		validation: require('./validation.js')
     };
@@ -201,19 +200,6 @@ geierlein.util.extend(geierlein.UStVA.prototype, {
 
     validate: function(field) {
         return geierlein.validation.validate.call(this, validationRules, field);
-    },
-
-    getTaxNumberSample: function() {
-        return geierlein.taxnumber.getSample(this.land);
-    },
-
-    /**
-     * Get tax number in formatted (12-digit) notation.
-     *
-     * @return The formatted tax number as a string.
-     */
-    getFormattedTaxNumber: function() {
-        return geierlein.taxnumber.format(this.land, this.steuernummer);
     },
 
     /**
