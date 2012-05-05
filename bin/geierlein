@@ -35,10 +35,15 @@ var data = geierlein.util.parseFile(require('fs').readFileSync(argv.file, 'UTF-8
 var ustva = new geierlein.UStVA();
 
 for(var key in data) {
+    if(data[key] === '') {
+        /* Skip empty fields, especially the GUI version simply adds them
+           all to explicitly state that the field was left empty. */
+        continue;
+    }
     if(key.substr(0, 2) === 'kz'
        || key === 'land') {
         /* Information belongs to the UStVA document and is numeric. */
-        ustva[key] = +data[key];
+        ustva[key] = +data[key].replace(',', '.');
     } else if(key === 'steuernummer'
        || key === 'jahr'
        || key === 'monat') {
