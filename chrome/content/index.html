@@ -684,8 +684,6 @@
     </div>
 
 	<script src="js/jquery-1.7.2.min.js"></script>
-    <script src="js/jquery.input.multiply.js"></script>
-    <script src="js/jquery.input.totalize.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="lib/xmlwriter.js"></script>
     <script src="lib/geierlein/util.js"></script>
@@ -711,5 +709,14 @@
     <script src="lib/geierlein/crypto.js"></script>
     <script src="lib/geierlein/transfer.js"></script>
     <script src="js/geierlein.js"></script>
+
+    <!-- Include calculation jQuery plugins AFTER geierlein.js, which
+         updates the UStVA object and does the validation.
+
+         This is required since both bind "keyup" events.  If we totalize
+         before updating the model, the valitaion on the sum-field (Kz83)
+         will fail, since the model expects a different (the old) sum. -->
+    <script src="js/jquery.input.multiply.js"></script>
+    <script src="js/jquery.input.totalize.js"></script>
 </body>
 </html>
