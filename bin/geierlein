@@ -54,6 +54,10 @@ for(var key in data) {
     }
 }
 
+if(ustva.kz83 === undefined) {
+    ustva.kz83 = ustva.calculateKz83();
+}
+
 var validationResult = ustva.validate();
 if(validationResult !== true) {
     console.log('Die eingelesenen Informationen sind nicht gültig.');

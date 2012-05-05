@@ -118,6 +118,12 @@ function ruleLessThan(otherKz) {
     };
 }
 
+function ruleKz83(val) {
+    var expect = this.calculateKz83();
+    var delta = Math.abs(+val - expect);
+    return delta < 1;
+}
+
 function ruleTaxNumber(val) {
     if(val === undefined) {
         return true;
@@ -200,7 +206,7 @@ var validationRules = {
     kz79: [ruleSignedMonetary, ruleLessThan('kz78')],
     kz80: [ruleSignedMonetary, ruleLessThan('kz76')],
     kz81: [ruleSignedInt],
-    kz83: [ruleRequired, ruleSignedMonetary],
+    kz83: [ruleRequired, ruleSignedMonetary, ruleKz83],
     kz84: [ruleSignedInt],
     kz85: [ruleSignedMonetary, ruleLessThan('kz84')],
     kz86: [ruleSignedInt],
@@ -354,6 +360,44 @@ geierlein.util.extend(geierlein.UStVA.prototype, {
                 "0" + pieces[1] + pieces[2] +
                 (pieces.length == 4 ? pieces[3] : '');
         }
+    },
+
+    /**
+     * Calculate the correct value for Kz83 (total VAT due)
+     * 
+     * @return The (roughly) expected value for Kz83.
+     */
+    calculateKz83: function() {
+        function getValue(val, factor) {
+            if(val === undefined) {
+                return 0;
+            }
+            return +val * factor;
+        }
+
+        return getValue(this.kz81, +0.19) +
+            getValue(this.kz86, +0.07) +
+            getValue(this.kz36) +
+			getValue(this.kz80) +
+			getValue(this.kz96) +
+			getValue(this.kz98) +
+			getValue(this.kz89, +0.19) +
+			getValue(this.kz93, +0.07) +
+			getValue(this.kz85) +
+			getValue(this.kz74) +
+			getValue(this.kz79) +
+			getValue(this.kz53) +
+			getValue(this.kz47) +
+			getValue(this.kz65) +
+            getValue(this.kz66, -1) +
+            getValue(this.kz61, -1) +
+            getValue(this.kz62, -1) +
+            getValue(this.kz67, -1) +
+            getValue(this.kz63, -1) +
+            getValue(this.kz64, -1) +
+            getValue(this.kz59, -1) +
+			getValue(this.kz69) +
+			getValue(this.kz39, -1);
     },
 
     /**

@@ -253,4 +253,13 @@ kz69 =
 # des Besteuerungszeitraums, in der Regel Dezember)
 kz39 = 
 
-kz83 = 223,37
+# Die Angabe der Summe über das Formular ist nicht erforderlich.  Wird
+# sie ausgelassen, wird sie automatisch berechnet und mit an das
+# Finanzamt übermittelt.
+#
+# Sie kann jedoch angegeben werden, wenn leicht von dem automatischem
+# Rechenergebnis abgewichen werden soll (um Rundungsdifferenzen in
+# anderen Systemen zu vermeiden).
+#
+# kz83 = 223,37
+
