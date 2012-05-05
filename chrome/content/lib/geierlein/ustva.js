@@ -28,9 +28,13 @@ else if(typeof(module) !== 'undefined' && module.exports) {
     geierlein = {
         Datenlieferant: require('./datenlieferant.js'),
         Steuerfall: require('./steuerfall.js'),
-        util: require('./util.js')
+		taxnumber: require('./taxnumber.js'),
+        util: require('./util.js'),
+		validation: require('./validation.js')
     };
 }
+
+var rules = geierlein.validation.rules;
 
 /**
  * Create new UStVA instance.
@@ -49,174 +53,75 @@ geierlein.UStVA.prototype = new geierlein.Steuerfall();
 geierlein.UStVA.prototype.constructor = geierlein.UStVA;
 
 
-var taxNumberRules = [
-    [5, 5],         // Baden Württemberg
-    [3, 3, 5],      // Bayern
-    [2, 3, 5],      // Berlin
-    [3, 3, 5],      // Brandenburg
-    [2, 3, 5],      // Bremen
-    [2, 3, 5],      // Hamburg
-    [3, 3, 5],      // Hessen
-    [3, 3, 5],      // Mecklenburg-Vorpommern
-    [2, 3, 5],      // Niedersachsen
-    [3, 4, 4],      // Nordrhein-Westfalen
-    [2, 3, 4, 1],   // Rheinland-Pfalz
-    [3, 3, 5],      // Saarland
-    [3, 3, 5],      // Sachsen
-    [3, 3, 5],      // Sachsen-Anhalt
-    [2, 3, 5],      // Schleswig-Holstein
-    [3, 3, 5]       // Thüringen
-];
-
-var taxNumberPrefixes = [ false, "9", "11", "3", "24", "22", "26", "4", "23",
-    "5", "27", "1", "3", "3", "21", "4" ];
-
-function ruleRequired(val) {
-    return val !== undefined;
-}
-
-function ruleRange(min, max) {
-    return function(val) {
-        if(val === undefined) {
-            return true;  // ruleRange accepts undefined as valid!
-        }
-
-        val = parseInt(val, 10);
-        return val >= min && val <= max;
-    };
-}
-
-function ruleOption(val) {
-    return val === undefined || parseInt(val, 10) === 1;
-}
-
-function ruleSignedInt(val) {
-    return val === undefined || parseInt(val, 10) === +val;
-}
-
-function ruleUnsignedInt(val) {
-    return val === undefined || (ruleSignedInt(val) && parseInt(val, 10) >= 0);
-}
-
-function ruleSignedMonetary(val) {
-    return val === undefined || (+val == parseFloat(val).toFixed(2));
-}
-
-function ruleUnsignedMonetary(val) {
-    return val === undefined || (+val >= 0 && +val == parseFloat(val).toFixed(2));
-}
-
-function ruleLessThan(otherKz) {
-    return function(val) {
-        if(val === undefined) {
-            return true;
-        }
-        if(this[otherKz] === undefined) {
-            return false;
-        }
-        return parseFloat(val) < parseFloat(this[otherKz]);
-    };
-}
-
-function ruleKz83(val) {
-    var expect = this.calculateKz83();
-    var delta = Math.abs(+val - expect);
-    return delta < 1;
-}
-
-function ruleTaxNumber(val) {
-    if(val === undefined) {
-        return true;
-    }
-    if(this.land === undefined) {
-        return false;
-    }
-
-    var rule = taxNumberRules[this.land - 1];
-    var pieces = val.split(/[\/ ]/);
-
-    if(pieces.length !== rule.length) {
-        return false;   // wrong number of pieces
-    }
-
-    for(var i = 0; i < pieces.length; i ++) {
-        if(pieces[i].length !== rule[i]) {
-            return false;   // length mismatch
-        }
-    }
-
-    return true;
-}
-
 var validationRules = {
     land: [
-        ruleRequired,
-        ruleRange(1, 16)
+        rules.required,
+        rules.range(1, 16)
     ],
 
     jahr: [
-        ruleRequired,
-        ruleRange(2010, 2012)
+        rules.required,
+        rules.range(2010, 2012)
     ],
 
     monat: [
-        ruleRequired,
+        rules.required,
         function(val) {
-            return ruleRange(1, 12)(val) || ruleRange(41, 44)(val);
+            return rules.range(1, 12)(val) || rules.range(41, 44)(val);
         }
     ],
 
-    steuernummer: [ruleRequired, ruleTaxNumber],
+    steuernummer: [rules.required, rules.taxNumber],
 
-    kz10: [ruleOption],
-    kz21: [ruleSignedInt],
-    kz22: [ruleOption],
-    kz26: [ruleOption],
-    kz29: [ruleOption],
-    kz35: [ruleSignedInt],
-    kz36: [ruleSignedMonetary, ruleLessThan('kz35')],
-    kz39: [ruleUnsignedMonetary],
-    kz41: [ruleSignedInt],
-    kz42: [ruleSignedInt],
-    kz43: [ruleSignedInt],
-    kz44: [ruleSignedInt],
-    kz45: [ruleSignedInt],
-    kz46: [ruleSignedInt],
-    kz47: [ruleSignedMonetary, ruleLessThan('kz46')],
-    kz48: [ruleSignedInt],
-    kz49: [ruleSignedInt],
-    kz52: [ruleSignedInt],
-    kz53: [ruleSignedMonetary, ruleLessThan('kz52')],
-    kz59: [ruleSignedMonetary],
-    kz60: [ruleSignedInt],
-    kz61: [ruleSignedMonetary],
-    kz62: [ruleSignedMonetary],
-    kz63: [ruleSignedMonetary],
-    kz64: [ruleSignedMonetary],
-    kz65: [ruleSignedMonetary],
-    kz66: [ruleSignedMonetary],
-    kz67: [ruleSignedMonetary],
-    kz68: [ruleSignedInt],
-    kz69: [ruleSignedMonetary],
-    kz73: [ruleSignedInt],
-    kz74: [ruleSignedMonetary, ruleLessThan('kz73')],
-    kz76: [ruleSignedInt],
-    kz77: [ruleSignedInt],
-    kz78: [ruleSignedInt],
-    kz79: [ruleSignedMonetary, ruleLessThan('kz78')],
-    kz80: [ruleSignedMonetary, ruleLessThan('kz76')],
-    kz81: [ruleSignedInt],
-    kz83: [ruleRequired, ruleSignedMonetary, ruleKz83],
-    kz84: [ruleSignedInt],
-    kz85: [ruleSignedMonetary, ruleLessThan('kz84')],
-    kz86: [ruleSignedInt],
-    kz89: [ruleSignedInt],
-    kz91: [ruleSignedInt],
-    kz93: [ruleSignedInt],
-    kz94: [ruleSignedInt],
-    kz95: [ruleSignedInt],
-    kz96: [ruleSignedMonetary, ruleLessThan('kz94')],
-    kz98: [ruleSignedMonetary, ruleLessThan('kz95')]
+    kz10: [rules.option],
+    kz21: [rules.signedInt],
+    kz22: [rules.option],
+    kz26: [rules.option],
+    kz29: [rules.option],
+    kz35: [rules.signedInt],
+    kz36: [rules.signedMonetary, rules.lessThan('kz35')],
+    kz39: [rules.unsignedMonetary],
+    kz41: [rules.signedInt],
+    kz42: [rules.signedInt],
+    kz43: [rules.signedInt],
+    kz44: [rules.signedInt],
+    kz45: [rules.signedInt],
+    kz46: [rules.signedInt],
+    kz47: [rules.signedMonetary, rules.lessThan('kz46')],
+    kz48: [rules.signedInt],
+    kz49: [rules.signedInt],
+    kz52: [rules.signedInt],
+    kz53: [rules.signedMonetary, rules.lessThan('kz52')],
+    kz59: [rules.signedMonetary],
+    kz60: [rules.signedInt],
+    kz61: [rules.signedMonetary],
+    kz62: [rules.signedMonetary],
+    kz63: [rules.signedMonetary],
+    kz64: [rules.signedMonetary],
+    kz65: [rules.signedMonetary],
+    kz66: [rules.signedMonetary],
+    kz67: [rules.signedMonetary],
+    kz68: [rules.signedInt],
+    kz69: [rules.signedMonetary],
+    kz73: [rules.signedInt],
+    kz74: [rules.signedMonetary, rules.lessThan('kz73')],
+    kz76: [rules.signedInt],
+    kz77: [rules.signedInt],
+    kz78: [rules.signedInt],
+    kz79: [rules.signedMonetary, rules.lessThan('kz78')],
+    kz80: [rules.signedMonetary, rules.lessThan('kz76')],
+    kz81: [rules.signedInt],
+    kz83: [rules.required, rules.signedMonetary, rules.kz83],
+    kz84: [rules.signedInt],
+    kz85: [rules.signedMonetary, rules.lessThan('kz84')],
+    kz86: [rules.signedInt],
+    kz89: [rules.signedInt],
+    kz91: [rules.signedInt],
+    kz93: [rules.signedInt],
+    kz94: [rules.signedInt],
+    kz95: [rules.signedInt],
+    kz96: [rules.signedMonetary, rules.lessThan('kz94')],
+    kz98: [rules.signedMonetary, rules.lessThan('kz95')]
 };
 
 function writeOption(val) {
@@ -295,40 +200,11 @@ geierlein.util.extend(geierlein.UStVA.prototype, {
     datenart: 'UStVA',
 
     validate: function(field) {
-        var errors = [];
-        var ruleset = {};
-
-        if(field === undefined) {
-            ruleset = validationRules;
-        } else {
-            ruleset[field] = validationRules[field];
-        }
-
-        for(var fieldName in ruleset) {
-            if(ruleset.hasOwnProperty(fieldName)) {
-                var rule = ruleset[fieldName];
-                for(var i = 0, max = rule.length; i < max; i ++) {
-                    if(!rule[i].call(this, this[fieldName])) {
-                        errors.push(fieldName);
-                    }
-                }
-            }
-        }
-
-        return errors.length ? errors : true;
+        return geierlein.validation.validate.call(this, validationRules, field);
     },
 
     getTaxNumberSample: function() {
-        /* Get rule according to choosen federal state (#land).  The options
-         * in the frontend are indexed beginning from one, there subtract one */
-        var rule = taxNumberRules[this.land - 1];
-        var result = "";
-
-        for(var i = 0; i < rule.length; i ++) {
-            result += '/' + '12345'.substring(0, rule[i]);
-        }
-
-        return result.substring(1);
+        return geierlein.taxnumber.getSample(this.land);
     },
 
     /**
@@ -337,29 +213,7 @@ geierlein.util.extend(geierlein.UStVA.prototype, {
      * @return The formatted tax number as a string.
      */
     getFormattedTaxNumber: function() {
-        var rule = taxNumberRules[this.land - 1];
-        var prefix = taxNumberPrefixes[this.land - 1];
-        var pieces = this.steuernummer.split(/[\/ ]/);
-
-        if(pieces.length !== rule.length) {
-            return false;   // wrong number of pieces
-        }
-
-        for(var i = 0; i < pieces.length; i ++) {
-            if(pieces[i].length !== rule[i]) {
-                return false;   // length mismatch
-            }
-        }
-
-        if(this.land == 1) {
-            /* Special concatenation rule for Baden Württemberg */
-            return '28' + pieces[0].substr(0, 2) + '0' +
-                pieces[0].substr(2) + pieces[1];
-        } else {
-            return prefix + pieces[0].substr(-4 + prefix.length) +
-                "0" + pieces[1] + pieces[2] +
-                (pieces.length == 4 ? pieces[3] : '');
-        }
+        return geierlein.taxnumber.format(this.land, this.steuernummer);
     },
 
     /**

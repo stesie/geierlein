@@ -22,9 +22,11 @@ var geierlein = {
     crypto: require('./crypto.js'),
     Datenlieferant: require('./datenlieferant.js'),
     Steuerfall: require('./steuerfall.js'),
+    taxnumber: require('./taxnumber.js'),
     transfer: require('./transfer.js'),
     UStVA: require('./ustva.js'),
-    util: require('./util.js')
+    util: require('./util.js'),
+    validation: require('./validation.js')
 };
 
 module.exports = geierlein;
