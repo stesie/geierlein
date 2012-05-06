@@ -26,9 +26,21 @@ if(typeof(window) !== 'undefined') {
 }
 else if(typeof(module) !== 'undefined' && module.exports) {
     geierlein = {
-        util: require('./util.js')
+        util: require('./util.js'),
+        validation: require('./validation.js')
     };
 }
+
+var rules = geierlein.validation.rules;
+
+var validationRules = {
+    name: [ rules.required, rules.maxLength(45) ],
+    strasse: [ rules.required, rules.maxLength(30) ],
+    plz: [ rules.required, rules.maxLength(12) ],
+    ort: [ rules.required, rules.maxLength(30) ],
+    telefon: [ rules.maxLength(20) ],
+    email: [ rules.maxLength(70) ]
+};
 
 /**
  * Create new Datenlieferant instance.
@@ -39,19 +51,32 @@ geierlein.Datenlieferant = function() {
 geierlein.Datenlieferant.prototype = {
     land: 'Deutschland',
 
+    validate: function(field) {
+        return geierlein.validation.validate.call(this, validationRules, field);
+    },
+
     /**
      * Get concatenated representation as per Elster XML specification.
      *
      * @return Datenlieferant string according to specification. 
      */
     toString: function() {
-        return [
+        var r = [
             this.name,
-            this.vorwahl + '/' + this.anschluss,
+            this.strasse,
             this.ort,
-            this.plz,
-            this.land
-        ].join(', ');
+            this.plz
+        ];
+
+        if(this.telefon !== undefined) {
+            r.push(this.telefon);
+        }
+
+        if(this.email !== undefined) {
+            r.push(this.email);
+        }
+
+        return r.join(', ');
     },
 
     /**
@@ -60,11 +85,20 @@ geierlein.Datenlieferant.prototype = {
      * @return Datenlieferant XML block according to specification.
      */
     toXml: function() {
-        return '<Name>' + this.name + '</Name>'
-            + '<Strasse>' + this.strasse + '</Strasse>'
-            + '<PLZ>' + this.plz + '</PLZ>'
-            + '<Ort>' + this.ort + '</Ort>'
-            + '<Telefon>' + this.vorwahl + '/' + this.anschluss + '</Telefon>';
+        var r = '<Name>' + this.name + '</Name>' +
+            '<Strasse>' + this.strasse + '</Strasse>' +
+            '<PLZ>' + this.plz + '</PLZ>' +
+            '<Ort>' + this.ort + '</Ort>';
+
+        if(this.telefon !== undefined) {
+            r += '<Telefon>' + this.telefon + '</Telefon>';
+        }
+        
+        if(this.email !== undefined) {
+            r += '<Email>' + this.email + '</Email>';
+        }
+        
+        return r;
     }
 };
 

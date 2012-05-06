@@ -83,6 +83,15 @@ geierlein.validation.rules = {
         };
     },
     
+    maxLength: function(maxLen) {
+        return function(val) {
+            if(val === undefined) {
+                return true;
+            }
+            return typeof(val) === 'string' && val.length <= maxLen;
+        };
+    },
+    
     kz83: function(val) {
         var expect = this.calculateKz83();
         var delta = Math.abs(+val - expect);

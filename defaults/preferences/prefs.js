@@ -5,8 +5,7 @@ pref("geierlein.defaultAddress.strasse", "");
 pref("geierlein.defaultAddress.plz", "");
 pref("geierlein.defaultAddress.ort", "");
 pref("geierlein.defaultAddress.land", "");
-pref("geierlein.defaultAddress.vorwahl", "");
-pref("geierlein.defaultAddress.anschluss", "");
+pref("geierlein.defaultAddress.telefon", "");
 pref("geierlein.defaultAddress.email", "");
 pref("geierlein.defaultAddress.steuernummer", "");
 
