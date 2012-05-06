@@ -119,6 +119,10 @@ crypto.decryptDocument = function(data, key) {
         }
 
         var encBlock = pieces[2].replace(/[\r\n]*/g, '');
+        if(encBlock === '') {
+            /* On error <DatenTeil> is in some cases returned empty. */
+            return;
+        }
 
         /* Base64-decode block, result is DER-encoded PKCS#7 encrypted data. */
         encBlock = forge.util.decode64(encBlock);
