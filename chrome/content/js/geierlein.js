@@ -66,6 +66,28 @@
         $('#protocol').modal();
     }
 
+    function updateModelHandler(el, model) {
+        var kz = el.id.toLowerCase();
+        var $cg = $(el).parents('.control-group');
+        var value = el.value;
+
+        if(el.type === 'checkbox' && !el.checked) {
+            value = '';
+        }
+
+        if(value === '') {
+            delete model[kz];
+        } else {
+            model[kz] = value.replace(',', '.');
+        }
+
+        if(model.validate(kz) === true) {
+            $cg.removeClass('error');
+        } else {
+            $cg.addClass('error');
+        }
+    }
+
 
     /*
      * Public API
@@ -199,38 +221,21 @@
     datenlieferant = new geierlein.Datenlieferant();
     ustva = new geierlein.UStVA(datenlieferant);
 
-    /* Bind datenlieferant input fields to the model. */
-    $('.datenlieferant').on('change', function(ev) {
-        datenlieferant[this.id.toLowerCase()] = this.value;
+    /* Bind datenlieferant input fields to the model.  We bind change as
+       well as keyup, so we are able to revalidate the form on every keystroke
+       and still don't miss events in case our user copy & pastes the data. */
+    $('.datenlieferant').on('change keyup', function(ev) {
+        return updateModelHandler(this, datenlieferant);
     });
 
-    /* Bind UStVA form fields to the corresponding model.  We bind change as
-       well as keyup, so we are able to revalidate the form on every keystroke
-       but don't miss events in case our user copy & pastes the data. */
+    /* Bind UStVA form fields to the corresponding model.  Like as for the
+       datenlieferant fields we bind to both, change and keyup, events. */
     $('.ustva').on('change keyup', function(ev) {
-        var kz = this.id.toLowerCase();
-        var $cg = $(this).parents('.control-group');
-        var value = this.value;
-
-        if(this.type === 'checkbox' && !this.checked) {
-            value = '';
-        }
-
-        if(value === '') {
-            delete ustva[kz];
-        } else {
-            ustva[kz] = value.replace(',', '.');
-        }
-
-        if(ustva.validate(kz) === true) {
-            $cg.removeClass('error');
-        } else {
-            $cg.addClass('error');
-        }
-
-        if(kz === 'land') {
-            $('#steuernummer').attr('placeholder', ustva.getTaxNumberSample());
-        }
+        return updateModelHandler(this, ustva);
+    });
+    
+    $('#land').on('change keyup', function(ev) {
+        $('#steuernummer').attr('placeholder', ustva.getTaxNumberSample());
     });
 
     geierlein.resetForm();
