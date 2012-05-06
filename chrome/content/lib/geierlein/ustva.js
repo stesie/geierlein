@@ -199,7 +199,20 @@ geierlein.util.extend(geierlein.UStVA.prototype, {
     datenart: 'UStVA',
 
     validate: function(field) {
-        return geierlein.validation.validate.call(this, validationRules, field);
+        var i = geierlein.validation.validate.call(this, validationRules, field);
+
+        /* If field is not set, i.e. we should check the whole form, call
+           validate on datenlieferant sub-model as well. */
+        if(field === undefined) {
+            var j = this.datenlieferant.validate();
+            if(j !== true) {
+                if(i === true) {
+                    return j;
+                }
+                i = i.concat(j);
+            }
+        }
+        return i;
     },
 
     /**
