@@ -124,6 +124,10 @@
             showProtocol(res);
         });
     };
+    
+    geierlein.isDatenlieferantValid = function() {
+        return datenlieferant.validate() === true;
+    };
 
     geierlein.resetForm = function() {
         $('form')[0].reset();

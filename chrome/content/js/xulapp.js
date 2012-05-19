@@ -130,6 +130,10 @@ var xulapp = (function() {
             /* Load default address data from preferences system. */
             xulapp.loadDefaultAddressData();
         }
+        
+        if(cW.geierlein.isDatenlieferantValid()) {
+            cW.$('#accordion-unternehmer').collapse();
+        }
 
         /* Bind store defaults button. */
         cW.$('#store-defaults').click(xulapp.storeDefaultAddressData);
