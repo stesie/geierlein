@@ -3,6 +3,10 @@ body.native {
     padding-top: 60px;
 }
 
+body.xulapp {
+    padding-top: 18px;
+}
+
 body.xulapp #nav,
 body.native .hide-native {
     display: none;
@@ -36,6 +40,17 @@ a.left {
 }
 .input-append input.span2 {
     width: 99px;
+}
+
+/* Remove padding from accordion inner container, since we put right-aligned
+   labels in there, which otherwise don't align with those not wrapped in an
+   accordion. */
+.accordion-inner {
+    padding-left: 0;
+}
+
+.accordion-heading h4 {
+    margin-top: 0;
 }
 
 /* Redefine width of .control-label to match a span4,
