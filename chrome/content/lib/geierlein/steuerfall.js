@@ -109,7 +109,7 @@ geierlein.Steuerfall.prototype = {
                         datenteil.length.toString());
                     xml.writeElementString('TransportSchluessel', '');
                 xml.writeEndElement();  // Datei
-                xml.writeElementString('VersionClient', '0.01');
+                xml.writeElementString('VersionClient', '0.2');
             xml.writeEndElement();  // TransferHeader
         
             xml.writeElementString('DatenTeil', datenteil);

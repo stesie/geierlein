@@ -278,7 +278,7 @@ geierlein.util.extend(geierlein.UStVA.prototype, {
                 datenteil.writeEndElement();
                 datenteil.writeStartElement('Hersteller');
                     datenteil.writeElementString('ProduktName', 'Geierlein');
-                    datenteil.writeElementString('ProduktVersion', '0.01');
+                    datenteil.writeElementString('ProduktVersion', '0.2');
                 datenteil.writeEndElement();
                 datenteil.writeElementString('DatenLieferant', 
                     this.datenlieferant.toString());
