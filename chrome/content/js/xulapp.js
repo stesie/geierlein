@@ -215,7 +215,11 @@ var xulapp = (function() {
                 loadFilePath = fp.file;
             }
 
-            NetUtil.asyncFetch(loadFilePath, function(inStream, status) {
+            var channel = NetUtil.newChannel(loadFilePath);
+            channel.contentType = 'text/xml';
+            channel.contentCharset = 'UTF-8';
+
+            NetUtil.asyncFetch(channel, function(inStream, status) {
                 if(!Components.isSuccessCode(status)) {
                     alert('Beim Lesen der Datei ist ein Fehler aufgetreten!');
                     return;
