@@ -118,6 +118,23 @@ Die Kommandozeilenanwendung kann die von der GUI-Anwendung gespeicherten
 Dateien öffnen.  Im Übrigen findet sich unter doc/examples/ustva eine
 Beispiel-Datei.
 
+
+ Installation der Git-Version
+-------------------------------
+
+Der Quellcode von Geierlein ist unter https://github.com/stesie/geierlein
+verfügbar.  Wenn du Verbesserungen am Programm vornehmen möchtest, kannst
+du dort auch einen eigenen Fork anlegen und anschließend über einen Pull
+Request zur Verfügung stellen.
+
+Geierlein verwendet momentan zwei Module, die zusätzlich zu installieren
+sind:
+
+   $ git clone git://github.com/stesie/geierlein.git
+   $ git submodule init
+   $ git submodule update
+
+
 =============================================================================
 
 
