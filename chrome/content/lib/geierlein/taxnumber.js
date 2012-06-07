@@ -33,22 +33,22 @@ else if(typeof(module) !== 'undefined' && module.exports) {
 geierlein.taxnumber = {};
 
 geierlein.taxnumber.rules = [
-    [5, 5],         // Baden Württemberg
-    [3, 3, 5],      // Bayern
-    [2, 3, 5],      // Berlin
-    [3, 3, 5],      // Brandenburg
-    [2, 3, 5],      // Bremen
-    [2, 3, 5],      // Hamburg
-    [3, 3, 5],      // Hessen
-    [3, 3, 5],      // Mecklenburg-Vorpommern
-    [2, 3, 5],      // Niedersachsen
-    [3, 4, 4],      // Nordrhein-Westfalen
-    [2, 3, 4, 1],   // Rheinland-Pfalz
-    [3, 3, 5],      // Saarland
-    [3, 3, 5],      // Sachsen
-    [3, 3, 5],      // Sachsen-Anhalt
-    [2, 3, 5],      // Schleswig-Holstein
-    [3, 3, 5]       // Thüringen
+    { spacer: '/',  groups: [5, 5]},         // Baden Württemberg
+    { spacer: '/',  groups: [3, 3, 5]},      // Bayern
+    { spacer: '/',  groups: [2, 3, 5]},      // Berlin
+    { spacer: '/',  groups: [3, 3, 5]},      // Brandenburg
+    { spacer: ' ',  groups: [2, 3, 5]},      // Bremen
+    { spacer: '/',  groups: [2, 3, 5]},      // Hamburg
+    { spacer: ' ',  groups: [3, 3, 5]},      // Hessen
+    { spacer: '/',  groups: [3, 3, 5]},      // Mecklenburg-Vorpommern
+    { spacer: '/',  groups: [2, 3, 5]},      // Niedersachsen
+    { spacer: '/',  groups: [3, 4, 4]},      // Nordrhein-Westfalen
+    { spacer: '/',  groups: [2, 3, 4, 1]},   // Rheinland-Pfalz
+    { spacer: '/',  groups: [3, 3, 5]},      // Saarland
+    { spacer: '/',  groups: [3, 3, 5]},      // Sachsen
+    { spacer: '/',  groups: [3, 3, 5]},      // Sachsen-Anhalt
+    { spacer: ' ',  groups: [2, 3, 5]},      // Schleswig-Holstein
+    { spacer: '/',  groups: [3, 3, 5]}       // Thüringen
 ];
 
 geierlein.taxnumber.prefixes = [
@@ -70,21 +70,34 @@ geierlein.taxnumber.prefixes = [
     "4"             // Thüringen
 ];
 
+/**
+ * Get a sample tax number in "user notation".
+ *
+ * @param {integer} land Number of federal state for which to get the sample (1 to 16)
+ * @return {String} The sample tax number in "user notation"
+ */
 geierlein.taxnumber.getSample = function(land) {
-    /* Get rule according to choosen federal state (#land).  The options
+    /* Get rule according to chosen federal state (#land).  The options
      * in the frontend are indexed beginning from one, there subtract one */
     var rule = geierlein.taxnumber.rules[land - 1];
     var result = "";
 
-    for(var i = 0; i < rule.length; i ++) {
-        result += '/' + '12345'.substring(0, rule[i]);
+    for(var i = 0; i < rule.groups.length; i ++) {
+        result += rule.spacer + '12345'.substring(0, rule.groups[i]);
     }
 
     return result.substring(1);
 };
 
+/**
+ * Format the user-provided tax number into 13-digit format according to spec.
+ *
+ * @param {integer} land Which federal state the tax number belongs to (1 to 16)
+ * @param {String} steuernummer The tax number in user-provided notation
+ * @return {String} The tax number in 13-digit notation
+ */
 geierlein.taxnumber.format = function(land, steuernummer) {
-    var rule = geierlein.taxnumber.rules[land - 1];
+    var rule = geierlein.taxnumber.rules[land - 1].groups;
     var prefix = geierlein.taxnumber.prefixes[land - 1];
     var pieces = steuernummer.split(/[\/ ]/);
 
@@ -98,7 +111,7 @@ geierlein.taxnumber.format = function(land, steuernummer) {
         }
     }
 
-    if(this.land == 1) {
+    if(land == 1) {
         /* Special concatenation rule for Baden Württemberg */
         return '28' + pieces[0].substr(0, 2) + '0' +
             pieces[0].substr(2) + pieces[1];

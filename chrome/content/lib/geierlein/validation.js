@@ -106,7 +106,7 @@ geierlein.validation.rules = {
             return false;
         }
     
-        var rule = geierlein.taxnumber.rules[this.land - 1];
+        var rule = geierlein.taxnumber.rules[this.land - 1].groups;
         var pieces = val.split(/[\/ ]/);
     
         if(pieces.length !== rule.length) {
