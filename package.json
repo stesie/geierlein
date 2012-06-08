@@ -1,0 +1,11 @@
+{
+  "name": "Geierlein",
+  "description": "Elster UStVA implementation in pure JavaScript",
+  "author": "Stefan Siegl <stesie@brokenpipe.de>",
+  "private": true,
+  "bin" : "bin/geierlein",
+  "dependencies": {
+    "iconv": "*",
+    "optimist": "*"
+  }
+}
