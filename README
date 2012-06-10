@@ -81,11 +81,10 @@ Kommandozeile aus aufgerufen werden:
 
 Mit Node.js kann Geierlein auch direkt von der Kommandozeile genutzt
 werden.  Erforderlich ist eine Node.js Installation mit den Zusatzpaketen
-"iconv" und "optimist".  Um diese zu installieren reichen folgene Aufrufe
-aus:
+"iconv" und "optimist".  Diese sind nicht Teil der Geierlein Distribution,
+können jedoch mit folgendem Aufruf installiert werden:
 
-   $ npm install iconv
-   $ npm install optimist
+   $ npm install .
 
 Sobald die Node.js Umgebung installiert ist, kann Geierlein wie folgt
 verwendet werden:
