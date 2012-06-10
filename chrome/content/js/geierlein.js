@@ -121,7 +121,14 @@
                 alert('Bei der Datenübertragung ist ein Fehler aufgetreten.');
                 return;
             }
-            showProtocol(res);
+
+            var status = res.match(/<Code>(.*?)<\/Code>\s*<Text>(.*?)<\/Text>/);
+            if(+status[1] === 0) {
+                showProtocol(res);
+            } else {
+                alert('Die Datenübertragung wurde vom Server abgebrochen:\n' +
+                    status[2] + '\nFehlercode: ' + status[1]);
+            }
         });
     };
     
