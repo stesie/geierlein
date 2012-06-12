@@ -62,6 +62,15 @@ a.left {
     width: 420px;
 }
 
+.form-horizontal .buttons {
+    width: 600px;
+    text-align: right;
+}
+
+.form-horizontal .form-actions .buttons {
+    width: 440px;
+}
+
 .schnell {
     display: none;
 }
