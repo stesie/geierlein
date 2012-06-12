@@ -1,43 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet href="chrome://geierlein/content/css/xulapp.css" type="text/css"?>
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" id="main" title="Geierlein - der freie Elster Client" width="1024" height="768">
-	<toolbox>
-		<menubar>
-			<menu label="Datei" menuactive="true">
-				<menupopup>
-				    <menuitem label="Neu" oncommand="xulapp.resetForm();"/>
-					<menuitem label="Öffnen ..." oncommand="xulapp.openFile();"/>
-					<menuitem label="Speichern" oncommand="xulapp.saveFile();"/>
-					<menuitem label="Speichern unter ..." oncommand="xulapp.saveFileAs();"/>
-					<menuseparator/>
-					<menuitem label="Daten senden ..." oncommand="xulapp.send(false);"/>
-					<menuitem label="Als Testfall senden ..." oncommand="xulapp.send(true);"/>
-					<menuseparator/>
-					<menuitem label="Beenden" oncommand="xulapp.shutdown();"/>
-				</menupopup>
-			</menu>
-			<menu label="Werkzeuge" class="hideDevel">
-				<menupopup>
-				    <menuitem label="Extension Manager" oncommand="window.open('chrome://mozapps/content/extensions/extensions.xul?type=extensions', '', 'chrome');"/>
-					<menuitem label="DOM Inspector" oncommand="window.open('chrome://inspector/content/inspector.xul', '', 'chrome');"/>
+    <toolbox>
+        <menubar>
+            <menu label="Datei" menuactive="true">
+                <menupopup>
+                    <menuitem label="Neu" oncommand="xulapp.resetForm();"/>
+                    <menuitem label="Öffnen ..." oncommand="xulapp.openFile();"/>
+                    <menuitem label="Speichern" oncommand="xulapp.saveFile();"/>
+                    <menuitem label="Speichern unter ..." oncommand="xulapp.saveFileAs();"/>
+                    <menuseparator/>
+                    <menuitem label="Daten senden ..." oncommand="xulapp.send(false);"/>
+                    <menuitem label="Als Testfall senden ..." oncommand="xulapp.send(true);"/>
+                    <menuseparator/>
+                    <menuitem label="Beenden" oncommand="xulapp.shutdown();"/>
+                </menupopup>
+            </menu>
+            <menu label="Werkzeuge" class="hideDevel">
+                <menupopup>
+                    <menuitem label="Extension Manager" oncommand="window.open('chrome://mozapps/content/extensions/extensions.xul?type=extensions', '', 'chrome');"/>
+                    <menuitem label="DOM Inspector" oncommand="window.open('chrome://inspector/content/inspector.xul', '', 'chrome');"/>
                     <menuitem label="JavaScript Shell" oncommand="window.open('chrome://extensiondev/content/shell.xul', '', 'chrome');"/>
-					<menuitem label="about:config" oncommand="window.open('chrome://global/content/config.xul', '', 'chrome');"/>
-				</menupopup>
-			</menu>
-			<menu label="Hilfe">
-				<menupopup>
-					<menuitem label="Info" oncommand="xulapp.showInfo();"/>
-				</menupopup>
-			</menu>
-		</menubar>
-		<toolbar>
-			<toolbarbutton label="Neu" id="new" oncommand="xulapp.resetForm();"/>
-			<toolbarbutton label="Öffnen" id="open" oncommand="xulapp.openFile();"/>
-			<toolbarbutton label="Speichern" id="save" oncommand="xulapp.saveFile();"/>
-			<toolbarseparator/>
-			<toolbarbutton label="Daten senden" id="send" oncommand="xulapp.send(false);"/>
-		</toolbar>
-	</toolbox>
-	<iframe src="chrome://geierlein/content/index.html" id="doc" flex="1"/>
-	<script type="application/javascript" src="chrome://geierlein/content/js/xulapp.js"/>
+                    <menuitem label="about:config" oncommand="window.open('chrome://global/content/config.xul', '', 'chrome');"/>
+                </menupopup>
+            </menu>
+            <menu label="Hilfe">
+                <menupopup>
+                    <menuitem label="Info" oncommand="xulapp.showInfo();"/>
+                </menupopup>
+            </menu>
+        </menubar>
+        <toolbar>
+            <toolbarbutton label="Neu" id="new" oncommand="xulapp.resetForm();"/>
+            <toolbarbutton label="Öffnen" id="open" oncommand="xulapp.openFile();"/>
+            <toolbarbutton label="Speichern" id="save" oncommand="xulapp.saveFile();"/>
+            <toolbarseparator/>
+            <toolbarbutton label="Daten senden" id="send" oncommand="xulapp.send(false);"/>
+        </toolbar>
+    </toolbox>
+    <iframe src="chrome://geierlein/content/index.html" id="doc" flex="1"/>
+    <script type="application/javascript" src="chrome://geierlein/content/js/xulapp.js"/>
 </window>

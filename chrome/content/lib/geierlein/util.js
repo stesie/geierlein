@@ -53,7 +53,7 @@ geierlein.util.parseFile = function(data) {
     var result = {};
     data = data.split(/[\r\n]+/);
     for(var i = 0; i < data.length; i ++) {
-		var line = data[i].replace(/#.*/, '');		// ignore comments
+        var line = data[i].replace(/#.*/, '');		// ignore comments
         if(line.match(/^\s*$/)) {
             continue;   // skip empty lines
         }

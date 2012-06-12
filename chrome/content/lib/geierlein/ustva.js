@@ -29,7 +29,7 @@ else if(typeof(module) !== 'undefined' && module.exports) {
         Datenlieferant: require('./datenlieferant.js'),
         Steuerfall: require('./steuerfall.js'),
         util: require('./util.js'),
-		validation: require('./validation.js')
+        validation: require('./validation.js')
     };
 }
 
@@ -231,17 +231,17 @@ geierlein.util.extend(geierlein.UStVA.prototype, {
         return getValue(this.kz81, +0.19) +
             getValue(this.kz86, +0.07) +
             getValue(this.kz36) +
-			getValue(this.kz80) +
-			getValue(this.kz96) +
-			getValue(this.kz98) +
-			getValue(this.kz89, +0.19) +
-			getValue(this.kz93, +0.07) +
-			getValue(this.kz85) +
-			getValue(this.kz74) +
-			getValue(this.kz79) +
-			getValue(this.kz53) +
-			getValue(this.kz47) +
-			getValue(this.kz65) +
+            getValue(this.kz80) +
+            getValue(this.kz96) +
+            getValue(this.kz98) +
+            getValue(this.kz89, +0.19) +
+            getValue(this.kz93, +0.07) +
+            getValue(this.kz85) +
+            getValue(this.kz74) +
+            getValue(this.kz79) +
+            getValue(this.kz53) +
+            getValue(this.kz47) +
+            getValue(this.kz65) +
             getValue(this.kz66, -1) +
             getValue(this.kz61, -1) +
             getValue(this.kz62, -1) +
@@ -249,8 +249,8 @@ geierlein.util.extend(geierlein.UStVA.prototype, {
             getValue(this.kz63, -1) +
             getValue(this.kz64, -1) +
             getValue(this.kz59, -1) +
-			getValue(this.kz69) +
-			getValue(this.kz39, -1);
+            getValue(this.kz69) +
+            getValue(this.kz39, -1);
     },
 
     /**

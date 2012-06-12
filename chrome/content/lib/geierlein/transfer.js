@@ -29,8 +29,8 @@ var ipAddrs = [
 ];
 
 function getRandomIpAddress() {
-	var i = Math.floor(Math.random() * ipAddrs.length);
-	return ipAddrs[i];
+    var i = Math.floor(Math.random() * ipAddrs.length);
+    return ipAddrs[i];
 }
 
 var geierlein = {};
@@ -38,8 +38,8 @@ var geierlein = {};
 if(typeof(window) !== 'undefined') {
     geierlein = window.geierlein = window.geierlein || {};
 
-	geierlein.transfer = function(encData, callback) {
-	    var targetUrl = 'http://' + getRandomIpAddress() +
+    geierlein.transfer = function(encData, callback) {
+        var targetUrl = 'http://' + getRandomIpAddress() +
             '/Elster2/EMS/ElsterAnmeldung';
         $.ajax(targetUrl, {
             type: 'POST',
@@ -68,43 +68,43 @@ else if(typeof(module) !== 'undefined' && module.exports) {
     module.exports = function(encData, callback) {
         var http = require('http');
         var ipaddr = getRandomIpAddress();
-		var post_options = {
-		    host: ipaddr,
-		    port: '80',
-		    path: '/Elster2/EMS/ElsterAnmeldung',
-		    method: 'POST',
-		    headers: {
-		        'Content-Type': 'text/xml',
-		        'Content-Length': encData.length
-		    }
-		};
+        var post_options = {
+            host: ipaddr,
+            port: '80',
+            path: '/Elster2/EMS/ElsterAnmeldung',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/xml',
+                'Content-Length': encData.length
+            }
+        };
 
-		var post_request = http.request(post_options, function(res) {
-			if(res.statusCode != 200) {
-				callback(false);
-				return;
-			}
+        var post_request = http.request(post_options, function(res) {
+            if(res.statusCode != 200) {
+                callback(false);
+                return;
+            }
 
-			var buf = new Buffer(parseInt(res.headers['content-length'], 10));
-			var ptr = 0;
+            var buf = new Buffer(parseInt(res.headers['content-length'], 10));
+            var ptr = 0;
 
             /* Receive chunks and add them to the Buffer object. */
-			res.on('data', function(chunk) {
-			    chunk.copy(buf, ptr);
-			    ptr += chunk.length;
-			});
+            res.on('data', function(chunk) {
+                chunk.copy(buf, ptr);
+                ptr += chunk.length;
+            });
 
             /* Convert buffer from ISO8859-1 to UTF-8 to conveniently
                handle it in Node.js. */
-			res.on('end', function() {
-			    var iconv = new Iconv('ISO8859-1', 'UTF-8');
-			    var resData = iconv.convert(buf).toString('utf8');
-				callback(geierlein.util.rewriteEncoding(resData, 'UTF-8'));
-			});
-		});
+            res.on('end', function() {
+                var iconv = new Iconv('ISO8859-1', 'UTF-8');
+                var resData = iconv.convert(buf).toString('utf8');
+                callback(geierlein.util.rewriteEncoding(resData, 'UTF-8'));
+            });
+        });
 
-		post_request.write(encData);
-		post_request.end();
+        post_request.write(encData);
+        post_request.end();
     };
 }
 
