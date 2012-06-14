@@ -261,11 +261,13 @@
      * Show/hide rarely used elements, when fast entry checkbox is toggled.
      */
     $('#schnell').on('click', function(ev) {
-        if($('#schnell').prop('checked')) {
+        if($('#schnell').hasClass('active')) {
             $('.schnell').hide('slow');
         } else {
             $('.schnell').show('slow');
         }
+
+        ev.preventDefault();
     });
 
     /**
