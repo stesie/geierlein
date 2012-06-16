@@ -101,7 +101,7 @@ var xulapp = (function() {
                     storeStringToFile(data, fp);
                 }
 
-                if(true || !asTestcase) {
+                if(!asTestcase) {
                     prefs.setIntPref('autofill.time.lastyear', cW.$('#jahr').val());
                     prefs.setIntPref('autofill.time.lastmonth', cW.$('#monat').val());
                 }
