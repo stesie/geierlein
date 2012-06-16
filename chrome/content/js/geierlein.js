@@ -62,6 +62,7 @@
         var xslUrl = location.href.replace(/[^\/]+$/, 'xsl/ustva.xsl');
         res = geierlein.util.addStylesheetHref(res, xslUrl);
 
+        $('body').trigger('show-protocol', res);
         $('#protocol-frame')[0].src = 'data:text/xml;charset=ISO8859-1,' + escape(res);
         $('#protocol').modal();
     }
@@ -112,6 +113,7 @@
             return;
         }
 
+        $('body').trigger('send-taxcase');
         ustva.toEncryptedXml(asTestcase, function(data, cb) {
             $('#wait').modal();
             geierlein.transfer(data, cb);
@@ -134,6 +136,16 @@
     
     geierlein.isDatenlieferantValid = function() {
         return datenlieferant.validate() === true;
+    };
+
+    geierlein.getTaxcaseIdentifier = function() {
+        var id = ustva.steuernummer.replace(/[^0-9]/g, '');
+        /* add year & month */
+        id += "_" + ustva.jahr + ("0" + ustva.monat).substr(-2);
+        if(ustva.kz10 == 1) {
+            id += "_mod";
+        }
+        return id;
     };
 
     geierlein.resetForm = function() {

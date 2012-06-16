@@ -16,6 +16,11 @@
                     <menuitem label="Beenden" oncommand="xulapp.shutdown();"/>
                 </menupopup>
             </menu>
+            <menu label="Bearbeiten">
+                <menupopup>
+                    <menuitem label="Einstellungen" oncommand="xulapp.openPrefWindow();"/>
+                </menupopup>
+            </menu>
             <menu label="Werkzeuge" class="hideDevel">
                 <menupopup>
                     <menuitem label="Extension Manager" oncommand="window.open('chrome://mozapps/content/extensions/extensions.xul?type=extensions', '', 'chrome');"/>

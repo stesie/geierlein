@@ -1,5 +1,8 @@
 pref("toolkit.defaultChromeURI", "chrome://geierlein/content/main.xul");
 
+pref("geierlein.autosave.geierfile", false);
+pref("geierlein.autosave.protocol", true);
+
 pref("geierlein.defaultAddress.name", "");
 pref("geierlein.defaultAddress.strasse", "");
 pref("geierlein.defaultAddress.plz", "");

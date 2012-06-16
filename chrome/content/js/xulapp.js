@@ -90,7 +90,22 @@ var xulapp = (function() {
 
     window.addEventListener("load", function() {
         cW = doc.contentWindow;
-        cW.$('body').removeClass('native').addClass('xulapp');
+        cW.$('body')
+            .removeClass('native')
+            .addClass('xulapp')
+            .on('send-taxcase', function(ev, arg) {
+                if(prefs.getBoolPref('autosave.geierfile')) {
+                    var fp = xulapp.getAutosaveFilepath();
+                    var data = cW.geierlein.serialize();
+                    storeStringToFile(data, fp);
+                }
+            })
+            .on('show-protocol', function(ev, res) {
+                if(prefs.getBoolPref('autosave.protocol')) {
+                    var fp = xulapp.getAutosaveFilepath('.proto.xml');
+                    storeStringToFile(res, fp);
+                }
+            });
 
         /* Initialize access to preferences system. */
         var prefService = C['@mozilla.org/preferences-service;1']
@@ -169,6 +184,49 @@ var xulapp = (function() {
     }, false);
 
     return {
+        /* Get autosave-dir as nsILocalFile instance.
+         *
+         * If the geierlein.autosave.dir preference is set, the path specified
+         * by the preference is returned.  If it doesn't exist, a folder named
+         * "protos" is created within the profile directory and returned.
+         */
+        getAutosaveDir: function() {
+            var fp;
+            try {
+                fp = prefs.getComplexValue("autosave.dir", I.nsILocalFile);
+            } catch(e) {
+                var dirService = C["@mozilla.org/file/directory_service;1"].getService(I.nsIProperties);
+                var curProcDir = dirService.get("PrefD", I.nsIFile);
+
+                fp = curProcDir.clone().QueryInterface(I.nsILocalFile);
+                fp.append('protos');
+                if(!fp.exists()) {
+                    fp.create(I.nsIFile.DIRECTORY_TYPE, 0700);
+                }
+            }
+            return fp;
+        },
+
+        getAutosaveFilepath: function(suffix) {
+            var fp = xulapp.getAutosaveDir();
+            var fname = cW.geierlein.getTaxcaseIdentifier();
+
+            function pad(n) {
+                return ("0" + n).substr(-2);
+            }
+
+            var d = new Date();
+            fname += "_" + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate());
+            fname += "_" + pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds());
+
+            if(suffix !== undefined) {
+                fname += suffix;
+            }
+
+            fp.append(fname);
+            return fp;
+        },
+
         loadDefaultAddressData: function() {
             cW.$(DEFAULT_ADDRESS_DATA_SELECTOR).each(function() {
                 var $el = cW.$(this);
@@ -193,6 +251,11 @@ var xulapp = (function() {
             filePath = undefined;
             xulapp.loadDefaultAddressData();
             fileChanged = false;
+        },
+
+        openPrefWindow: function() {
+            var features = "chrome,titlebar,toolbar,centerscreen,modal";
+            window.openDialog('chrome://geierlein/content/pref/pref.xul', "Einstellungen", features, xulapp);
         },
 
         openFile: function(loadFilePath) {

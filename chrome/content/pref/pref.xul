@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet href="chrome://geierlein/content/css/xulapp.css" type="text/css"?>
+<prefwindow id="pref" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    <prefpane id="paneMain" label="Allgemein" src="chrome://geierlein/content/pref/main.xul"/>
+</prefwindow>
