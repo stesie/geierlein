@@ -93,11 +93,17 @@ var xulapp = (function() {
         cW.$('body')
             .removeClass('native')
             .addClass('xulapp')
-            .on('send-taxcase', function(ev, arg) {
+            .on('reset-form', xulapp.autofillTimeRange)
+            .on('send-taxcase', function(ev, asTestcase) {
                 if(prefs.getBoolPref('autosave.geierfile')) {
                     var fp = xulapp.getAutosaveFilepath();
                     var data = cW.geierlein.serialize();
                     storeStringToFile(data, fp);
+                }
+
+                if(true || !asTestcase) {
+                    prefs.setIntPref('autofill.time.lastyear', cW.$('#jahr').val());
+                    prefs.setIntPref('autofill.time.lastmonth', cW.$('#monat').val());
                 }
             })
             .on('show-protocol', function(ev, res) {
@@ -144,6 +150,7 @@ var xulapp = (function() {
         } else {
             /* Load default address data from preferences system. */
             xulapp.loadDefaultAddressData();
+            xulapp.autofillTimeRange();
         }
         
         if(cW.geierlein.isDatenlieferantValid()) {
@@ -184,6 +191,40 @@ var xulapp = (function() {
     }, false);
 
     return {
+        autofillTimeRange: function() {
+            switch(prefs.getIntPref('autofill.time.mode')) {
+                case 1: /* last month */
+                    /* do nothing, it's Geierlein's default to preselect
+                       the last month. */
+                    break;
+                case 2: /* last quarter */
+                    var d = new Date();
+                    d.setMonth(d.getMonth() - (d.getMonth() % 3));
+                    d.setMonth(d.getMonth() - 3);
+                    cW.$('#jahr').val(d.getFullYear());
+                    cW.$('#monat').val((d.getMonth() / 3) + 41);
+                    break;
+                case 3: /* last transmission date */
+                    try {
+                        var year = prefs.getIntPref('autofill.time.lastyear');
+                        var month = prefs.getIntPref('autofill.time.lastmonth');
+                        if(month === 12) {
+                            /* Select first month of next year */
+                            month = 1;
+                            year ++;
+                        } else if(month === 44) {
+                            /* Select first quarter of next year */
+                            month = 41;
+                            year ++;
+                        } else {
+                            month ++;
+                        }
+                        cW.$('#jahr').val(year);
+                        cW.$('#monat').val(month);
+                    } catch(e) {}
+            };
+        },
+
         /* Get autosave-dir as nsILocalFile instance.
          *
          * If the geierlein.autosave.dir preference is set, the path specified

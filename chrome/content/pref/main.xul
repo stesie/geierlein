@@ -3,10 +3,23 @@
     <prefpane id="paneMain" label="Allgemein">
         <script src="chrome://geierlein/content/pref/main.js"/>
         <preferences>
+            <!-- autofill of timerange choosers -->
+            <preference id="geierlein.autofill.time.mode" name="geierlein.autofill.time.mode" type="int"/>
+
+            <!-- autosave -->
             <preference id="geierlein.autosave.geierfile" name="geierlein.autosave.geierfile" type="bool"/>
             <preference id="geierlein.autosave.protocol" name="geierlein.autosave.protocol" type="bool"/>
             <preference id="geierlein.autosave.dir" name="geierlein.autosave.dir" type="file"/>
         </preferences>
+
+        <groupbox>
+            <caption>Voranmeldungszeitraum neuer Formulare</caption>
+            <radiogroup preference="geierlein.autofill.time.mode">
+                <radio label="letzter Monat" value="1"/>
+                <radio label="letztes Quartal" value="2"/>
+                <radio label="entsprechend letzter Übermittlung" value="3"/>
+            </radiogroup>
+        </groupbox>
 
         <groupbox>
             <caption>Automatisches Speichern</caption>

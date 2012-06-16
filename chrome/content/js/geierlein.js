@@ -113,7 +113,7 @@
             return;
         }
 
-        $('body').trigger('send-taxcase');
+        $('body').trigger('send-taxcase', asTestcase);
         ustva.toEncryptedXml(asTestcase, function(data, cb) {
             $('#wait').modal();
             geierlein.transfer(data, cb);
@@ -156,7 +156,9 @@
         d.setMonth(d.getMonth() - 1);
         $jahr.val(d.getFullYear());
         $monat.val(d.getMonth() + 1);
-        
+
+        $('body').trigger('reset-form');
+
         /* Copy over all field data initially to consider browser's
          * auto-fill data, etc.pp
          */
