@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!-- Version 2.0 -->
 <xsl:stylesheet version="1.0" 
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
@@ -8,7 +8,7 @@
   <!-- Schreibt die Testfall-zeile, falls es sich um einen Testfall handelt -->
   <xsl:template name="testfall">
 
-    <!-- für Verfahrensnachrichten -->
+    <!-- fÃ¼r Verfahrensnachrichten -->
     <xsl:if test="//elster:TransferHeader/elster:Testmerker != ''">
    		<xsl:if test="//elster:TransferHeader/elster:Testmerker != '0'">
    			<xsl:if test="//elster:TransferHeader/elster:Testmerker != '000000000'">
@@ -17,7 +17,7 @@
     	</xsl:if>
     </xsl:if>
     
-    <!-- für Fehlernachrichten -->
+    <!-- fÃ¼r Fehlernachrichten -->
     <xsl:if test="//fehler/testmerker != ''">
       <xsl:if test="//fehler/testmerker != '0'">
       	<xsl:if test="//fehler/testmerker != '000000000'">
@@ -26,7 +26,7 @@
       </xsl:if>
     </xsl:if>
     
-    <!-- für den ELMA5-Statusbericht -->
+    <!-- fÃ¼r den ELMA5-Statusbericht -->
     <xsl:if test="@testmerker != ''">
 		<xsl:if test="@testmerker != '0'">
 			<xsl:if test="@testmerker != '000000000'">
@@ -62,7 +62,7 @@
   </xsl:template>
   
   <xsl:template name="ElsterInfo">
-  	<!-- für Verfahrensnachrichten -->
+  	<!-- fÃ¼r Verfahrensnachrichten -->
     <xsl:if test="//elster:Zusatz/elster:ElsterInfo" >
       <p><strong>Wichtige Mitteilung: </strong></p>
       <xsl:for-each select="//elster:Zusatz/elster:ElsterInfo">
@@ -71,7 +71,7 @@
         </p>
       </xsl:for-each>
     </xsl:if>
-    <!-- für Fehlernachrichten -->
+    <!-- fÃ¼r Fehlernachrichten -->
     <xsl:if test="//fehler/ElsterInfo" >
       <p><strong>Wichtige Mitteilung: </strong></p>
       <xsl:for-each select="//fehler/ElsterInfo">

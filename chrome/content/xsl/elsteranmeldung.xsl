@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!-- Version 2.0 -->
 <xsl:stylesheet version="1.0"
 		xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
@@ -8,9 +8,9 @@
 	<xsl:include href="steuernummer.xsl" />
 	<xsl:include href="elsterbasis.xsl" />
 	
-	<!--Gemeinsame Elemente für die UStVA und LStA    -->
+	<!--Gemeinsame Elemente fÃ¼r die UStVA und LStA    -->
 	<xsl:template name="Uebermittelt_von">
-		<xsl:text>Übermittelt von:</xsl:text>
+		<xsl:text>Ãœbermittelt von:</xsl:text>
 		<br />
 		<small>
 			<xsl:value-of select="elster:DatenTeil/elster:Nutzdatenblock/elster:Nutzdaten/elster:Anmeldungssteuern/elster:DatenLieferant/elster:Name" />
@@ -101,7 +101,7 @@
 				<xsl:value-of select="substring($eingangsdatum,13,2)" />
 			</xsl:when>
 			<xsl:otherwise>
-				<xsl:text>Ausdruck vor Übermittlung</xsl:text>
+				<xsl:text>Ausdruck vor Ãœbermittlung</xsl:text>
 			</xsl:otherwise>
 		</xsl:choose>
 		<xsl:if test="elster:TransferHeader/elster:TransferTicket">
@@ -446,7 +446,7 @@
 		<xsl:if test="elster:Zeitraum[starts-with(.,'44')]">4. Kalendervierteljahr</xsl:if>
 		<xsl:if test="elster:Zeitraum[starts-with(.,'01')]">Januar</xsl:if>
 		<xsl:if test="elster:Zeitraum[starts-with(.,'02')]">Februar</xsl:if>
-		<xsl:if test="elster:Zeitraum[starts-with(.,'03')]">März</xsl:if>
+		<xsl:if test="elster:Zeitraum[starts-with(.,'03')]">MÃ¤rz</xsl:if>
 		<xsl:if test="elster:Zeitraum[starts-with(.,'04')]">April</xsl:if>
 		<xsl:if test="elster:Zeitraum[starts-with(.,'05')]">Mai</xsl:if>
 		<xsl:if test="elster:Zeitraum[starts-with(.,'06')]">Juni</xsl:if>
@@ -462,16 +462,16 @@
 	<!--****************    Hinweise     **********************-->
 	<xsl:template name="Hinweis_zu_Saeumniszuschlaegen">
 		<p>
-			Bitte beachten Sie, dass bei Zahlung der angemeldeten Steuer durch Hingabe eines Schecks erst der dritte Tag nach dem Tag des Eingangs des Schecks bei der zuständigen Finanzkasse als
-			Einzahlungstag gilt (§ 224 Absatz 2 Nr. 1 Abgabenordnung). Fällt der dritte Tag auf einen Samstag, einen Sonntag oder einen gesetzlichen Feiertag, gilt die Zahlung erst am nächstfolgenden
-			Werktag als bewirkt. Gilt die Zahlung der angemeldeten Steuer durch Hingabe eines Schecks erst nach dem Fälligkeitstag als bewirkt, fallen Säumniszuschläge an (§ 240 Absatz 3 Abgabenordnung). Um
-			diese zu vermeiden, wird empfohlen, am Lastschriftverfahren teilzunehmen. Die Teilnahme am Lastschriftverfahren ist jederzeit widerruflich und völlig risikolos. Sollte einmal ein Betrag zu
-			Unrecht abgebucht werden, können Sie diese Abbuchung bei Ihrer Bank innerhalb von 6 Wochen stornieren lassen. Zur Teilnahme am Lastschriftverfahren setzen Sie sich bitte mit Ihrem Finanzamt in
+			Bitte beachten Sie, dass bei Zahlung der angemeldeten Steuer durch Hingabe eines Schecks erst der dritte Tag nach dem Tag des Eingangs des Schecks bei der zustÃ¤ndigen Finanzkasse als
+			Einzahlungstag gilt (Â§ 224 Absatz 2 Nr. 1 Abgabenordnung). FÃ¤llt der dritte Tag auf einen Samstag, einen Sonntag oder einen gesetzlichen Feiertag, gilt die Zahlung erst am nÃ¤chstfolgenden
+			Werktag als bewirkt. Gilt die Zahlung der angemeldeten Steuer durch Hingabe eines Schecks erst nach dem FÃ¤lligkeitstag als bewirkt, fallen SÃ¤umniszuschlÃ¤ge an (Â§ 240 Absatz 3 Abgabenordnung). Um
+			diese zu vermeiden, wird empfohlen, am Lastschriftverfahren teilzunehmen. Die Teilnahme am Lastschriftverfahren ist jederzeit widerruflich und vÃ¶llig risikolos. Sollte einmal ein Betrag zu
+			Unrecht abgebucht werden, kÃ¶nnen Sie diese Abbuchung bei Ihrer Bank innerhalb von 6 Wochen stornieren lassen. Zur Teilnahme am Lastschriftverfahren setzen Sie sich bitte mit Ihrem Finanzamt in
 			Verbindung.
 		</p>
 		<p>
 			<strong>
-				Dieses Übertragungsprotokoll ist nicht zur Übersendung an das Finanzamt bestimmt. Die Angaben sind auf ihre Richtigkeit hin zu prüfen. Sofern eine Unrichtigkeit festgestellt wird, ist eine
+				Dieses Ãœbertragungsprotokoll ist nicht zur Ãœbersendung an das Finanzamt bestimmt. Die Angaben sind auf ihre Richtigkeit hin zu prÃ¼fen. Sofern eine Unrichtigkeit festgestellt wird, ist eine
 				berichtigte Steueranmeldung abzugeben.
 			</strong>
 		</p>
@@ -481,7 +481,7 @@
 				<td>
 					<sup>*)</sup> 
 					<xsl:text xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-						Dieser Wert wurde arithmetisch ermittelt und nicht an die Finanzbehörde übermittelt.
+						Dieser Wert wurde arithmetisch ermittelt und nicht an die FinanzbehÃ¶rde Ã¼bermittelt.
 					</xsl:text>
 				</td>
 			</tr>

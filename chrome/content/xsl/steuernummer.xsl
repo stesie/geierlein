@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!-- StNrVerifier.xml_hash:43457111117237510540213195504186669350801435616035555064045238043746427975625 -->
 <!-- Version 2.0 -->
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:elster="http://www.elster.de/2002/XMLSchema" exclude-result-prefixes="elster">

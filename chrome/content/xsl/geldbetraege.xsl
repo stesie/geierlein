@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!-- Version 2.0 -->
 <xsl:stylesheet version="1.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
@@ -6,7 +6,7 @@
   exclude-result-prefixes="elster">
 
   <!--
-    Template zur Visualisierung der Beträge in Postfachnachrichten der Anmeldungssteuern
+    Template zur Visualisierung der BetrÃ¤ge in Postfachnachrichten der Anmeldungssteuern
   -->
 
 	<xsl:decimal-format name="geldformat" decimal-separator="," grouping-separator="." />
@@ -27,7 +27,7 @@
 				<xsl:with-param name="zahl" select="$betrag"/>
 			</xsl:call-template>   
 			
-			<!-- non-breaking-space und Euro-Zeichen hinzufügen -->
+			<!-- non-breaking-space und Euro-Zeichen hinzufÃ¼gen -->
 			<xsl:text>&#160;&#8364;</xsl:text>	
 		
 		</xsl:if>
@@ -46,11 +46,11 @@
 
 			<xsl:choose>			
 				<xsl:when test=" contains($zahl,'.') ">
-					<!-- die $zahl enthält einen Dezimalpunkt -->
+					<!-- die $zahl enthÃ¤lt einen Dezimalpunkt -->
 					<xsl:value-of select="format-number($zahl, '#.##0,00', 'geldformat')" />	
 				</xsl:when>	
 				<xsl:otherwise>
-					<!-- die $zahl enthält keinen Dezimalpunkt -->
+					<!-- die $zahl enthÃ¤lt keinen Dezimalpunkt -->
 					<xsl:value-of select="format-number($zahl, '#.##0', 'geldformat')" />
 				</xsl:otherwise>
 			</xsl:choose>

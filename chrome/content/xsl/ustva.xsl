@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!-- Version 2.0 -->
 <xsl:stylesheet version="1.0"
 		xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
@@ -154,10 +154,10 @@
 			<xsl:text>Umsatzsteuer-Voranmeldung</xsl:text>
 		</xsl:if>
 		<xsl:if test="starts-with($verfahren,'Dauerfristverlaengerung')">
-			<xsl:text>Antrag auf Dauerfristverlängerung</xsl:text>
+			<xsl:text>Antrag auf DauerfristverlÃ¤ngerung</xsl:text>
 		</xsl:if>
 		<xsl:if test="starts-with($verfahren,'Umsatzsteuersondervorauszahlung')">
-			<xsl:text>Antrag auf Dauerfristverlängerung / Anmeldung der Sondervorauszahlung</xsl:text>
+			<xsl:text>Antrag auf DauerfristverlÃ¤ngerung / Anmeldung der Sondervorauszahlung</xsl:text>
 		</xsl:if>
 	</xsl:template>
 
@@ -178,11 +178,11 @@
 		<div class="alCenter">
 			<h1>
 				<xsl:if test="starts-with(local-name(),'Umsatzsteuersondervorauszahlung')">
-					<xsl:text>Antrag auf Dauerfristverlängerung</xsl:text>
+					<xsl:text>Antrag auf DauerfristverlÃ¤ngerung</xsl:text>
 					<br />
 				</xsl:if>
 				<xsl:if test="starts-with(local-name(),'Dauerfristverlaengerung')">
-					<xsl:text>Antrag auf Dauerfristverlängerung</xsl:text>
+					<xsl:text>Antrag auf DauerfristverlÃ¤ngerung</xsl:text>
 					<br />
 				</xsl:if>
 				<xsl:if test="starts-with(local-name(),'Umsatzsteuersondervorauszahlung')">
@@ -194,7 +194,7 @@
 					<br />
 				</xsl:if>
 				<xsl:if test="not(starts-with(local-name(),'Umsatzsteuervoranmeldung'))">
-					(§§ 46 bis 48 <abbr class="help" title="Umsatzsteuer-Durchführungsverordnung">UStDV</abbr>)
+					(Â§Â§ 46 bis 48 <abbr class="help" title="Umsatzsteuer-DurchfÃ¼hrungsverordnung">UStDV</abbr>)
 					<br />
 				</xsl:if>
 				<xsl:call-template name="Zeitraum" />
@@ -220,7 +220,7 @@
 
 		<hr />
 
-		<h2>Hinweis zu Säumniszuschlägen</h2>
+		<h2>Hinweis zu SÃ¤umniszuschlÃ¤gen</h2>
 		<xsl:call-template name="Hinweis_zu_Saeumniszuschlaegen" />
 
 	</xsl:template>
@@ -290,19 +290,19 @@
 	<xsl:template name="UStVA">
 		<h2>Anmeldung der Umsatzsteuer-Vorauszahlung</h2>
 		<xsl:if test="elster:Kz41|elster:Kz44|elster:Kz49|elster:Kz43|elster:Kz48|elster:Kz51|elster:Kz86|elster:Kz35|elster:Kz36|elster:Kz77|elster:Kz76|elster:Kz80|elster:Kz81">
-			<h3>Lieferungen und sonstige Leistungen (einschließlich unentgeltlicher Wertabgaben)</h3>
+			<h3>Lieferungen und sonstige Leistungen (einschlieÃŸlich unentgeltlicher Wertabgaben)</h3>
 		</xsl:if>
 		<xsl:if test=" elster:Kz41 | elster:Kz44  | elster:Kz49    | elster:Kz43">
 			<xsl:call-template name="stfrUmsVost" />
 		</xsl:if>
 		<xsl:if test="elster:Kz48">
-			<h4>Steuerfreie Umsätze ohne Vorsteuerabzug</h4>
+			<h4>Steuerfreie UmsÃ¤tze ohne Vorsteuerabzug</h4>
 			<table>
 				<xsl:call-template name="UStVA_table_header" />
 				<tr>
 					<th scope="row" class="alLeft">
 						<small>
-							Umsätze nach § 4 Nr. 8 bis 28
+							UmsÃ¤tze nach Â§ 4 Nr. 8 bis 28
 							<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>
 						</small>
 					</th>
@@ -349,13 +349,13 @@
 						<xsl:choose>
 							<xsl:when test="2011 >= elster:Jahr[substring(.,1,4)]">
 								<small>
-									Erwerbe nach § 4b
+									Erwerbe nach Â§ 4b
 									<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>
 								</small>
 							</xsl:when>
 							<xsl:otherwise>	
 								<small>
-									Erwerbe nach §§ 4b und 25c 
+									Erwerbe nach Â§Â§ 4b und 25c 
 									<ABBR class="help" title="Umsatzsteuergesetz">UStG</ABBR>
 								</small>
 							</xsl:otherwise>
@@ -385,7 +385,7 @@
 		<xsl:if test="elster:Jahr[starts-with(.,'2004')]">
 			<xsl:if test="elster:Kz54   | elster:Kz55  | elster:Kz57 | elster:Kz45 | elster:Kz65">
 				<h4>
-					Umsätze, für die der Leistungsempfänger die Steuer nach § 13b Absatz 2
+					UmsÃ¤tze, fÃ¼r die der LeistungsempfÃ¤nger die Steuer nach Â§ 13b Absatz 2
 					<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>
 					schuldet
 				</h4>
@@ -395,7 +395,7 @@
 					<xsl:if test="elster:Kz45">
 						<tr>
 							<th scope="row" class="alLeft">
-								<strong>Nicht steuerbare Umsätze</strong>
+								<strong>Nicht steuerbare UmsÃ¤tze</strong>
 							</th>
 							<td class="alRight">45</td>
 							<td class="alRight">
@@ -409,7 +409,7 @@
 					<xsl:if test="elster:Kz65">
 						<tr>
 							<th scope="row" class="alLeft">
-								<small>Steuer infolge Wechsels der Besteuerungsart/-form sowie Nachsteuer auf versteuerte Anzahlungen wegen Steuersatzerhöhung</small>
+								<small>Steuer infolge Wechsels der Besteuerungsart/-form sowie Nachsteuer auf versteuerte Anzahlungen wegen SteuersatzerhÃ¶hung</small>
 							</th>
 							<td class="alRight" colspan="2" />
 							<td class="alRight">65</td>
@@ -430,7 +430,7 @@
 					<xsl:when test="( 2010 > elster:Jahr[substring(., 1, 4)] ) or ( (2010 = elster:Jahr[substring(., 1, 4)]) and ( (6 >= elster:Zeitraum[substring(., 1, 2)]) or (elster:Zeitraum[substring(., 1, 2)] = 41) or (elster:Zeitraum[substring(., 1, 2)] = 42) )) " >
 					<!-- Bis Juni 2010 -->
 						<h3>
-							Umsätze, für die als Leistungsempfänger die Steuer nach § 13b Absatz 2
+							UmsÃ¤tze, fÃ¼r die als LeistungsempfÃ¤nger die Steuer nach Â§ 13b Absatz 2
 							<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>
 							geschuldet wird
 						</h3>
@@ -438,7 +438,7 @@
 					<xsl:when test="(2010 = elster:Jahr[substring(., 1, 4)]) and ((elster:Zeitraum[substring(., 1, 2)] > 6) or (elster:Zeitraum[substring(., 1, 2)] = 43) or (elster:Zeitraum[substring(., 1, 2)] = 44))">
 					<!-- Ab Juli 2010 bis Dezember 2010 -->
 						<h3>
-							Umsätze, für die als Leistungsempfänger die Steuer nach § 13b Absatz 5
+							UmsÃ¤tze, fÃ¼r die als LeistungsempfÃ¤nger die Steuer nach Â§ 13b Absatz 5
 							<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>
 							geschuldet wird
 						</h3>
@@ -446,7 +446,7 @@
 					<xsl:otherwise>
 					<!-- Ab 2011 -->
 						<h3>		
-							Leistungsempfänger als Steuerschuldner (§ 13b <abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>)
+							LeistungsempfÃ¤nger als Steuerschuldner (Â§ 13b <abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>)
 						</h3>
 					</xsl:otherwise>
 				</xsl:choose>
@@ -456,7 +456,7 @@
 					<xsl:if test="elster:Kz65">
 						<tr>
 							<th scope="row" class="alLeft">
-								<small>Steuer infolge Wechsels der Besteuerungsform sowie Nachsteuer auf versteuerte Anzahlungen wegen Steuersatzerhöhung</small>
+								<small>Steuer infolge Wechsels der Besteuerungsform sowie Nachsteuer auf versteuerte Anzahlungen wegen SteuersatzerhÃ¶hung</small>
 							</th>
 							<td class="alRight" colspan="2" />
 							<td class="alRight">65</td>
@@ -472,7 +472,7 @@
 		</xsl:if>
 
 		<xsl:if test="elster:Kz66   | elster:Kz61  | elster:Kz62   | elster:Kz67  | elster:Kz63 | elster:Kz64  | elster:Kz59">
-			<h3>Abziehbare Vorsteuerbeträge</h3>
+			<h3>Abziehbare VorsteuerbetrÃ¤ge</h3>
 			<table>
 				<xsl:call-template name="UStVA_table_header" />
 				<xsl:call-template name="Vorsteuer" />
@@ -483,7 +483,7 @@
 			<xsl:if test="elster:Kz69">
 				<xsl:choose>
 					<xsl:when test="elster:Jahr[not(starts-with(.,'2004'))] and elster:Jahr[not(starts-with(.,'2005'))] ">
-						<h3>Andere Steuerbeträge</h3>
+						<h3>Andere SteuerbetrÃ¤ge</h3>
 					</xsl:when>
 					<xsl:otherwise>
 						<br />
@@ -497,27 +497,27 @@
 						<th scope="row" class="alLeft">
 							<small>
 								<xsl:if test="elster:Jahr[not(starts-with(.,'2004'))] and elster:Jahr[not(starts-with(.,'2005'))] ">
-									in Rechnungen unrichtig oder unberechtigt ausgewiesene Steuerbeträge (§ 14c
+									in Rechnungen unrichtig oder unberechtigt ausgewiesene SteuerbetrÃ¤ge (Â§ 14c
 									<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>)
-									sowie Steuerbeträge, die nach § 4 Nr. 4a Satz 1 Buchst. a Satz 2, § 6a Absatz 4 Satz 2, § 17 Absatz 1 Satz 6 oder § 25b Absatz 2
+									sowie SteuerbetrÃ¤ge, die nach Â§ 4 Nr. 4a Satz 1 Buchst. a Satz 2, Â§ 6a Absatz 4 Satz 2, Â§ 17 Absatz 1 Satz 6 oder Â§ 25b Absatz 2
 									<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>
 									geschuldet werden
 								</xsl:if>
 								<xsl:if test="elster:Jahr[starts-with(.,'2005')]">
-									Steuerbeträge, die vom letzten Abnehmer eines innergemeinschaftlichen Dreiecksgeschäfts geschuldet werden (§ 25b Absatz 2
+									SteuerbetrÃ¤ge, die vom letzten Abnehmer eines innergemeinschaftlichen DreiecksgeschÃ¤fts geschuldet werden (Â§ 25b Absatz 2
 									<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>),
-									in Rechnungen unrichtig oder unberechtigt ausgewiesene Steuerbeträge (§ 14c
+									in Rechnungen unrichtig oder unberechtigt ausgewiesene SteuerbetrÃ¤ge (Â§ 14c
 									<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>),
-									Steuerbeträge für Leistungen im Sinne des § 13a Absatz 1 Nr. 6
+									SteuerbetrÃ¤ge fÃ¼r Leistungen im Sinne des Â§ 13a Absatz 1 Nr. 6
 									<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>
-									sowie Steuerbeträge, die nach § 6a Absatz 4 Satz 2 oder § 17 Absatz 1 Satz 2
+									sowie SteuerbetrÃ¤ge, die nach Â§ 6a Absatz 4 Satz 2 oder Â§ 17 Absatz 1 Satz 2
 									<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>
 									geschuldet werden
 								</xsl:if>
 								<xsl:if test="elster:Jahr[starts-with(.,'2004')]">
-									Steuerbeträge, die vom letzten Abnehmer eines innergemeinschaftlichen Dreiecksgeschäfts geschuldet werden (§ 25b Absatz 2
+									SteuerbetrÃ¤ge, die vom letzten Abnehmer eines innergemeinschaftlichen DreiecksgeschÃ¤fts geschuldet werden (Â§ 25b Absatz 2
 									<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>),
-									in Rechnungen unrichtig oder unberechtigt ausgewiesene Steuerbeträge sowie Steuerbeträge, die nach § 6a Absatz 4 Satz 2 oder § 17 Absatz 1 Satz 2
+									in Rechnungen unrichtig oder unberechtigt ausgewiesene SteuerbetrÃ¤ge sowie SteuerbetrÃ¤ge, die nach Â§ 6a Absatz 4 Satz 2 oder Â§ 17 Absatz 1 Satz 2
 									<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>
 									geschuldet werden
 								</xsl:if>
@@ -537,7 +537,7 @@
 					<tr>
 						<th scope="row" class="alLeft">
 							<small>
-							Anrechnung (Abzug) der festgesetzten Sondervorauszahlung für Dauerfristverlängerung (nur auszufüllen in der letzten Voranmeldung des Besteuerungszeitraums, in der Regel Dezember)
+							Anrechnung (Abzug) der festgesetzten Sondervorauszahlung fÃ¼r DauerfristverlÃ¤ngerung (nur auszufÃ¼llen in der letzten Voranmeldung des Besteuerungszeitraums, in der Regel Dezember)
 							</small>
 						</th>
 						<td class="alRight" colspan="2" />
@@ -557,7 +557,7 @@
 								<strong>
 									Verbleibende Umsatzsteuer-Vorauszahlung
 									<br />
-									verbleibender Überschuss
+									verbleibender Ãœberschuss
 								</strong>
 							</small>
 						</th>
@@ -589,7 +589,7 @@
 				<xsl:if test="elster:Kz29">
 					<tr>
 						<th scope="row" class="alLeft">
-							<small>Verrechnung des Erstattungsbetrags erwünscht/ Erstattungsbetrag ist abgetreten</small>
+							<small>Verrechnung des Erstattungsbetrags erwÃ¼nscht/ Erstattungsbetrag ist abgetreten</small>
 						</th>
 						<td class="alRight">29</td>
 						<td class="alRight">
@@ -601,7 +601,7 @@
 				<xsl:if test="elster:Kz26">
 					<tr>
 						<th scope="row" class="alLeft">
-							<small>Die Einzugsermächtigung wird ausnahmsweise (z.B. wegen Verrechnungswünschen) für diesen Voranmeldungszeitraum widerrufen</small>
+							<small>Die EinzugsermÃ¤chtigung wird ausnahmsweise (z.B. wegen VerrechnungswÃ¼nschen) fÃ¼r diesen Voranmeldungszeitraum widerrufen</small>
 						</th>
 						<td class="alRight">26</td>
 						<td class="alRight">
@@ -615,14 +615,14 @@
 
 	<!--******************** stfrUmsVost  ******-->
 	<xsl:template name="stfrUmsVost">
-		<h4>Steuerfreie Umsätze mit Vorsteuerabzug</h4>
+		<h4>Steuerfreie UmsÃ¤tze mit Vorsteuerabzug</h4>
 		<table>
 			<xsl:call-template name="UStVA_table_header" />
 			<xsl:if test="elster:Kz41">
 				<tr>
 					<th scope="row" class="alLeft">
 						<small>
-							Innergemeinschaftliche Lieferungen (§ 4 Nr. 1 Buchst. b
+							Innergemeinschaftliche Lieferungen (Â§ 4 Nr. 1 Buchst. b
 							<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>) an Abnehmer mit
 							<abbr class="help" title="Umsatzsteuer-Identifikationsnummer">USt-IdNr.</abbr>
 						</small>
@@ -659,7 +659,7 @@
 					<th scope="row" class="alLeft">
 						
 						<small>
-							Innergemeinschaftliche Lieferungen neuer Fahrzeuge außerhalb eines Unternehmens (§ 2a
+							Innergemeinschaftliche Lieferungen neuer Fahrzeuge auÃŸerhalb eines Unternehmens (Â§ 2a
 							<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>)
 						</small>
 					</th>
@@ -677,7 +677,7 @@
 					<th scope="row" class="alLeft">
 						
 						<small>
-							Weitere steuerfreie Umsätze mit Vorsteuerabzug (z.B. Ausfuhrlieferungen, Umsätze nach § 4 Nr. 2 bis 7
+							Weitere steuerfreie UmsÃ¤tze mit Vorsteuerabzug (z.B. Ausfuhrlieferungen, UmsÃ¤tze nach Â§ 4 Nr. 2 bis 7
 							<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>)
 						</small>
 					</th>
@@ -695,9 +695,9 @@
 
 	<!--********************'stpflUms'  !******-->
 	<xsl:template name="stpflUms">
-		<h4>Steuerpflichtige Umsätze</h4>
+		<h4>Steuerpflichtige UmsÃ¤tze</h4>
 		<p>
-			<small>(Lieferungen und sonstige Leistungen einschließlich unentgeltlicher Wertabgaben)</small>
+			<small>(Lieferungen und sonstige Leistungen einschlieÃŸlich unentgeltlicher Wertabgaben)</small>
 		</p>
 		<table>
 			<xsl:call-template name="UStVA_table_header" />
@@ -770,11 +770,11 @@
 						<xsl:choose>
 							<xsl:when test="elster:Jahr[starts-with(.,'2004')]|elster:Jahr[starts-with(.,'2005')]|elster:Jahr[starts-with(.,'2006')]|
 													elster:Jahr[starts-with(.,'2007')]|elster:Jahr[starts-with(.,'2008')]">
-								<small>Umsätze, die anderen Steuersätzen unterliegen</small>
+								<small>UmsÃ¤tze, die anderen SteuersÃ¤tzen unterliegen</small>
 							</xsl:when>							
 							<xsl:otherwise>
 								<!-- ab 2009 -->
-								<small>zu anderen Steuersätzen</small>
+								<small>zu anderen SteuersÃ¤tzen</small>
 							</xsl:otherwise>
 						</xsl:choose>
 					</th>
@@ -798,9 +798,9 @@
 
 	<!--********************'stpflUms'  !******-->
 	<xsl:template name="stpflUmsAb2010">
-		<h4>Steuerpflichtige Umsätze</h4>
+		<h4>Steuerpflichtige UmsÃ¤tze</h4>
 		<p>
-			<small>(Lieferungen und sonstige Leistungen einschließlich unentgeltlicher Wertabgaben)</small>
+			<small>(Lieferungen und sonstige Leistungen einschlieÃŸlich unentgeltlicher Wertabgaben)</small>
 		</p>
 		<table>
 			<xsl:call-template name="UStVA_table_header" />
@@ -849,7 +849,7 @@
 			<xsl:if test="elster:Kz35">
 				<tr>
 					<th scope="row" class="alLeft">							
-						<small>zu anderen Steuersätzen</small>					
+						<small>zu anderen SteuersÃ¤tzen</small>					
 					</th>
 					<td class="alRight">35</td>
 					<td class="alRight">
@@ -869,7 +869,7 @@
 				<tr>
 					<th scope="row" class="alLeft">
 						<small>
-							Lieferungen land- und forstwirtschaftlicher Betriebe nach § 24
+							Lieferungen land- und forstwirtschaftlicher Betriebe nach Â§ 24
 							<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr> an Abnehmer mit 	
 							<abbr class="help" title="Umsatzsteuer-Identifikationsnummer">USt-IdNr.</abbr>
 						</small>
@@ -887,9 +887,9 @@
 				<tr>
 					<th scope="row" class="alLeft">
 						<small>
-							Umsätze, für die eine Steuer nach § 24
+							UmsÃ¤tze, fÃ¼r die eine Steuer nach Â§ 24
 							<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>
-							zu entrichten ist (Sägewerkserzeugnisse, Getränke und alkoholische Flüssigkeiten, z.B. Wein)
+							zu entrichten ist (SÃ¤gewerkserzeugnisse, GetrÃ¤nke und alkoholische FlÃ¼ssigkeiten, z.B. Wein)
 						</small>
 					</th>
 					<td class="alRight">76</td>
@@ -919,12 +919,12 @@
 				<xsl:choose>
 					<xsl:when test="( 2010 > elster:Jahr[substring(., 1, 4)] ) or ( (2010 = elster:Jahr[substring(., 1, 4)]) and ( (6 >= elster:Zeitraum[substring(., 1, 2)]) or (elster:Zeitraum[substring(., 1, 2)] = 41) or (elster:Zeitraum[substring(., 1, 2)] = 42) )) " >
 					<!-- Bis Juni 2010 -->
-						Im Inland steuerpflichtige sonstige Leistungen von im übrigen Gemeinschaftsgebiet ansässigen Unternehmern
+						Im Inland steuerpflichtige sonstige Leistungen von im Ã¼brigen Gemeinschaftsgebiet ansÃ¤ssigen Unternehmern
 					</xsl:when>
 					<xsl:otherwise>
 					<!-- Ab Juli 2010 -->
-						Im Inland steuerpflichtige sonstige Leistungen von im übrigen Gemeinschaftsgebiet ansässigen Unternehmern 
-						(§ 13b Absatz 1 <abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>) 
+						Im Inland steuerpflichtige sonstige Leistungen von im Ã¼brigen Gemeinschaftsgebiet ansÃ¤ssigen Unternehmern 
+						(Â§ 13b Absatz 1 <abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>) 
 					</xsl:otherwise>
 				</xsl:choose>
 					</small>
@@ -950,17 +950,17 @@
 						<xsl:choose>
 							<xsl:when test="( 2010 > elster:Jahr[substring(., 1, 4)] )" >
 								<!-- bis 2010 --> 
-								Leistungen eines im Ausland ansässigen Unternehmers (§ 13b Absatz 1 Satz 1 Nr. 1 und 5
+								Leistungen eines im Ausland ansÃ¤ssigen Unternehmers (Â§ 13b Absatz 1 Satz 1 Nr. 1 und 5
 								<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>)
 							</xsl:when>
 							<xsl:when test="((2010 = elster:Jahr[substring(., 1, 4)]) and ( (6 >= elster:Zeitraum[substring(., 1, 2)]) or (elster:Zeitraum[substring(., 1, 2)] = 41) or (elster:Zeitraum[substring(., 1, 2)] = 42) )) " >
 								<!-- von Januar 2010 bis Juli 2010 --> 
-								Andere Leistungen eines im Ausland ansässigen Unternehmers (§ 13b Absatz 1 Satz 1 Nr. 1 und 5 
+								Andere Leistungen eines im Ausland ansÃ¤ssigen Unternehmers (Â§ 13b Absatz 1 Satz 1 Nr. 1 und 5 
 								<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>)
 							</xsl:when>
 							<xsl:otherwise>
 								<!-- ab Juli 2010--> 
-								Andere Leistungen eines im Ausland ansässigen Unternehmers (§ 13b Absatz 2 Nr. 1 und 5 
+								Andere Leistungen eines im Ausland ansÃ¤ssigen Unternehmers (Â§ 13b Absatz 2 Nr. 1 und 5 
 								<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>)
 							</xsl:otherwise>
 						</xsl:choose>						
@@ -987,16 +987,16 @@
 					<xsl:choose>
 						<xsl:when test="( 2010 > elster:Jahr[substring(., 1, 4)] ) or ( (2010 = elster:Jahr[substring(., 1, 4)]) and ( (6 >= elster:Zeitraum[substring(., 1, 2)]) or (elster:Zeitraum[substring(., 1, 2)] = 41) or (elster:Zeitraum[substring(., 1, 2)] = 42) )) " >
 						<!-- Bis Juni 2010 -->
-							Lieferungen sicherungsübereigneter Gegenstände und Umsätze, die unter das
+							Lieferungen sicherungsÃ¼bereigneter GegenstÃ¤nde und UmsÃ¤tze, die unter das
 							<abbr class="help" title="Grunderwerbsteuergesetz">GrEStG</abbr>
-							fallen (§ 13b Absatz 1 Satz 1 Nr. 2 und 3
+							fallen (Â§ 13b Absatz 1 Satz 1 Nr. 2 und 3
 							<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>)
 						</xsl:when>
 						<xsl:otherwise>
 						<!-- Ab Juli 2010 -->
-							Lieferungen sicherungsübereigneter Gegenstände und Umsätze, die unter das 
+							Lieferungen sicherungsÃ¼bereigneter GegenstÃ¤nde und UmsÃ¤tze, die unter das 
 							<abbr class="help" title="Grunderwerbsteuergesetz">GrEStG</abbr> fallen 
-							(§ 13b Absatz 2 Nr. 2 und 3 <abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>)
+							(Â§ 13b Absatz 2 Nr. 2 und 3 <abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>)
 						</xsl:otherwise>
 					</xsl:choose>
 					</small>
@@ -1020,7 +1020,7 @@
 			<tr>
 				<th scope="row" class="alLeft">
 					<small>
-							Lieferungen von Mobilfunkgeräten und integrierten Schaltkreisen (§ 13b Absatz 2 Nr. 10 <abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>)
+							Lieferungen von MobilfunkgerÃ¤ten und integrierten Schaltkreisen (Â§ 13b Absatz 2 Nr. 10 <abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>)
 					</small>
 				</th>
 				<td class="alRight">78</td>
@@ -1045,16 +1045,16 @@
 					<xsl:choose>
 						<xsl:when test="( 2010 > elster:Jahr[substring(., 1, 4)] ) or ( (2010 = elster:Jahr[substring(., 1, 4)]) and ( (6 >= elster:Zeitraum[substring(., 1, 2)]) or (elster:Zeitraum[substring(., 1, 2)] = 41) or (elster:Zeitraum[substring(., 1, 2)] = 42) )) " >
 						<!-- bis Juni 2010 -->
-							Bauleistungen eines im Inland ansässigen Unternehmers (§ 13b Absatz 1 Satz 1 Nr. 4
+							Bauleistungen eines im Inland ansÃ¤ssigen Unternehmers (Â§ 13b Absatz 1 Satz 1 Nr. 4
 							<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>)
 						</xsl:when>
 						<xsl:when test="(2010 = elster:Jahr[substring(., 1, 4)]) and ((elster:Zeitraum[substring(., 1, 2)] > 6) or (elster:Zeitraum[substring(., 1, 2)] = 43) or (elster:Zeitraum[substring(., 1, 2)] = 44))">
 							<!-- Ab Juli 2010 bis Dezember 2010 -->
-							Andere Leistungen eines im Inland ansässigen Unternehmers (§ 13b Absatz 2 Nr. 4 und 6 <abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>)
+							Andere Leistungen eines im Inland ansÃ¤ssigen Unternehmers (Â§ 13b Absatz 2 Nr. 4 und 6 <abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>)
 						</xsl:when>
 						<xsl:otherwise>
 							<!-- Ab 2011 -->
-							Andere Umsätze eines im Inland ansässigen Unternehmers (§ 13b Absatz 2 Nr. 4, 6 bis 9 <abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>)
+							Andere UmsÃ¤tze eines im Inland ansÃ¤ssigen Unternehmers (Â§ 13b Absatz 2 Nr. 4, 6 bis 9 <abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>)
 						</xsl:otherwise>
 					</xsl:choose>
 					</small>
@@ -1122,7 +1122,7 @@
 		<xsl:if test="elster:Kz57">
 			<tr>
 				<th scope="row" class="alLeft">
-					<small>zu anderen Steuersätzen</small>
+					<small>zu anderen SteuersÃ¤tzen</small>
 				</th>
 				<td class="alRight">57</td>
 				<td class="alRight">
@@ -1210,7 +1210,7 @@
 			<xsl:if test="elster:Kz95">
 				<tr>
 					<th scope="row" class="alLeft">
-						<small>zu anderen Steuersätzen</small>
+						<small>zu anderen SteuersÃ¤tzen</small>
 					</th>
 					<td class="alRight">95</td>
 					<td class="alRight">
@@ -1254,7 +1254,7 @@
 					<tr>
 						<th scope="row" class="alLeft">
 							<small>
-								Lieferungen des ersten Abnehmers bei innergemeinschaftlichen Dreiecksgeschäften (§ 25b Absatz 2
+								Lieferungen des ersten Abnehmers bei innergemeinschaftlichen DreiecksgeschÃ¤ften (Â§ 25b Absatz 2
 								<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>)
 							</small>
 						</th>
@@ -1274,7 +1274,7 @@
 	<!--******************** 'landwUms' !******-->
 	<xsl:template name="landwUms">
 		<h4>
-			Umsätze land- und forstwirtschaftlicher Betriebe nach § 24
+			UmsÃ¤tze land- und forstwirtschaftlicher Betriebe nach Â§ 24
 			<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>
 		</h4>
 		<table>
@@ -1283,7 +1283,7 @@
 				<tr>
 					<th scope="row" class="alLeft">
 						<small>
-							Lieferungen in das übrige Gemeinschaftsgebiet an Abnehmer mit
+							Lieferungen in das Ã¼brige Gemeinschaftsgebiet an Abnehmer mit
 							<abbr class="help" title="Umsatzsteuer-Identifikationsnummer">USt-IdNr.</abbr>
 						</small>
 					</th>
@@ -1300,9 +1300,9 @@
 				<tr>
 					<th scope="row" class="alLeft">
 						<small>
-							Umsätze, für die eine Steuer nach § 24
+							UmsÃ¤tze, fÃ¼r die eine Steuer nach Â§ 24
 							<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>
-							zu entrichten ist (Sägewerkserzeugnisse, Getränke und alkoholische Flüssigkeiten, z.B. Wein)
+							zu entrichten ist (SÃ¤gewerkserzeugnisse, GetrÃ¤nke und alkoholische FlÃ¼ssigkeiten, z.B. Wein)
 						</small>
 					</th>
 					<td class="alRight">76</td>
@@ -1324,14 +1324,14 @@
 
 	<!--******************** 'ergAng' ******-->
 	<xsl:template name="ergAng">
-		<h3>Ergänzende Angaben zu Umsätzen</h3>
+		<h3>ErgÃ¤nzende Angaben zu UmsÃ¤tzen</h3>
 		<table>
 			<xsl:call-template name="UStVA_table_header" />
 			<xsl:if test="elster:Kz42">
 				<tr>
 					<th scope="row" class="alLeft">
 						<small>
-							Lieferungen des ersten Abnehmers bei innergemeinschaftlichen Dreiecksgeschäften (§ 25b Absatz 2
+							Lieferungen des ersten Abnehmers bei innergemeinschaftlichen DreiecksgeschÃ¤ften (Â§ 25b Absatz 2
 							<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>)
 						</small>
 					</th>
@@ -1349,8 +1349,8 @@
 				<tr>
 					<th scope="row" class="alLeft">
 						<small>
-							Steuerpflichtige Umsätze, für die der Leistungsempfänger 
-							die Steuer nach § 13b Absatz 5 Satz 1 in Verbindung mit 
+							Steuerpflichtige UmsÃ¤tze, fÃ¼r die der LeistungsempfÃ¤nger 
+							die Steuer nach Â§ 13b Absatz 5 Satz 1 in Verbindung mit 
 							Absatz 2 Nr. 10 <ABBR class="help" title="Umsatzsteuergesetz">UStG</ABBR> schuldet
 						</small>
 					</th>
@@ -1372,23 +1372,23 @@
 								<xsl:choose>						
 									<!-- vor 2010 -->
 									<xsl:when test="2010 > elster:Jahr[substring(.,1,4)]">										
-										Steuerpflichtige Umsätze im Sinne des § 13b Absatz 1 Satz 1 Nr. 1 bis 5
+										Steuerpflichtige UmsÃ¤tze im Sinne des Â§ 13b Absatz 1 Satz 1 Nr. 1 bis 5
 										<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>,
-										für die der Leistungsempfänger die Steuer schuldet																			
+										fÃ¼r die der LeistungsempfÃ¤nger die Steuer schuldet																			
 									</xsl:when>							
 									<!-- 2010 -->
 									<xsl:when test="2010 = elster:Jahr[substring(.,1,4)]">			
-										Steuerpflichtige Umsätze im Sinne des § 13b <abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>,
-										für die der Leistungsempfänger die Steuer schuldet						
+										Steuerpflichtige UmsÃ¤tze im Sinne des Â§ 13b <abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>,
+										fÃ¼r die der LeistungsempfÃ¤nger die Steuer schuldet						
 									</xsl:when>
 									<!-- ab 2011 -->
 									<xsl:when test="(2011 = elster:Jahr[substring(.,1,4)]) and ((6 >= elster:Zeitraum[substring(., 1, 2)]) or (elster:Zeitraum[substring(., 1, 2)] = 41) or (elster:Zeitraum[substring(., 1, 2)] = 42))">			
-										Steuerpflichtige Umsätze im Sinne des § 13b <abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>,
-										für die der Leistungsempfänger die Steuer schuldet						
+										Steuerpflichtige UmsÃ¤tze im Sinne des Â§ 13b <abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>,
+										fÃ¼r die der LeistungsempfÃ¤nger die Steuer schuldet						
 									</xsl:when>
 									<xsl:otherwise>
-										Übrige steuerpflichtige Umsätze, für die der Leistungsempfänger die Steuer 
-										nach § 13b Absatz 5 <abbr class="help" title="Umsatzsteuergesetz">UStG</abbr> schuldet
+										Ãœbrige steuerpflichtige UmsÃ¤tze, fÃ¼r die der LeistungsempfÃ¤nger die Steuer 
+										nach Â§ 13b Absatz 5 <abbr class="help" title="Umsatzsteuergesetz">UStG</abbr> schuldet
 									</xsl:otherwise>
 								</xsl:choose>		
 							</small>													
@@ -1408,7 +1408,7 @@
 				<tr>
 					<th scope="row" class="alLeft">
 						<small>
-							Nicht steuerbare sonstige Leistungen gem. § 18b Satz 1 Nr. 2 <abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>
+							Nicht steuerbare sonstige Leistungen gem. Â§ 18b Satz 1 Nr. 2 <abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>
 						</small>										
 					</th>
 					<td class="alRight">21</td>
@@ -1427,7 +1427,7 @@
 					<tr>
 						<th scope="row" class="alLeft">
 							<small>
-								<strong>Im Inland nicht steuerbare Umsätze</strong>
+								<strong>Im Inland nicht steuerbare UmsÃ¤tze</strong>
 							</small>
 						</th>
 						<td class="alRight">45</td>
@@ -1446,7 +1446,7 @@
 				<tr>
 					<th scope="row" class="alLeft">
 					<small>
-						<strong>Nicht steuerbare Umsätze</strong>
+						<strong>Nicht steuerbare UmsÃ¤tze</strong>
 						(Leistungsort nicht im Inland)
 					</small>
 					</th>
@@ -1465,7 +1465,7 @@
 				<tr>
 					<th scope="row" class="alLeft">
 						<small>
-							<strong>Übrige nicht steuerbare Umsätze </strong>
+							<strong>Ãœbrige nicht steuerbare UmsÃ¤tze </strong>
 							(Leistungsort nicht im Inland)
 						</small>
 					</th>
@@ -1487,12 +1487,12 @@
 			<tr>
 				<th scope="row" class="alLeft">
 					<small>
-						Vorsteuerbeträge aus Rechnungen von anderen Unternehmern (§ 15 Absatz 1 Satz 1 Nr. 1
+						VorsteuerbetrÃ¤ge aus Rechnungen von anderen Unternehmern (Â§ 15 Absatz 1 Satz 1 Nr. 1
 						<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>),
-						aus Leistungen im Sinne des § 13a Absatz 1 Nr. 6
+						aus Leistungen im Sinne des Â§ 13a Absatz 1 Nr. 6
 						<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>
-						(§ 15 Absatz 1 Satz 1 Nr. 5)
-						und aus innergemeinschaftlichen Dreiecksgeschäften (§25b Absatz 5
+						(Â§ 15 Absatz 1 Satz 1 Nr. 5)
+						und aus innergemeinschaftlichen DreiecksgeschÃ¤ften (Â§25b Absatz 5
 						<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>)
 					</small>
 				</th>
@@ -1509,7 +1509,7 @@
 			<tr>
 				<th scope="row" class="alLeft">
 					<small>
-						Vorsteuerbeträge aus dem innergemeinschaftlichen Erwerb von Gegenständen (§ 15 Absatz 1 Satz 1 Nr. 3
+						VorsteuerbetrÃ¤ge aus dem innergemeinschaftlichen Erwerb von GegenstÃ¤nden (Â§ 15 Absatz 1 Satz 1 Nr. 3
 						<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>)
 					</small>
 				</th>
@@ -1525,7 +1525,7 @@
 		<xsl:if test="elster:Kz62">
 			<tr>
 				<th scope="row" class="alLeft">
-					<small>Entrichtete Einfuhrumsatzsteuer (§ 15 Absatz 1 Satz 1 Nr. 2 UStG)</small>
+					<small>Entrichtete Einfuhrumsatzsteuer (Â§ 15 Absatz 1 Satz 1 Nr. 2 UStG)</small>
 				</th>
 				<td class="alRight" colspan="2" />
 				<td class="alRight">62</td>
@@ -1543,16 +1543,16 @@
 						<xsl:choose>
 							<xsl:when test="(2010 > elster:Jahr[substring(., 1, 4)] ) ">
 								<!-- -bis 2010 --> 
-								Vorsteuerbeträge aus Leistungen im Sinne des § 13b Absatz 1
+								VorsteuerbetrÃ¤ge aus Leistungen im Sinne des Â§ 13b Absatz 1
 								<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>
-								(§ 15 Absatz 1 Satz 1 Nr. 4
+								(Â§ 15 Absatz 1 Satz 1 Nr. 4
 								<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>)
 							</xsl:when>
 							<xsl:otherwise>
 								<!-- ab 2010 -->
-								Vorsteuerbeträge aus Leistungen im Sinne des § 13b 
+								VorsteuerbetrÃ¤ge aus Leistungen im Sinne des Â§ 13b 
 								<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>
-								 (§ 15 Absatz 1 Satz 1 Nr. 4
+								 (Â§ 15 Absatz 1 Satz 1 Nr. 4
 								 <abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>)
 							</xsl:otherwise>
 						</xsl:choose>						
@@ -1571,7 +1571,7 @@
 			<tr>
 				<th scope="row" class="alLeft">
 					<small>
-						Vorsteuerbeträge, die nach allgemeinen Durchschnittssätzen berechnet sind (§§ 23 und 23a
+						VorsteuerbetrÃ¤ge, die nach allgemeinen DurchschnittssÃ¤tzen berechnet sind (Â§Â§ 23 und 23a
 						<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>)
 					</small>
 				</th>
@@ -1588,7 +1588,7 @@
 			<tr>
 				<th scope="row" class="alLeft">
 					<small>
-						Berichtigung des Vorsteuerabzugs (§ 15a
+						Berichtigung des Vorsteuerabzugs (Â§ 15a
 						<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>)
 					</small>
 				</th>
@@ -1605,11 +1605,11 @@
 			<tr>
 				<th scope="row" class="alLeft">
 					<small>
-						Vorsteuerabzug für innergemeinschaftliche Lieferungen neuer Fahrzeuge außerhalb eines Unternehmens (§ 2a
+						Vorsteuerabzug fÃ¼r innergemeinschaftliche Lieferungen neuer Fahrzeuge auÃŸerhalb eines Unternehmens (Â§ 2a
 						<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>)
-						sowie von Kleinunternehmern im Sinne des § 19 Absatz 1
+						sowie von Kleinunternehmern im Sinne des Â§ 19 Absatz 1
 						<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>
-						(§ 15 Absatz 4a
+						(Â§ 15 Absatz 4a
 						<abbr class="help" title="Umsatzsteuergesetz">UStG</abbr>)
 					</small>
 				</th>
@@ -1627,21 +1627,21 @@
 	<!--******************** DAUERFRISTVERLAENGERUNG **************** -->
 	<xsl:template name="DV">
 		<h2>
-			I. Antrag auf Dauerfristverlängerung
+			I. Antrag auf DauerfristverlÃ¤ngerung
 		</h2>
-		<p>Ich beantrage, die Fristen für die Abgabe der Umsatzsteuer-Voranmeldungen und für die Entrichtung der Umsatzsteuer-Vorauszahlungen um einen Monat zu verlängern.</p>
+		<p>Ich beantrage, die Fristen fÃ¼r die Abgabe der Umsatzsteuer-Voranmeldungen und fÃ¼r die Entrichtung der Umsatzsteuer-Vorauszahlungen um einen Monat zu verlÃ¤ngern.</p>
 	</xsl:template>
 
 	<!-- ******************* SONDERVORAUSZAHLUNG *********************-->
 	<xsl:template name="SVZ">
 		<h2>
-			I. Antrag auf Dauerfristverlängerung
+			I. Antrag auf DauerfristverlÃ¤ngerung
 		</h2>
-		<p>Ich beantrage, die Fristen für die Abgabe der Umsatzsteuer-Voranmeldungen und für die Entrichtung der Umsatzsteuer-Vorauszahlungen um einen Monat zu verlängern.</p>
-		<p class="alCenter">- Dieser Abschnitt ist gegenstandslos, wenn bereits Dauerfristverlängerung gewährt worden ist. -</p>
+		<p>Ich beantrage, die Fristen fÃ¼r die Abgabe der Umsatzsteuer-Voranmeldungen und fÃ¼r die Entrichtung der Umsatzsteuer-Vorauszahlungen um einen Monat zu verlÃ¤ngern.</p>
+		<p class="alCenter">- Dieser Abschnitt ist gegenstandslos, wenn bereits DauerfristverlÃ¤ngerung gewÃ¤hrt worden ist. -</p>
 		<br />
 		<h2>
-			II. Berechnung und Anmeldung der Sondervorauszahlung auf die Steuer für das Kalenderjahr
+			II. Berechnung und Anmeldung der Sondervorauszahlung auf die Steuer fÃ¼r das Kalenderjahr
 			<xsl:value-of select="elster:Jahr" />
 			von Unternehmern, die ihre Voranmeldungen monatlich abzugeben haben
 		</h2>
@@ -1658,7 +1658,7 @@
 				<tr>
 					<th scope="row" class="alLeft">
 						<small>
-							Summe der verbleibenden Umsatzsteuer-Vorauszahlungen zuzüglich der angerechneten Sondervorauszahlung für das Kalenderjahr
+							Summe der verbleibenden Umsatzsteuer-Vorauszahlungen zuzÃ¼glich der angerechneten Sondervorauszahlung fÃ¼r das Kalenderjahr
 							<xsl:value-of select="(elster:Jahr)-1" />
 							; davon 1/11 = Sondervorauszahlung
 							<xsl:value-of select="elster:Jahr" />
@@ -1689,7 +1689,7 @@
 				<xsl:if test="elster:Kz29">
 					<tr>
 						<th scope="row" class="alLeft">
-							<small>Verrechnung des Erstattungsbetrags erwünscht/ Erstattungsbetrag ist abgetreten</small>
+							<small>Verrechnung des Erstattungsbetrags erwÃ¼nscht/ Erstattungsbetrag ist abgetreten</small>
 						</th>
 						<td class="alRight">29</td>
 						<td class="alRight">
@@ -1700,7 +1700,7 @@
 				<xsl:if test="elster:Kz26">
 					<tr>
 						<th scope="row" class="alLeft">
-							<small>Die Einzugsermächtigung wird ausnahmsweise (z.B. wegen Verrechungswünschen) für die Sondervorauszahlung dieses Jahres widerrufen.</small>
+							<small>Die EinzugsermÃ¤chtigung wird ausnahmsweise (z.B. wegen VerrechungswÃ¼nschen) fÃ¼r die Sondervorauszahlung dieses Jahres widerrufen.</small>
 						</th>
 						<td class="alRight">26</td>
 						<td class="alRight">
