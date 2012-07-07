@@ -1,0 +1,26 @@
+<Nutzdatenblock>
+	<NutzdatenHeader version="10">
+		<NutzdatenTicket>123456789</NutzdatenTicket>
+		<Empfaenger id="F">9203</Empfaenger>
+		<Hersteller>
+			<ProduktName>Geierlein</ProduktName>
+			<ProduktVersion>0.2</ProduktVersion>
+		</Hersteller>
+		<DatenLieferant>Steuer Sklave, Finstere Gasse 23, Sklavengrube, 12345</DatenLieferant>
+	</NutzdatenHeader>
+	<Nutzdaten>
+		<Anmeldungssteuern art="UStVA" version="201201">
+			<DatenLieferant><Name>Steuer Sklave</Name><Strasse>Finstere Gasse 23</Strasse><PLZ>12345</PLZ><Ort>Sklavengrube</Ort></DatenLieferant>
+			<Erstellungsdatum>20120707</Erstellungsdatum>
+			<Steuerfall>
+				<Umsatzsteuervoranmeldung>
+					<Jahr>2012</Jahr>
+					<Zeitraum>01</Zeitraum>
+					<Steuernummer>9203069802950</Steuernummer>
+					<Kz09>00616</Kz09>
+					<Kz83>0.00</Kz83>
+				</Umsatzsteuervoranmeldung>
+			</Steuerfall>
+		</Anmeldungssteuern>
+	</Nutzdaten>
+</Nutzdatenblock>
