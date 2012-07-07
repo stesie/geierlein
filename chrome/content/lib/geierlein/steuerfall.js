@@ -121,6 +121,11 @@ geierlein.Steuerfall.prototype = {
      * Get encrypted representation in Elster-XML format.
      * 
      * @param testcase Whether to declare the taxcase as a testcase.
+     * @param sendCb Callback function handling data exchange with
+     *   Elster server.  Arguments, the data to send (encrypted) and
+     *   another callback function to pass the (encrypted) result to.
+     * @param resultCb Callback function to pass the decrypted results to.  The
+     *   result is passed as first (and only) argument.
      * @result XML representation of the taxcase as a string.
      */
     toEncryptedXml: function(testcase, sendCb, resultCb) {

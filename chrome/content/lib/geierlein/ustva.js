@@ -225,7 +225,7 @@ geierlein.util.extend(geierlein.UStVA.prototype, {
             if(val === undefined) {
                 return 0;
             }
-            return +val * factor;
+            return +val * (factor || 1);
         }
 
         return getValue(this.kz81, +0.19) +
