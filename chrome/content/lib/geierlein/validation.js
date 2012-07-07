@@ -143,6 +143,7 @@ geierlein.validation.validate = function(ruleset, field) {
                 }
                 if(!rule[i].call(this, this[fieldName])) {
                     errors.push(fieldName);
+                    break;
                 }
             }
         }
