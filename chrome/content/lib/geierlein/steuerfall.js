@@ -144,6 +144,37 @@ geierlein.Steuerfall.prototype = {
         }
 
         return encData;
+    },
+
+    /**
+     * Get Elster XML representation of the DatenTeil part.
+     *
+     * @return XML representation of the DatenTeil part as a string.
+     */
+    getDatenteilXml: function(testcase) {
+        var datenteil = new geierlein.util.Xml();
+        var stnr = this.getFormattedTaxNumber();
+
+        datenteil.writeStartDocument();
+        datenteil.writeStartElement('Nutzdatenblock');
+            datenteil.writeStartElement('NutzdatenHeader');
+            datenteil.writeAttributeString('version', 10);
+                datenteil.writeElementString('NutzdatenTicket',
+                    Math.floor(Math.random() * 9999999).toString());
+                datenteil.writeStartElement('Empfaenger');
+                datenteil.writeAttributeString('id', 'F');
+                    datenteil.writeString(stnr.substr(0, 4));
+                datenteil.writeEndElement();
+                datenteil.writeStartElement('Hersteller');
+                    datenteil.writeElementString('ProduktName', 'Geierlein');
+                    datenteil.writeElementString('ProduktVersion', '0.2');
+                datenteil.writeEndElement();
+                datenteil.writeElementString('DatenLieferant',
+                    this.datenlieferant.toString());
+            datenteil.writeEndElement();    // NutzdatenHeader
+
+            datenteil.writeString(this.getNutzdatenXml(testcase));
+        return datenteil.flush(true);
     }
 };
 

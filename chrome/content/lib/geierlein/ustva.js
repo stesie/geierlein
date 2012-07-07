@@ -254,65 +254,48 @@ geierlein.util.extend(geierlein.UStVA.prototype, {
     },
 
     /**
-     * Get Elster XML representation of the DatenTeil part.
+     * Get Elster XML representation of the Nutzdaten part.
      * 
-     * @return XML representation of the DatenTeil part as a string.
+     * @return XML representation of the Nutzdaten part as a string.
      */
-    getDatenteilXml: function(testcase) {
-        var datenteil = new geierlein.util.Xml();
-        var stnr = this.getFormattedTaxNumber();
+    getNutzdatenXml: function(testcase) {
+        var nutzdaten = new geierlein.util.Xml();
         var d = new Date();
         var erstellDatum = d.getFullYear() +
             ('0' + (d.getMonth() + 1)).substr(-2) +
             ('0' + d.getDate()).substr(-2);
 
-        datenteil.writeStartDocument();
-        datenteil.writeStartElement('Nutzdatenblock');
-            datenteil.writeStartElement('NutzdatenHeader');
-            datenteil.writeAttributeString('version', 10);
-                datenteil.writeElementString('NutzdatenTicket',
-                    Math.floor(Math.random() * 9999999).toString());
-                datenteil.writeStartElement('Empfaenger');
-                datenteil.writeAttributeString('id', 'F');
-                    datenteil.writeString(stnr.substr(0, 4));
-                datenteil.writeEndElement();
-                datenteil.writeStartElement('Hersteller');
-                    datenteil.writeElementString('ProduktName', 'Geierlein');
-                    datenteil.writeElementString('ProduktVersion', '0.2');
-                datenteil.writeEndElement();
-                datenteil.writeElementString('DatenLieferant', 
-                    this.datenlieferant.toString());
-            datenteil.writeEndElement();    // NutzdatenHeader
-        
-            datenteil.writeStartElement('Nutzdaten');
-                datenteil.writeStartElement('Anmeldungssteuern');
-                datenteil.writeAttributeString('art', 'UStVA');
-                datenteil.writeAttributeString('version', this.jahr + '01');
-        
-                datenteil.writeElementString('DatenLieferant',
-                    this.datenlieferant.toXml());
-        
-                datenteil.writeElementString('Erstellungsdatum', erstellDatum);
-        
-                datenteil.writeStartElement('Steuerfall');
-                    datenteil.writeStartElement('Umsatzsteuervoranmeldung');
-                        datenteil.writeElementString('Jahr', this.jahr);
-                        datenteil.writeElementString('Zeitraum',
-                            ('0' + this.monat).substr(-2));
-                        datenteil.writeElementString('Steuernummer', stnr);
-                        datenteil.writeElementString('Kz09',
-                            testcase ? '74931' : this.herstellerID);
+        nutzdaten.writeStartDocument();
+        nutzdaten.writeStartElement('Nutzdaten');
+            nutzdaten.writeStartElement('Anmeldungssteuern');
+            nutzdaten.writeAttributeString('art', 'UStVA');
+            nutzdaten.writeAttributeString('version', this.jahr + '01');
 
-                        for(var key in xmlWritingRules) {
-                            var fmtValue = xmlWritingRules[key](this[key]);
-                            if(fmtValue === false) {
-                                continue;
-                            }
-                            datenteil.writeElementString('Kz' + key.substr(2),
-                                fmtValue);
+            nutzdaten.writeElementString('DatenLieferant',
+                this.datenlieferant.toXml());
+
+            nutzdaten.writeElementString('Erstellungsdatum', erstellDatum);
+
+            nutzdaten.writeStartElement('Steuerfall');
+                nutzdaten.writeStartElement('Umsatzsteuervoranmeldung');
+                    nutzdaten.writeElementString('Jahr', this.jahr);
+                    nutzdaten.writeElementString('Zeitraum',
+                        ('0' + this.monat).substr(-2));
+                    nutzdaten.writeElementString('Steuernummer',
+                        this.getFormattedTaxNumber());
+                    nutzdaten.writeElementString('Kz09',
+                        testcase ? '74931' : this.herstellerID);
+
+                    for(var key in xmlWritingRules) {
+                        var fmtValue = xmlWritingRules[key](this[key]);
+                        if(fmtValue === false) {
+                            continue;
                         }
+                        nutzdaten.writeElementString('Kz' + key.substr(2),
+                            fmtValue);
+                    }
 
-        return datenteil.flush(true);
+        return nutzdaten.flush(true);
     }
 });
 
