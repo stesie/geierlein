@@ -114,7 +114,7 @@
         }
 
         $('body').trigger('send-taxcase', asTestcase);
-        ustva.toEncryptedXml(asTestcase, function(data, cb) {
+        ustva.toEncryptedXml(asTestcase, undefined, function(data, cb) {
             $('#wait').modal();
             geierlein.transfer(data, cb);
         }, function(res) {

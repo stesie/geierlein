@@ -156,7 +156,10 @@ function format( node, indent, chr, buffer ){
 	for( attr in node.a )
 		xml += ' ' + attr + '="' + node.a[attr] + '"';
 	
-	xml += nc ? '>' : ' />';
+	xml += '>';
+	if( !nc ) {
+		xml += '</' + node.n + '>';
+	}
 
 	buffer.push( xml );
 		

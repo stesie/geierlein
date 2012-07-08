@@ -21,6 +21,7 @@
 var geierlein = {
     crypto: require('./crypto.js'),
     Datenlieferant: require('./datenlieferant.js'),
+    Signer: require('./signer.js'),
     Steuerfall: require('./steuerfall.js'),
     taxnumber: require('./taxnumber.js'),
     transfer: require('./transfer.js'),

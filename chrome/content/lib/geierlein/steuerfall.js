@@ -65,10 +65,12 @@ geierlein.Steuerfall.prototype = {
      * undefined to get an unencrypted representation.
      * 
      * @param testcase Whether to declare the taxcase as a testcase.
+     * @param signer Optional signer context to put signature on XML,
+     *   pass undefined to skip signing.
      * @param encCb Callback function to encrypt data as necessary.
      * @result XML representation of the taxcase as a string.
      */
-    toXml: function(testcase, encCb) {
+    toXml: function(testcase, signer, encCb) {
         if(this.validate() !== true) {
             return false;
         }
@@ -79,7 +81,7 @@ geierlein.Steuerfall.prototype = {
             };
         }
         
-        var datenteil = encCb(this.getDatenteilXml(testcase));
+        var datenteil = encCb(this.getDatenteilXml(testcase, signer));
 
         var xml = new geierlein.util.Xml('ISO-8859-1', '1.0');
         xml.writeStartDocument();
@@ -90,7 +92,8 @@ geierlein.Steuerfall.prototype = {
             xml.writeAttributeString('version', 8);
                 xml.writeElementString('Verfahren', 'ElsterAnmeldung');
                 xml.writeElementString('DatenArt', this.datenart);
-                xml.writeElementString('Vorgang', 'send-NoSig');
+                xml.writeElementString('Vorgang',
+                    signer === undefined ? 'send-NoSig' : 'send-Sig');
                 
                 if(testcase) {
                     xml.writeElementString('Testmerker', '700000004');
@@ -121,6 +124,8 @@ geierlein.Steuerfall.prototype = {
      * Get encrypted representation in Elster-XML format.
      * 
      * @param testcase Whether to declare the taxcase as a testcase.
+     * @param signer Optional signer context to put signature on XML,
+     *   pass undefined to skip signing.
      * @param sendCb Callback function handling data exchange with
      *   Elster server.  Arguments, the data to send (encrypted) and
      *   another callback function to pass the (encrypted) result to.
@@ -128,9 +133,9 @@ geierlein.Steuerfall.prototype = {
      *   result is passed as first (and only) argument.
      * @result XML representation of the taxcase as a string.
      */
-    toEncryptedXml: function(testcase, sendCb, resultCb) {
+    toEncryptedXml: function(testcase, signer, sendCb, resultCb) {
         var key = geierlein.crypto.generateKey();
-        var encData = this.toXml(testcase, function(data) {
+        var encData = this.toXml(testcase, signer, function(data) {
             return geierlein.crypto.encryptBlock(data, key);
         });
 
@@ -149,11 +154,15 @@ geierlein.Steuerfall.prototype = {
     /**
      * Get Elster XML representation of the DatenTeil part.
      *
+     * @param testcase Whether to declare the taxcase as a testcase.
+     * @param signer Optional signer context to put signature on XML,
+     *   pass undefined to skip signing.
      * @return XML representation of the DatenTeil part as a string.
      */
-    getDatenteilXml: function(testcase) {
+    getDatenteilXml: function(testcase, signer) {
         var datenteil = new geierlein.util.Xml();
         var stnr = this.getFormattedTaxNumber();
+        var nutzdaten = this.getNutzdatenXml(testcase);
 
         datenteil.writeStartDocument();
         datenteil.writeStartElement('Nutzdatenblock');
@@ -165,6 +174,12 @@ geierlein.Steuerfall.prototype = {
                 datenteil.writeAttributeString('id', 'F');
                     datenteil.writeString(stnr.substr(0, 4));
                 datenteil.writeEndElement();
+
+                if(signer !== undefined) {
+                    signer.sign(nutzdaten);
+                    datenteil.writeString(signer.getSignatureXml());
+                }
+
                 datenteil.writeStartElement('Hersteller');
                     datenteil.writeElementString('ProduktName', 'Geierlein');
                     datenteil.writeElementString('ProduktVersion', '0.2');
@@ -173,7 +188,7 @@ geierlein.Steuerfall.prototype = {
                     this.datenlieferant.toString());
             datenteil.writeEndElement();    // NutzdatenHeader
 
-            datenteil.writeString(this.getNutzdatenXml(testcase));
+            datenteil.writeString(nutzdaten);
         return datenteil.flush(true);
     }
 };
