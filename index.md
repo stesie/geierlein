@@ -3,6 +3,12 @@ layout: default
 title: Geierlein
 ---
 
+<div class="alert">
+  <button class="close" data-dismiss="alert">×</button>
+  Since this application is to be considered useful only for people living
+  in Germany, the rest of this page is written in German language.
+</div>
+
 Geierlein ist ein kompletter Rewrite von libgeier & Taxbird, der im Jahr 2012 gestartet wurde.  Geierlein ist vollständig in HTML5 und JavaScript geschrieben, woraus eine große Plattformunabhängigkeit resultiert.
 
 * Geierlein ist verfügbar als XUL-Runner Applikation und damit Look & Feel vergleichbar einer konventionellen Anwendung
