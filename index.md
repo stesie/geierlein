@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Geierlein
+title: Geierlein by stesie
 ---
 
 <div class="alert alert-info">
@@ -30,10 +30,16 @@ MacOS, Android usf. nichts im Wege.
 
 <div class="alert">
   <button class="close" data-dismiss="alert">×</button>
-  Es ist momentan leider noch nicht möglich mit Geierlein Einkommensteuererklärungen bzw. andere
-  Jahreserklärungen abzugeben.  Das liegt nicht an mir, sondern leider daran, dass diese nur über
-  die ERiC-Schnittstelle übermittelbar sind, welche nur in Form proprietärer Software vorliegt und
-  nicht nachentwickelt werden darf.
+  <p>
+	Es ist momentan leider noch nicht möglich mit Geierlein Einkommensteuererklärungen bzw. andere
+	Jahreserklärungen abzugeben.  Das liegt nicht an mir, sondern leider daran, dass diese nur über
+	die ERiC-Schnittstelle übermittelbar sind, welche nur in Form proprietärer Software vorliegt und
+	nicht nachentwickelt werden darf.
+  </p>
+
+  <p>
+	Details hierzu? siehe <a href="quovadis.html">COALA - quo vadis?</a>
+  </p>
 </div>
 
 
