@@ -21,6 +21,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+var stdin = process.openStdin();
+var tty = require('tty');
 var geierlein = require('../chrome/content/lib/geierlein/geierlein');
 var argv = require('optimist')
     .usage('Geierlein Elster-Client für die Kommandozeile.\nVerwendung: $0')
@@ -29,6 +31,7 @@ var argv = require('optimist')
     .alias('e', 'encrypt-only')
         .describe('e', 'verschlüsseltes Coala-XML erzeugen, nichts weiter')
     .alias('f', 'file').describe('f', 'Lade aus Datei')
+    .alias('s', 'sign').describe('s', 'Signiere mit Softwarezertifikat aus Datei')
     .alias('t', 'testcase').describe('t', 'Testfall erstellen')
     .argv;
 var data = geierlein.util.parseFile(require('fs').readFileSync(argv.file, 'UTF-8'));
@@ -65,18 +68,77 @@ if(validationResult !== true) {
     process.exit(1);
 }
 
-if(argv['encrypt-only']) {
-    console.log(ustva.toEncryptedXml(argv.testcase));
-    process.exit(0);
-}
-
+var action;
 if(argv['dry-run']) {
-    console.log(ustva.toXml(argv.testcase));
+    action = function(signer, doneCb) {
+        doneCb(ustva.toXml(argv.testcase, signer));
+    };
+} else if(argv['encrypt-only']) {
+    action = function(signer, doneCb) {
+        doneCb(ustva.toEncryptedXml(argv.testcase, signer));
+    };
+} else {
+    action = function(signer, doneCb) {
+        ustva.toEncryptedXml(argv.testcase, signer, geierlein.transfer, function(res) {
+            res = geierlein.util.addStylesheetHref(res,
+                __dirname + '/../chrome/content/xsl/ustva.xsl');
+            doneCb(res);
+        });
+    };
+}
+
+function showResult(result) {
+    console.log(result);
     process.exit(0);
 }
 
-ustva.toEncryptedXml(argv.testcase, undefined, geierlein.transfer, function(res) {
-    res = geierlein.util.addStylesheetHref(res,
-        __dirname + '/../chrome/content/xsl/ustva.xsl');
-    console.log(res);
-});
+if(argv.sign) {
+    process.stderr.write('SoftPSE password: ');
+    getPassword(function(password) {
+        process.stderr.write('\n');
+
+        /* create signer context */
+        var signer = new geierlein.Signer();
+        var pfx = require('fs').readFileSync(__dirname + '/../Testzertifikate/test-softpse_rsapss.pfx', 'binary');
+        signer.setKeyFromPkcs12Der(pfx, password);
+
+        /* run action */
+        action(signer, showResult);
+    });
+} else {
+    /* run action without signer context */
+    action(undefined, showResult);
+}
+
+
+function getPassword(cb) {
+    process.stdin.resume();
+    process.stdin.setEncoding('utf8');
+    tty.setRawMode(true);
+    var password = '';
+    process.stdin.on('data', function(char) {
+        char = char + '';
+
+        switch(char) {
+            case '\n':
+            case '\r':
+            case '\u0004':  /* C-d */
+                tty.setRawMode(false);
+                stdin.pause();
+                cb(password);
+                break;
+
+            case '\u007f':  /* backspace */
+                password = password.substr(0, password.length - 1);
+                break;
+
+            case '\u0003':  /* C-c */
+                process.exit();
+                break;
+
+            default:
+                password += char;
+                break;
+        }
+    });
+}
