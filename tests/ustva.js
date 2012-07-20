@@ -1,4 +1,5 @@
 var geierlein = require('../chrome/content/lib/geierlein/geierlein.js');
+var forge = require('../chrome/content/lib/forge/js/forge.js');
 var fs = require('fs');
 
 function getDummyDatenlieferant() {
@@ -147,5 +148,27 @@ exports.testGetDatenteilXml = function(test) {
     exp = fs.readFileSync(__dirname + '/_files/ustva_datenteil_echt.xml', 'ascii')
         .replace(/\t/g, '');
     test.equal(filter(ustva.getDatenteilXml(false)), exp);
+    test.done();
+};
+
+exports.testGetSignedXMl = function(test) {
+    var ustva = getDummyTaxcase();
+    ustva.erstellungsdatum = '20120720';  /* fixate date, other data is const. */
+
+    /* generate signature */
+    var pfx = fs.readFileSync(__dirname + '/_files/test-softpse_rsapss.pfx', 'binary');
+    var signer = new geierlein.Signer();
+    signer.setKeyFromPkcs12Der(pfx, '123456');
+    ustva.toXml(true, signer);
+
+    /* check digest & signature. */
+    test.equal(signer.digestStr, 'oI4Vn3hV+q4aCNQ0xVLB/OHcu7c=');
+    test.equal(signer.signatureStr, 'QSrbJJm1eoEdX4NT9wS6sVNujCLfAiKZqoX7KFoTVH2iwl2usNyhKmsL/hXLKMpK+FbnSuOXrQrlvH1N/DbMy7KMuzMS/vfIO2Qmapwvby6vlkxXdJtD8A0ilMBtQOJVs/HkX+JQHibr+6n9h7/LJZe5qFNnVg2AbalE2LWziyquzFcuLBj9wwBySfO3SQBUxG+BK4ZswLpDurBxMdB67ot0sNEPvAmX21mrc0bBKPcH0qehawIuVrPbedGEw9t5mplIQFRyXPaokW0tb+JhV0NZKJVbI/lAyx6GdARVwS2euVvGeyT8mdTAHT9P6RGDd3M3b/Mzy8l/t81tu/rFAA==');
+
+    /* check certificate */
+    var cert = forge.asn1.toDer(forge.pki.certificateToAsn1(signer.cert));
+    cert = forge.util.encode64(cert.getBytes());
+    test.equal(cert, 'MIIERzCCAvugAwIBAgIEO50CcTBBBgkqhkiG9w0BAQowNKAPMA0GCWCGSAFlAwQCAQUAoRwwGgYJKoZIhvcNAQEIMA0GCWCGSAFlAwQCAQUAogMCASAwRjELMAkGA1UEBhMCREUxDzANBgNVBAoTBkVsc3RlcjELMAkGA1UECxMCQ0ExGTAXBgNVBAMTEEVsc3RlclNvZnRUZXN0Q0EwHhcNMTEwNzI4MTIxMzU2WhcNMTQwNzI4MTIxMzU2WjArMRQwEgYDVQQFEwsxMDAyNzUzMzI1QTETMBEGA1UEAxMKMTAwMjc1MzMyNTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAJNzaC3Kjzshe76Kk5f13g6PzW5YDwLxeX/WFWjuqy1/Xnh+YHma/DVByoF/l9DKgpYsh4Bw3iamgD6ZDJqdt5AqDjHMBJF5DZhtkl0NwThZD+Slpn4JJn7nITeM3BZTCFUlI2pyFfpMiZW+5FRYZ3bcyM36txw4ABvC7FhQn8Kl6+bwB+zAXWlxmZAsnTatmZpPOb+i2BovUBUQGO+seoq2PG3Tjcbfa5D5qBFyuSBvxhWOSQ4X7oHeWKc2LGg2PXHqxlyBHMisfTlVDOWG97CckIkoFpEbXau72GsyRK1M6IgniQ425RVaQrj/D0ptUOe0hEFh+mb7Oq7m0qXuu3UCAwEAAaOB7zCB7DAOBgNVHQ8BAf8EBAMCB4AwDAYDVR0TAQH/BAIwADAdBgNVHQ4EFgQUkHra7xIUivw0zflyZIcRnpo1N6swOgYDVR0fBDMwMTAvoC2gK4YpaHR0cDovL2NybC5lbHN0ZXIuZGUvRWxzdGVyU29mdFRlc3RDQS5jcmwwcQYDVR0jBGowaIAU1R9AHmpdzaxK3v+ihQsEpAFgzOKhSqRIMEYxCzAJBgNVBAYTAkRFMQ8wDQYDVQQKEwZFbHN0ZXIxDzANBgNVBAsTBlJvb3RDQTEVMBMGA1UEAxMMRWxzdGVyUm9vdENBggQ7msqPMEEGCSqGSIb3DQEBCjA0oA8wDQYJYIZIAWUDBAIBBQChHDAaBgkqhkiG9w0BAQgwDQYJYIZIAWUDBAIBBQCiAwIBIAOCAQEAokKgMMdP9vLC8xZ988F16eh4cQiS0wNekaUhBnODjxkgNVmczmUgjOpm80rXDY2AzWqj0mIfToEEZsx+XrdBQnfLx4tdj3TjWNX+sssmeL+UeTFe9UrORowq1KIZWmS2hcp4XzppnVyUdQ8TYNNXw4npBgGZLSiH7+X4O0Kd0RjtJdzYsDfW30Ic2/lerVkt1QGl3Gk9BzVHbnZweT9Q1CJxhkEkweulRSIzpcFswftnoxhoSs8VDWy/lWWDb1akskktAZd+48HfZ1i0bJoQiVuQPTw2aUH3q9zmEqwaEmcZ2/gNrBqTOK6OtJWZ5MXHzIDcNoEAwsog8ZjIRzEO+w==');
+
     test.done();
 };

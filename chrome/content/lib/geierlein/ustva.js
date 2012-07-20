@@ -261,7 +261,7 @@ geierlein.util.extend(geierlein.UStVA.prototype, {
     getNutzdatenXml: function(testcase) {
         var nutzdaten = new geierlein.util.Xml();
         var d = new Date();
-        var erstellDatum = d.getFullYear() +
+        var erstellDatum = this.erstellungsdatum || d.getFullYear() +
             ('0' + (d.getMonth() + 1)).substr(-2) +
             ('0' + d.getDate()).substr(-2);
 
