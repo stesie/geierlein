@@ -342,7 +342,13 @@
             var reader = new FileReader();
             reader.onload = function(ev) {
                 var signer = new geierlein.Signer();
-                signer.setKeyFromPkcs12Der(ev.target.result, pincode);
+                try {
+                    signer.setKeyFromPkcs12Der(ev.target.result, pincode);
+                } catch(e) {
+                    alert('Das Software-Zertifikat konnte nicht korrekt entschlüsselt werden.  Die Datei ist ungültig, bzw. der PIN-Code falsch.');
+                    $('#wait').modal('hide');
+                    return;
+                }
                 geierlein.sendData(asTestcase, signer);
             };
             reader.readAsBinaryString(pfx[0]);
