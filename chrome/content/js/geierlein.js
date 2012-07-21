@@ -96,25 +96,33 @@
 
 
     /**
-     * Submit the tax declaration and display protocol afterwards.
+     * Prepare submission of tax declaration, display signature control dialog
      *
      * @param asTestcase Whether to set test-marker in the declaration or not.
      * @return void
      */
-    geierlein.sendData = function(asTestcase) {
+    geierlein.startSendData = function(asTestcase) {
         if(ustva.validate() !== true) {
             alert('Das Formular enthält noch ungültige Feldwerte, ' +
                 'Übertragung nicht möglich.');
             return;
         }
 
-        if(!asTestcase && !confirm('Die Daten werden als Echtfall an die Finanzverwaltung übergeben\n' +
-            'Bist du sicher?')) {
-            return;
-        }
+        $('#warn-no-testcase').toggle(!asTestcase);
+        $('#prepare-send').modal();
+    };
 
+    /**
+     * Submit the tax declaration and display protocol afterwards.
+     *
+     * @param asTestcase Whether to set test-marker in the declaration or not.
+     * @param signer Geierlein signer context (undefined for no signature)
+     * @return void
+     */
+    geierlein.sendData = function(asTestcase, signer) {
         $('body').trigger('send-taxcase', asTestcase);
-        ustva.toEncryptedXml(asTestcase, undefined, function(data, cb) {
+
+        ustva.toEncryptedXml(asTestcase, signer, function(data, cb) {
             $('#wait').modal();
             geierlein.transfer(data, cb);
         }, function(res) {
@@ -133,7 +141,7 @@
             }
         });
     };
-    
+
     geierlein.isDatenlieferantValid = function() {
         return datenlieferant.validate() === true;
     };
@@ -288,7 +296,7 @@
      * Send button, click event.
      */
     $('#send').on('click', function(ev) {
-        geierlein.sendData(false);
+        geierlein.startSendData(false);
         return false;
     });
 
@@ -296,7 +304,55 @@
      * Send-as-testcase button, click event.
      */
     $('#send-testcase').on('click', function(ev) {
-        geierlein.sendData(true);
+        geierlein.startSendData(true);
+        return false;
+    });
+
+    /**
+     * "signature enable" checkbox, click event
+     */
+    $('#sig-enable').on('click', function(ev) {
+        $('.sig-controls').prop('disabled', !$('#sig-enable').prop('checked'));
+    });
+
+    /**
+     * Send button of signature control dialog, click event
+     */
+    $('#send-final').on('click', function(ev) {
+        var asTestcase = $('#warn-no-testcase').css('display') === 'none';
+
+        if($('#sig-enable').prop('checked')) {
+            /* send with signature */
+            var pfx = $('#pfxfile')[0].files;
+            var pincode = $('#pincode').val();
+
+            if(pfx.length !== 1) {
+                alert('Wenn die Datenübermittlung mit Signatur erfolgen soll, muss eine Datei gewählt werden, die das Software-Zertifikat enthält.');
+                return false;
+            }
+
+            if(pincode === '') {
+                alert('Um die Signatur erstellen zu können, wir der PIN-Code zum Software-Zertifikat benötigt.');
+                return false;
+            }
+
+            $('#prepare-send').modal('hide');
+            $('#wait').modal();
+
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                var signer = new geierlein.Signer();
+                signer.setKeyFromPkcs12Der(ev.target.result, pincode);
+                geierlein.sendData(asTestcase, signer);
+            };
+            reader.readAsBinaryString(pfx[0]);
+
+        } else {
+            /* transfer without signature */
+            $('#prepare-send').modal('hide');
+            geierlein.sendData(asTestcase, undefined);
+        }
+
         return false;
     });
 

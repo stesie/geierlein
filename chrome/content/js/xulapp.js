@@ -362,7 +362,7 @@ var xulapp = (function() {
         },
 
         send: function(asTestcase) {
-            return cW.geierlein.sendData(asTestcase);
+            return cW.geierlein.startSendData(asTestcase);
         },
 
         showInfo: function() {

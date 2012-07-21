@@ -55,8 +55,8 @@ a.left {
 
 /* Redefine width of .control-label to match a span4,
   define .control-label.span6 to match a span6. */
-.form-horizontal .control-label {
-    width: 280px;
+.form-horizontal .control-label.span4 {
+    width: 260px;
 }
 .form-horizontal .control-label.span6 {
     width: 420px;
