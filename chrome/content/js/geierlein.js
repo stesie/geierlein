@@ -89,6 +89,52 @@
         }
     }
 
+    /**
+     * Handle send button event in signature control dialog.
+     */
+    function doSendFinal(ev) {
+        var asTestcase = $('#warn-no-testcase').css('display') === 'none';
+
+        if($('#sig-enable').prop('checked')) {
+            /* send with signature */
+            var pfx = $('#pfxfile')[0].files;
+            var pincode = $('#pincode').val();
+
+            if(pfx.length !== 1) {
+                alert('Wenn die Datenübermittlung mit Signatur erfolgen soll, muss eine Datei gewählt werden, die das Software-Zertifikat enthält.');
+                return false;
+            }
+
+            if(pincode === '') {
+                alert('Um die Signatur erstellen zu können, wir der PIN-Code zum Software-Zertifikat benötigt.');
+                return false;
+            }
+
+            $('#prepare-send').modal('hide');
+            $('#wait').modal();
+
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                var signer = new geierlein.Signer();
+                try {
+                    signer.setKeyFromPkcs12Der(ev.target.result, pincode);
+                } catch(e) {
+                    alert('Das Software-Zertifikat konnte nicht korrekt entschlüsselt werden.  Die Datei ist ungültig, bzw. der PIN-Code falsch.');
+                    $('#wait').modal('hide');
+                    return;
+                }
+                geierlein.sendData(asTestcase, signer);
+            };
+            reader.readAsBinaryString(pfx[0]);
+
+        } else {
+            /* transfer without signature */
+            $('#prepare-send').modal('hide');
+            geierlein.sendData(asTestcase, undefined);
+        }
+
+        return false;
+    }
 
     /*
      * Public API
@@ -316,51 +362,19 @@
     });
 
     /**
+     * Trigger send final on return keypress in signature control dialog.
+     */
+    $('#pincode').on('keypress', function(ev) {
+        if(ev.which == 13) {
+            doSendFinal();
+            return false;
+        }
+    });
+
+    /**
      * Send button of signature control dialog, click event
      */
-    $('#send-final').on('click', function(ev) {
-        var asTestcase = $('#warn-no-testcase').css('display') === 'none';
-
-        if($('#sig-enable').prop('checked')) {
-            /* send with signature */
-            var pfx = $('#pfxfile')[0].files;
-            var pincode = $('#pincode').val();
-
-            if(pfx.length !== 1) {
-                alert('Wenn die Datenübermittlung mit Signatur erfolgen soll, muss eine Datei gewählt werden, die das Software-Zertifikat enthält.');
-                return false;
-            }
-
-            if(pincode === '') {
-                alert('Um die Signatur erstellen zu können, wir der PIN-Code zum Software-Zertifikat benötigt.');
-                return false;
-            }
-
-            $('#prepare-send').modal('hide');
-            $('#wait').modal();
-
-            var reader = new FileReader();
-            reader.onload = function(ev) {
-                var signer = new geierlein.Signer();
-                try {
-                    signer.setKeyFromPkcs12Der(ev.target.result, pincode);
-                } catch(e) {
-                    alert('Das Software-Zertifikat konnte nicht korrekt entschlüsselt werden.  Die Datei ist ungültig, bzw. der PIN-Code falsch.');
-                    $('#wait').modal('hide');
-                    return;
-                }
-                geierlein.sendData(asTestcase, signer);
-            };
-            reader.readAsBinaryString(pfx[0]);
-
-        } else {
-            /* transfer without signature */
-            $('#prepare-send').modal('hide');
-            geierlein.sendData(asTestcase, undefined);
-        }
-
-        return false;
-    });
+    $('#send-final').on('click', doSendFinal);
 
     /**
      * Initialize tooltips on all input elements.
