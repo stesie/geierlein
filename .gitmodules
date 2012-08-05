@@ -4,3 +4,6 @@
 [submodule "chrome/content/lib/gzip-js"]
 	path = chrome/content/lib/gzip-js
 	url = git://github.com/stesie/gzip-js.git
+[submodule "chrome/content/lib/jsxml"]
+	path = chrome/content/lib/jsxml
+	url = git://github.com/Greendrake/jsxml.git

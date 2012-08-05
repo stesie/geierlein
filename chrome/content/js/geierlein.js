@@ -51,20 +51,25 @@
     /**
      * Show the modal protocol dialog and display the provided protocol.
      *
-     * A reference to the XSL file needed to display the protocol is
-     * added automatically.
+     * The provided document is run through XSL processor before being
+     * displayed.
      *
      * @param res The XML result document as a string.
      * @return void
      */
     function showProtocol(res) {
-        /* Add XSL reference to XML document. */
         var xslUrl = location.href.replace(/[^\/]+$/, 'xsl/ustva.xsl');
-        res = geierlein.util.addStylesheetHref(res, xslUrl);
-
-        $('body').trigger('show-protocol', res);
-        $('#protocol-frame')[0].src = 'data:text/xml;charset=ISO8859-1,' + escape(res);
-        $('#protocol').modal();
+        $.ajax({
+            url: xslUrl,
+            isLocal: xslUrl.substr(0, 7) === 'chrome:',
+            success: function(xslDom) {
+                var xmlDom = jsxml.fromString(res, false);
+                var xslResult = jsxml.transReady(xmlDom, xslDom);
+                $('body').trigger('show-protocol', res);
+                $('#protocol-frame')[0].src = 'data:text/html;charset=UTF-8,' + encodeURIComponent(xslResult);
+                $('#protocol').modal();
+            }
+        });
     }
 
     function updateModelHandler(el, model) {

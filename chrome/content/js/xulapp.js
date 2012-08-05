@@ -173,7 +173,7 @@ var xulapp = (function() {
             }
 
             var src = cW.$('#protocol-frame')[0].src;
-            src = unescape(src.substr(src.indexOf(',') + 1));
+            src = decodeURIComponent(src.substr(src.indexOf(',') + 1));
             storeStringToFile(src, fp.file);
         });
 
