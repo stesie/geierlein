@@ -58,7 +58,7 @@
      * @return void
      */
     function showProtocol(res) {
-        var xslUrl = location.href.replace(/[^\/]+$/, 'xsl/ustva.xsl');
+        var xslUrl = location.href.replace(/[^\/]+$/, '') + 'xsl/ustva.xsl';
         $.ajax({
             url: xslUrl,
             isLocal: xslUrl.substr(0, 7) === 'chrome:',
