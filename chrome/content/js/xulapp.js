@@ -177,6 +177,8 @@ var xulapp = (function() {
             storeStringToFile(src, fp.file);
         });
 
+        /* We're running in chrome context, no need for reverse proxying. */
+        cW.geierlein.transfer = cW.geierlein.transferDirect;
 
         /* Show developer menu if allowed by pref. */
         if(prefs.getBoolPref('debug.showDevelMenu')) {

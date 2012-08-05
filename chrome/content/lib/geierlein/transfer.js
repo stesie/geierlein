@@ -38,9 +38,19 @@ var geierlein = {};
 if(typeof(window) !== 'undefined') {
     geierlein = window.geierlein = window.geierlein || {};
 
-    geierlein.transfer = function(encData, callback) {
+    geierlein.transferDirect = function(encData, callback) {
         var targetUrl = 'http://' + getRandomIpAddress() +
             '/Elster2/EMS/ElsterAnmeldung';
+        _doXhr(targetUrl, encData, callback);
+    };
+
+    geierlein.transferReverseProxy = function(encData, callback) {
+        _doXhr('proxy/Elster2/EMS/ElsterAnmeldung', encData, callback);
+    };
+
+    geierlein.transfer = geierlein.transferReverseProxy;
+
+    function _doXhr(targetUrl, encData, callback) {
         $.ajax(targetUrl, {
             type: 'POST',
             data: encData,
