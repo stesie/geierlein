@@ -111,7 +111,7 @@
             }
 
             if(pincode === '') {
-                alert('Um die Signatur erstellen zu können, wir der PIN-Code zum Software-Zertifikat benötigt.');
+                alert('Um die Signatur erstellen zu können, wird der PIN-Code zum Software-Zertifikat benötigt.');
                 return false;
             }
 
