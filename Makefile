@@ -122,6 +122,12 @@ install: bin/xgeierlein
 	$(INSTALL_DATA) -t $(DESTDIR)$(pixmapdir) geierlein.xpm
 	$(INSTALL) -t $(DESTDIR)$(bindir) bin/xgeierlein
 
+uninstall:
+	rm -vrf $(DESTDIR)$(pkgdatadir)
+	rm -vf $(DESTDIR)$(desktopfiledir)/geierlein.desktop
+	rm -vf $(DESTDIR)$(pixmapdir)/geierlein.xpm
+	rm -vf $(DESTDIR)$(bindir)/bin/xgeierlein
+
 dist:
 	git archive-all --prefix geierlein-$(VERSION)/ geierlein-$(VERSION).tar.gz
 	git archive-all --prefix geierlein-$(VERSION)/ geierlein-$(VERSION).zip
@@ -134,4 +140,4 @@ test-forge:
 
 test-all: test-forge test
 
-.PHONY: all clean dist install test test-forge test-all
+.PHONY: all clean dist install test test-forge test-all uninstall
