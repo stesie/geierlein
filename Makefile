@@ -5,7 +5,7 @@ pixmapdir := $(datadir)/pixmaps
 desktopfiledir := $(datadir)/applications
 pkgdatadir := $(datadir)/geierlein
 
-VERSION := 0.3.0
+VERSION := 0.3.1
 INSTALL := /usr/bin/install -c
 INSTALL_DATA := $(INSTALL) -m 644
 
