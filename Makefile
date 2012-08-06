@@ -5,7 +5,7 @@ pixmapdir := $(datadir)/pixmaps
 desktopfiledir := $(datadir)/applications
 pkgdatadir := $(datadir)/geierlein
 
-VERSION := "0.3.0"
+VERSION := 0.3.0
 INSTALL := /usr/bin/install -c
 INSTALL_DATA := $(INSTALL) -m 644
 
@@ -103,6 +103,14 @@ xulapp_essentials := \
 	./chrome.manifest \
 	./application.ini
 
+version_files := \
+	Makefile \
+	application.ini \
+	chrome/content/lib/geierlein/steuerfall.js \
+	package.json \
+	tests/_files/ustva_datenteil_echt.xml \
+	tests/_files/ustva_datenteil_test.xml
+
 all: bin/xgeierlein
 
 clean:
@@ -140,4 +148,12 @@ test-forge:
 
 test-all: test-forge test
 
-.PHONY: all clean dist install test test-forge test-all uninstall
+bump-version: $(version_files)
+	@if [ "$(NEW_VERSION)" = "" ]; then \
+	  echo NEW_VERSION argument not provided.; \
+	  echo Usage: make update-version NEW_VERSION=0.3.1; \
+	  exit 1; \
+	fi
+	sed -e 's;$(subst .,\.,$(VERSION));$(NEW_VERSION);g' -i $^
+
+.PHONY: all clean dist install test test-forge test-all uninstall bump-version
