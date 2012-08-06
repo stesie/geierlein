@@ -4,6 +4,6 @@ Name=Geierlein
 GenericName=Geierlein
 Comment=freier Elster-Client für Linux
 Type=Application
-Exec=firefox -app @pkgdatadir@/application.ini
+Exec=xgeierlein
 Icon=geierlein
 Terminal=false

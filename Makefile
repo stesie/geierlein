@@ -1,4 +1,5 @@
 prefix := /usr/local
+bindir := $(prefix)/bin
 datadir := $(prefix)/share
 pixmapdir := $(datadir)/pixmaps
 desktopfiledir := $(datadir)/applications
@@ -102,15 +103,16 @@ xulapp_essentials := \
 	./chrome.manifest \
 	./application.ini
 
-all: geierlein.desktop
+all: bin/xgeierlein
 
 clean:
-	rm -f geierlein.desktop
+	rm -f bin/xgeierlein
 
-geierlein.desktop: geierlein.desktop.in
+bin/xgeierlein: bin/xgeierlein.in
 	sed -e "s;@pkgdatadir@;$(pkgdatadir);g" $< > $@
+	chmod +x $@
 
-install: geierlein.desktop
+install: bin/xgeierlein
 	for file in $(xulapp_essentials); do \
 	  installdir="$${file%/*}"; \
 	  $(INSTALL) -d $(DESTDIR)$(pkgdatadir)/$$installdir; \
@@ -118,6 +120,7 @@ install: geierlein.desktop
 	done
 	$(INSTALL_DATA) -t $(DESTDIR)$(desktopfiledir) geierlein.desktop
 	$(INSTALL_DATA) -t $(DESTDIR)$(pixmapdir) geierlein.xpm
+	$(INSTALL) -t $(DESTDIR)$(bindir) bin/xgeierlein
 
 dist:
 	git archive-all --prefix geierlein-$(VERSION)/ geierlein-$(VERSION).tar.gz

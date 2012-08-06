@@ -2,4 +2,4 @@
 .project
 .settings
 node_modules
-geierlein.desktop
+bin/xgeierlein
