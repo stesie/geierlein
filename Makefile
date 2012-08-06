@@ -139,6 +139,7 @@ uninstall:
 dist:
 	git archive-all --prefix geierlein-$(VERSION)/ geierlein-$(VERSION).tar.gz
 	git archive-all --prefix geierlein-$(VERSION)/ geierlein-$(VERSION).zip
+	git tag V$(VERSION)
 
 test:
 	npm test
