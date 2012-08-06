@@ -1,0 +1,9 @@
+[Desktop Entry]
+Categories=Finance;Office
+Name=Geierlein
+GenericName=Geierlein
+Comment=freier Elster-Client für Linux
+Type=Application
+Exec=firefox -app @pkgdatadir@/application.ini
+Icon=geierlein
+Terminal=false
