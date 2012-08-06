@@ -134,7 +134,7 @@ var xulapp = (function() {
             } else {
                 /* Relative path name */
                 var dirService = C["@mozilla.org/file/directory_service;1"].getService(I.nsIProperties);
-                var curProcDir = dirService.get("CurProcD", I.nsIFile);
+                var curProcDir = dirService.get("CurWorkD", I.nsIFile);
 
                 fp = curProcDir.clone().QueryInterface(I.nsILocalFile);
                 fp.appendRelativePath(loadFlag);
