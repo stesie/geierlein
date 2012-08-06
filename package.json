@@ -8,5 +8,13 @@
   "dependencies": {
     "iconv": "*",
     "optimist": "*"
-  }
+  },
+  "scripts": {
+    "test": "nodeunit tests/"
+  },
+  "repository": {
+	"type": "git",
+	"url": "https://github.com/stesie/geierlein.git"
+  },
+  "license": "AGPLv3+"
 }
