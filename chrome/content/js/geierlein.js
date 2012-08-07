@@ -215,6 +215,7 @@
         d.setMonth(d.getMonth() - 1);
         $jahr.val(d.getFullYear());
         $zeitraum.val(d.getMonth() + 1);
+        $zeitraum.change();
 
         $('body').trigger('reset-form');
 
@@ -325,6 +326,11 @@
     geierlein.resetForm();
 
 
+    $('#zeitraum').on('change', function(ev) {
+      var selected = $('option:selected', this);
+      var grouplabel = selected.parent().attr('label');
+      $('label[for="'+this.id+'"]').text(grouplabel);
+    });
 
     /*
      * Further event listeners needed to make the GUI work.

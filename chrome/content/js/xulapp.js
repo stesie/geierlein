@@ -225,6 +225,7 @@ var xulapp = (function() {
                         cW.$('#zeitraum').val(month);
                     } catch(e) {}
             };
+            cW.$('#zeitraum').change();
         },
 
         /* Get autosave-dir as nsILocalFile instance.
