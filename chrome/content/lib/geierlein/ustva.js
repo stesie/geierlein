@@ -40,12 +40,12 @@ var rules = geierlein.validation.rules;
  * 
  * @param datenlieferant A Datenlieferant instance to use.
  * @param jahr The year of the declaration.
- * @param monat The month (1-12) or quarter specification (41-44) 
+ * @param zeitraum The month (1-12) or quarter specification (41-44) 
  */
-geierlein.UStVA = function(datenlieferant, jahr, monat) {
+geierlein.UStVA = function(datenlieferant, jahr, zeitraum) {
     this.datenlieferant = datenlieferant || new geierlein.Datenlieferant();
     this.jahr = jahr;
-    this.monat = monat;
+    this.zeitraum = zeitraum;
 };
 
 geierlein.UStVA.prototype = new geierlein.Steuerfall();
@@ -63,7 +63,7 @@ var validationRules = {
         rules.range(2010, 2012)
     ],
 
-    monat: [
+    zeitraum: [
         rules.required,
         function(val) {
             return rules.range(1, 12)(val) || rules.range(41, 44)(val);
@@ -280,7 +280,7 @@ geierlein.util.extend(geierlein.UStVA.prototype, {
                 nutzdaten.writeStartElement('Umsatzsteuervoranmeldung');
                     nutzdaten.writeElementString('Jahr', this.jahr);
                     nutzdaten.writeElementString('Zeitraum',
-                        ('0' + this.monat).substr(-2));
+                        ('0' + this.zeitraum).substr(-2));
                     nutzdaten.writeElementString('Steuernummer',
                         this.getFormattedTaxNumber());
                     nutzdaten.writeElementString('Kz09',
