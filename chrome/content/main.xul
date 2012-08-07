@@ -42,7 +42,9 @@
             <toolbarseparator/>
             <toolbarbutton label="Daten senden" id="send" oncommand="xulapp.send(false);"/>
             <spacer flex="1"/>
-            <toolbarbutton id="taxbird"/>
+            <hbox id="taxbird">
+                <image/>
+            </hbox>
         </toolbar>
     </toolbox>
     <iframe src="chrome://geierlein/content/index.html" id="doc" flex="1"/>

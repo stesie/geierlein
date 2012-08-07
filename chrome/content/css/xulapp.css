@@ -25,6 +25,13 @@ toolbarbutton {
     list-style-image: url(chrome://geierlein/content/img/toolbar-convert.png);
 
 }
+
 #taxbird {
+    -moz-box-align: center;
+}
+
+#taxbird image {
     list-style-image: url(chrome://geierlein/content/img/taxbird-logo-1.png);
+    width: 130px;
+    height: 36px;
 }
