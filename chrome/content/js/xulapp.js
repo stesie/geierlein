@@ -177,6 +177,17 @@ var xulapp = (function() {
             storeStringToFile(src, fp.file);
         });
 
+        /* Bind external links to open in default browser. */
+        cW.$('a[href^="http"]').click(function(ev) {
+            var ios = C['@mozilla.org/network/io-service;1']
+                .getService(I.nsIIOService);
+            var uri = ios.newURI(ev.target.href, null, null);
+            var extps = C['@mozilla.org/uriloader/external-protocol-service;1']
+                .getService(I.nsIExternalProtocolService);
+            extps.loadURI(uri, null);
+            return false;
+        });
+
         /* We're running in chrome context, no need for reverse proxying. */
         cW.geierlein.transfer = cW.geierlein.transferDirect;
 
