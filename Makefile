@@ -75,7 +75,7 @@ geierlein_essentials := \
 	chrome/content/css/geierlein.css \
 	chrome/content/img/glyphicons-halflings-white.png \
 	chrome/content/img/glyphicons-halflings.png \
-	chrome/content/img/taxbird-logo-1.jpg \
+	chrome/content/img/taxbird-logo-1.png \
 	chrome/content/index.html \
 	chrome/content/js/bootstrap.min.js \
 	chrome/content/js/geierlein.js \
