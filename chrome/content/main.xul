@@ -2,23 +2,31 @@
 <?xml-stylesheet href="chrome://geierlein/content/css/xulapp.css" type="text/css"?>
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" id="main" title="Geierlein - der freie Elster Client" width="1024" height="768">
     <toolbox>
+        <keyset>
+            <key id="quit-key" modifiers="meta" key="Q" oncommand="xulapp.shutdown();"/>
+            <key id="new-key" modifiers="meta" key="N" oncommand="xulapp.resetForm();"/>
+            <key id="open-key" modifiers="meta" key="O" oncommand="xulapp.openFile();"/>
+            <key id="save-key" modifiers="meta" key="S" oncommand="xulapp.saveFile();"/>
+            <key id="saveas-key" modifiers="meta shift" key="S" oncommand="xulapp.saveFileAs();"/>
+            <key id="prefs-key" modifiers="meta" key="," oncommand="xulapp.openPrefWindow();"/>
+        </keyset>
         <menubar>
             <menu label="Datei" menuactive="true">
                 <menupopup>
-                    <menuitem label="Neu" oncommand="xulapp.resetForm();"/>
-                    <menuitem label="Öffnen ..." oncommand="xulapp.openFile();"/>
-                    <menuitem label="Speichern" oncommand="xulapp.saveFile();"/>
-                    <menuitem label="Speichern unter ..." oncommand="xulapp.saveFileAs();"/>
+                    <menuitem label="Neu" accesskey="n" key="new-key" oncommand="xulapp.resetForm();"/>
+                    <menuitem label="Öffnen ..." accesskey="o" key="open-key" oncommand="xulapp.openFile();"/>
+                    <menuitem label="Speichern" accesskey="s" key="save-key" oncommand="xulapp.saveFile();"/>
+                    <menuitem label="Speichern unter ..." key="saveas-key" oncommand="xulapp.saveFileAs();"/>
                     <menuseparator/>
                     <menuitem label="Daten senden ..." oncommand="xulapp.send(false);"/>
                     <menuitem label="Als Testfall senden ..." oncommand="xulapp.send(true);"/>
-                    <menuseparator/>
-                    <menuitem label="Beenden" oncommand="xulapp.shutdown();"/>
+                    <menuseparator id="menu_FileQuitSeparator"/>
+                    <menuitem label="Beenden" id="menu_FileQuitItem" accesskey="q" key="quit-key" oncommand="xulapp.shutdown();"/>
                 </menupopup>
             </menu>
             <menu label="Bearbeiten">
                 <menupopup>
-                    <menuitem label="Einstellungen" oncommand="xulapp.openPrefWindow();"/>
+                    <menuitem label="Einstellungen" id="menu_preferences" accesskey="," key="prefs-key" oncommand="xulapp.openPrefWindow();"/>
                 </menupopup>
             </menu>
             <menu label="Werkzeuge" class="hideDevel">
@@ -31,7 +39,7 @@
             </menu>
             <menu label="Hilfe">
                 <menupopup>
-                    <menuitem label="Info" oncommand="xulapp.showInfo();"/>
+                    <menuitem label="Info" id="aboutName" oncommand="xulapp.showInfo();"/>
                 </menupopup>
             </menu>
         </menubar>
