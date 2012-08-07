@@ -3,12 +3,12 @@
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" id="main" title="Geierlein - der freie Elster Client" width="1024" height="768">
     <toolbox>
         <keyset>
-            <key id="quit-key" modifiers="meta" key="Q" oncommand="xulapp.shutdown();"/>
-            <key id="new-key" modifiers="meta" key="N" oncommand="xulapp.resetForm();"/>
-            <key id="open-key" modifiers="meta" key="O" oncommand="xulapp.openFile();"/>
-            <key id="save-key" modifiers="meta" key="S" oncommand="xulapp.saveFile();"/>
-            <key id="saveas-key" modifiers="meta shift" key="S" oncommand="xulapp.saveFileAs();"/>
-            <key id="prefs-key" modifiers="meta" key="," oncommand="xulapp.openPrefWindow();"/>
+            <key id="quit-key" modifiers="accel" key="Q" oncommand="xulapp.shutdown();"/>
+            <key id="new-key" modifiers="accel" key="N" oncommand="xulapp.resetForm();"/>
+            <key id="open-key" modifiers="accel" key="O" oncommand="xulapp.openFile();"/>
+            <key id="save-key" modifiers="accel" key="S" oncommand="xulapp.saveFile();"/>
+            <key id="saveas-key" modifiers="accel shift" key="S" oncommand="xulapp.saveFileAs();"/>
+            <key id="prefs-key" modifiers="accel" key="," oncommand="xulapp.openPrefWindow();"/>
         </keyset>
         <menubar>
             <menu label="Datei" menuactive="true">
