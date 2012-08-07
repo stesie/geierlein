@@ -21,7 +21,7 @@
 
 (function($, geierlein) {
     var $jahr = $('#jahr');
-    var $monat = $('#monat');
+    var $zeitraum = $('#zeitraum');
 
     var datenlieferant, ustva;
 
@@ -200,7 +200,7 @@
     geierlein.getTaxcaseIdentifier = function() {
         var id = ustva.steuernummer.replace(/[^0-9]/g, '');
         /* add year & month */
-        id += "_" + ustva.jahr + ("0" + ustva.monat).substr(-2);
+        id += "_" + ustva.jahr + ("0" + ustva.zeitraum).substr(-2);
         if(ustva.kz10 == 1) {
             id += "_mod";
         }
@@ -214,7 +214,8 @@
         var d = new Date();
         d.setMonth(d.getMonth() - 1);
         $jahr.val(d.getFullYear());
-        $monat.val(d.getMonth() + 1);
+        $zeitraum.val(d.getMonth() + 1);
+        $zeitraum.change();
 
         $('body').trigger('reset-form');
 
@@ -325,6 +326,11 @@
     geierlein.resetForm();
 
 
+    $('#zeitraum').on('change', function(ev) {
+      var selected = $('option:selected', this);
+      var grouplabel = selected.parent().attr('label');
+      $('label[for="'+this.id+'"]').text(grouplabel);
+    });
 
     /*
      * Further event listeners needed to make the GUI work.

@@ -103,7 +103,7 @@ var xulapp = (function() {
 
                 if(!asTestcase) {
                     prefs.setIntPref('autofill.time.lastyear', cW.$('#jahr').val());
-                    prefs.setIntPref('autofill.time.lastmonth', cW.$('#monat').val());
+                    prefs.setIntPref('autofill.time.lastmonth', cW.$('#zeitraum').val());
                 }
             })
             .on('show-protocol', function(ev, res) {
@@ -204,7 +204,7 @@ var xulapp = (function() {
                     d.setMonth(d.getMonth() - (d.getMonth() % 3));
                     d.setMonth(d.getMonth() - 3);
                     cW.$('#jahr').val(d.getFullYear());
-                    cW.$('#monat').val((d.getMonth() / 3) + 41);
+                    cW.$('#zeitraum').val((d.getMonth() / 3) + 41);
                     break;
                 case 3: /* last transmission date */
                     try {
@@ -222,9 +222,10 @@ var xulapp = (function() {
                             month ++;
                         }
                         cW.$('#jahr').val(year);
-                        cW.$('#monat').val(month);
+                        cW.$('#zeitraum').val(month);
                     } catch(e) {}
             };
+            cW.$('#zeitraum').change();
         },
 
         /* Get autosave-dir as nsILocalFile instance.
