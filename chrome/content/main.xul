@@ -12,13 +12,13 @@
                     <menuseparator/>
                     <menuitem label="Daten senden ..." oncommand="xulapp.send(false);"/>
                     <menuitem label="Als Testfall senden ..." oncommand="xulapp.send(true);"/>
-                    <menuseparator/>
-                    <menuitem label="Beenden" oncommand="xulapp.shutdown();"/>
+                    <menuseparator id="menu_FileQuitSeparator"/>
+                    <menuitem label="Beenden" id="menu_FileQuitItem" oncommand="xulapp.shutdown();"/>
                 </menupopup>
             </menu>
             <menu label="Bearbeiten">
                 <menupopup>
-                    <menuitem label="Einstellungen" oncommand="xulapp.openPrefWindow();"/>
+                    <menuitem label="Einstellungen" id="menu_preferences" oncommand="xulapp.openPrefWindow();"/>
                 </menupopup>
             </menu>
             <menu label="Werkzeuge" class="hideDevel">
@@ -31,7 +31,7 @@
             </menu>
             <menu label="Hilfe">
                 <menupopup>
-                    <menuitem label="Info" oncommand="xulapp.showInfo();"/>
+                    <menuitem label="Info" id="aboutName" oncommand="xulapp.showInfo();"/>
                 </menupopup>
             </menu>
         </menubar>
