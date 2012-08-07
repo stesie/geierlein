@@ -49,7 +49,7 @@ for(var key in data) {
         ustva[key] = +data[key].replace(',', '.');
     } else if(key === 'steuernummer'
        || key === 'jahr'
-       || key === 'monat') {
+       || key === 'zeitraum') {
         /* Information belongs to the UStVA document and is a string. */
         ustva[key] = data[key];
     } else {
