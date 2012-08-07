@@ -23,4 +23,8 @@ toolbarbutton {
 
 #send {
     list-style-image: url(chrome://geierlein/content/img/toolbar-convert.png);
+
+}
+#taxbird {
+    list-style-image: url(chrome://geierlein/content/img/taxbird-logo-1.png);
 }
