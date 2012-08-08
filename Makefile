@@ -5,7 +5,10 @@ pixmapdir := $(datadir)/pixmaps
 desktopfiledir := $(datadir)/applications
 pkgdatadir := $(datadir)/geierlein
 
-VERSION := 0.3.1
+VERSIONMAJOR := 0
+VERSIONMINOR := 3
+VERSIONBUILD := 1
+VERSION := $(VERSIONMAJOR).$(VERSIONMINOR).$(VERSIONBUILD)
 INSTALL := /usr/bin/install -c
 INSTALL_DATA := $(INSTALL) -m 644
 
@@ -103,6 +106,10 @@ xulapp_essentials := \
 	./chrome.manifest \
 	./application.ini
 
+xulapp_wininst := \
+	$(xulapp_essentials) \
+	logo.ico
+
 version_files := \
 	Makefile \
 	application.ini \
@@ -111,14 +118,27 @@ version_files := \
 	tests/_files/ustva_datenteil_echt.xml \
 	tests/_files/ustva_datenteil_test.xml
 
-all: bin/xgeierlein
+all: bin/xgeierlein wininst.nsi
 
 clean:
-	rm -f bin/xgeierlein
+	rm -f bin/xgeierlein wininst.nsi
 
-bin/xgeierlein: bin/xgeierlein.in
+bin/xgeierlein: bin/xgeierlein.in Makefile
 	sed -e "s;@pkgdatadir@;$(pkgdatadir);g" $< > $@
 	chmod +x $@
+
+wininst.nsi: wininst.nsi.in Makefile
+	sed -e "s;@instfiles@;$(foreach file,$(xulapp_wininst),\n\tsetOutPath \$$INSTDIR\\\$(subst /,\\\,$(dir $(file))) \n\n\tFile $(subst /,\\\,$(file)));g" \
+	    -e "s;@deletefiles@;$(subst /,\\\,$(foreach file,$(xulapp_wininst),\n\tDelete \$$INSTDIR\\\$(file)));g" \
+	    -e "s;@VERSIONMAJOR@;$(VERSIONMAJOR);g" \
+	    -e "s;@VERSIONMINOR@;$(VERSIONMINOR);g" \
+	    -e "s;@VERSIONBUILD@;$(VERSIONBUILD);g" \
+	    -e "s;@VERSION@;$(VERSION);g" \
+	    -e "s;@INSTSIZE@;$(shell du --apparent-size --block-size=1024 --total $(xulapp_wininst) | awk 'END { print $$1 }');g" \
+	    $< > $@
+
+dist-nsis: wininst.nsi
+	makensis $<
 
 install: bin/xgeierlein
 	for file in $(xulapp_essentials); do \
@@ -136,7 +156,7 @@ uninstall:
 	rm -vf $(DESTDIR)$(pixmapdir)/geierlein.xpm
 	rm -vf $(DESTDIR)$(bindir)/bin/xgeierlein
 
-dist:
+dist: dist-nsis
 	git archive-all --prefix geierlein-$(VERSION)/ geierlein-$(VERSION).tar.gz
 	git archive-all --prefix geierlein-$(VERSION)/ geierlein-$(VERSION).zip
 	git tag V$(VERSION)
@@ -157,4 +177,4 @@ bump-version: $(version_files)
 	fi
 	sed -e 's;$(subst .,\.,$(VERSION));$(NEW_VERSION);g' -i $^
 
-.PHONY: all clean dist install test test-forge test-all uninstall bump-version
+.PHONY: all clean dist install test test-forge test-all uninstall bump-version dist-nsis

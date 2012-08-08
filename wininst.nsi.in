@@ -1,0 +1,141 @@
+!define APPNAME "Geierlein"
+!define COMPANYNAME "Taxbird"
+!define DESCRIPTION "Geierlein is a free Elster client, i.e. an application that allows to send VAT declarations to Germany's fiscal authorities."
+# These three must be integers
+!define VERSIONMAJOR @VERSIONMAJOR@
+!define VERSIONMINOR @VERSIONMINOR@
+!define VERSIONBUILD @VERSIONBUILD@
+# These will be displayed by the "Click here for support information" link in "Add/Remove Programs"
+# It is possible to use "mailto:" links in here to open the email client
+!define HELPURL "mailto:taxbird@taxbird.de" # "Support Information" link
+!define UPDATEURL "http://stesie.github.com/geierlein/" # "Product Updates" link
+!define ABOUTURL "http://stesie.github.com/geierlein/" # "Publisher" link
+# This is the size (in kB) of all the files copied into "Program Files"
+!define INSTALLSIZE @INSTSIZE@
+ 
+InstallDir "$PROGRAMFILES\${COMPANYNAME}\${APPNAME}"
+ 
+# rtf or txt file - remember if it is txt, it must be in the DOS text format (\r\n)
+LicenseData "COPYING"
+# This will be in the installer/uninstaller's title bar
+Name "${COMPANYNAME} - ${APPNAME}"
+Icon "logo.ico"
+outFile "geierlein-@VERSION@-installer.exe"
+ 
+!include LogicLib.nsh
+ 
+# Just three pages - license agreement, install location, and installation
+page license
+page directory
+Page instfiles
+ 
+function .onInit
+	setShellVarContext all
+
+	ReadRegStr $R8 HKLM "SOFTWARE\Mozilla\Mozilla Firefox" "CurrentVersion"
+	${If} $R8 == ""
+		ReadRegStr $R8 HKCU "SOFTWARE\Mozilla\Mozilla Firefox" "CurrentVersion"
+		${If} $R8 == ""
+			# No firefox installation found, stop.
+			MessageBox mb_iconstop "Firefox installation required!"
+			setErrorLevel 2
+			Quit
+		${EndIf}
+
+		DetailPrint "Firefox version $R8 is installed as user (HKCU)."
+		ReadRegStr $R9 HKCU "SOFTWARE\Mozilla\Mozilla Firefox\$R8\Main" "PathToExe"
+	${Else}
+		DetailPrint "Firefox version $R8 is installed system-wide (HKLM)."
+		ReadRegStr $R9 HKLM "SOFTWARE\Mozilla\Mozilla Firefox\$R8\Main" "PathToExe"
+	${EndIf}
+
+	DetailPrint "Firefox executable is available as $R9."
+functionEnd
+ 
+section "install"
+	# Files added here should be removed by the uninstaller (see section "uninstall")
+	@instfiles@
+
+	# Files for the install directory - to build the installer, these should be in the same directory as the install script (this file)
+	setOutPath $INSTDIR
+
+	# Uninstaller - See function un.onInit and section "uninstall" for configuration
+	writeUninstaller "$INSTDIR\uninstall.exe"
+ 
+	# Start Menu
+	createDirectory "$SMPROGRAMS\${COMPANYNAME}"
+	createShortCut "$SMPROGRAMS\${COMPANYNAME}\${APPNAME}.lnk" "$R9" '-app "$INSTDIR\application.ini"' "$INSTDIR\logo.ico"
+ 
+	# Registry information for add/remove programs
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}" "DisplayName" "${COMPANYNAME} - ${APPNAME} - ${DESCRIPTION}"
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}" "UninstallString" "$\"$INSTDIR\uninstall.exe$\""
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}" "QuietUninstallString" "$\"$INSTDIR\uninstall.exe$\" /S"
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}" "InstallLocation" "$\"$INSTDIR$\""
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}" "DisplayIcon" "$\"$INSTDIR\logo.ico$\""
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}" "Publisher" "$\"${COMPANYNAME}$\""
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}" "HelpLink" "$\"${HELPURL}$\""
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}" "URLUpdateInfo" "$\"${UPDATEURL}$\""
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}" "URLInfoAbout" "$\"${ABOUTURL}$\""
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}" "DisplayVersion" "$\"${VERSIONMAJOR}.${VERSIONMINOR}.${VERSIONBUILD}$\""
+	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}" "VersionMajor" ${VERSIONMAJOR}
+	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}" "VersionMinor" ${VERSIONMINOR}
+	# There is no option for modifying or repairing the install
+	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}" "NoModify" 1
+	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}" "NoRepair" 1
+	# Set the INSTALLSIZE constant (!defined at the top of this script) so Add/Remove Programs can accurately report the size
+	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}" "EstimatedSize" ${INSTALLSIZE}
+sectionEnd
+ 
+# Uninstaller
+ 
+function un.onInit
+	SetShellVarContext all
+ 
+	#Verify the uninstaller - last chance to back out
+	MessageBox MB_OKCANCEL "Permanantly remove ${APPNAME}?" IDOK next
+		Abort
+	next:
+functionEnd
+ 
+section "uninstall"
+ 
+	# Remove Start Menu launcher
+	delete "$SMPROGRAMS\${COMPANYNAME}\${APPNAME}.lnk"
+	# Try to remove the Start Menu folder - this will only happen if it is empty
+	rmDir "$SMPROGRAMS\${COMPANYNAME}"
+ 
+	# Remove files
+	#delete $INSTDIR\app.exe
+	#delete $INSTDIR\logo.ico
+
+	@deletefiles@
+
+	# Remove directories, these should be created by Makefile, FIXME
+	RMDir $INSTDIR\chrome\content\lib\forge\js
+	RMDir $INSTDIR\chrome\content\lib\forge
+	RMDir $INSTDIR\chrome\content\lib\gzip-js\lib
+	RMDir $INSTDIR\chrome\content\lib\gzip-js
+	RMDir $INSTDIR\chrome\content\lib\jsxml
+	RMDir $INSTDIR\chrome\content\lib\geierlein
+	RMDir $INSTDIR\chrome\content\lib
+	RMDir $INSTDIR\chrome\content\css
+	RMDir $INSTDIR\chrome\content\img
+	RMDir $INSTDIR\chrome\content\js
+	RMDir $INSTDIR\chrome\content\xsl
+	RMDir $INSTDIR\chrome\content\pref
+	RMDir $INSTDIR\chrome\content
+	RMDir $INSTDIR\chrome\locale\branding
+	RMDir $INSTDIR\chrome\locale
+	RMDir $INSTDIR\chrome
+	RMDir $INSTDIR\defaults\preferences
+	RMDir $INSTDIR\defaults
+ 
+	# Always delete uninstaller as the last action
+	Delete $INSTDIR\uninstall.exe
+ 
+	# Try to remove the install directory - this will only happen if it is empty
+	rmDir $INSTDIR
+ 
+	# Remove uninstaller information from the registry
+	DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}"
+sectionEnd

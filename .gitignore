@@ -4,3 +4,5 @@
 node_modules
 bin/xgeierlein
 Testzertifikate
+wininst.nsi
+geierlein-*-installer.exe
