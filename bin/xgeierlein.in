@@ -34,4 +34,4 @@ Mozilla Firefox or Mozilla XUL Runner, ... and try again.  See README.md.
 EOF
 fi
 
-exec "$XULRUNNER" -app /usr/local/share/geierlein/application.ini $*
+exec "$XULRUNNER" -app @pkgdatadir@/application.ini $*
