@@ -309,7 +309,7 @@ var xulapp = (function() {
         },
 
         openPrefWindow: function() {
-            var features = "chrome,titlebar,toolbar,centerscreen,modal";
+            var features = "chrome,titlebar,toolbar,centerscreen,dialog=yes";
             window.openDialog('chrome://geierlein/content/pref/pref.xul', "Einstellungen", features, xulapp);
         },
 
