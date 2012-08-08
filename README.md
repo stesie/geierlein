@@ -66,4 +66,4 @@ incorporate your changes and initiate a pull request.
  License
 ----------
 
-See LICENSE file.
+See COPYING file.
