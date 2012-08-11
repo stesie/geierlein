@@ -14,19 +14,19 @@
             <menu label="Datei" menuactive="true">
                 <menupopup>
                     <menuitem label="Neu" accesskey="n" key="new-key" oncommand="xulapp.resetForm();"/>
-                    <menuitem label="Öffnen ..." accesskey="o" key="open-key" oncommand="xulapp.openFile();"/>
+                    <menuitem label="Öffnen ..." accesskey="f" key="open-key" oncommand="xulapp.openFile();"/>
                     <menuitem label="Speichern" accesskey="s" key="save-key" oncommand="xulapp.saveFile();"/>
-                    <menuitem label="Speichern unter ..." key="saveas-key" oncommand="xulapp.saveFileAs();"/>
+                    <menuitem label="Speichern unter ..." accesskey="u" key="saveas-key" oncommand="xulapp.saveFileAs();"/>
                     <menuseparator/>
-                    <menuitem label="Daten senden ..." oncommand="xulapp.send(false);"/>
-                    <menuitem label="Als Testfall senden ..." oncommand="xulapp.send(true);"/>
+                    <menuitem label="Daten senden ..." accesskey="d" oncommand="xulapp.send(false);"/>
+                    <menuitem label="Als Testfall senden ..." accesskey="t" oncommand="xulapp.send(true);"/>
                     <menuseparator id="menu_FileQuitSeparator"/>
-                    <menuitem label="Beenden" id="menu_FileQuitItem" accesskey="q" key="quit-key" oncommand="xulapp.shutdown();"/>
+                    <menuitem label="Beenden" id="menu_FileQuitItem" accesskey="e" key="quit-key" oncommand="xulapp.shutdown();"/>
                 </menupopup>
             </menu>
             <menu label="Bearbeiten">
                 <menupopup>
-                    <menuitem label="Einstellungen" id="menu_preferences" accesskey="," key="prefs-key" oncommand="xulapp.openPrefWindow();"/>
+                    <menuitem label="Einstellungen" id="menu_preferences" accesskey="e" key="prefs-key" oncommand="xulapp.openPrefWindow();"/>
                 </menupopup>
             </menu>
             <menu label="Werkzeuge" class="hideDevel">
@@ -39,7 +39,7 @@
             </menu>
             <menu label="Hilfe">
                 <menupopup>
-                    <menuitem label="Info" id="aboutName" oncommand="xulapp.showInfo();"/>
+                    <menuitem label="Info" accesskey="i" id="aboutName" oncommand="xulapp.showInfo();"/>
                 </menupopup>
             </menu>
         </menubar>
