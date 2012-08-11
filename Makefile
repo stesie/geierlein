@@ -78,7 +78,7 @@ geierlein_essentials := \
 	chrome/content/css/geierlein.css \
 	chrome/content/img/glyphicons-halflings-white.png \
 	chrome/content/img/glyphicons-halflings.png \
-	chrome/content/img/taxbird-logo-1.png \
+	chrome/content/img/geierlein-logo-color-white.png \
 	chrome/content/index.html \
 	chrome/content/js/bootstrap.min.js \
 	chrome/content/js/geierlein.js \
@@ -90,6 +90,7 @@ geierlein_essentials := \
 xulapp_essentials := \
 	$(geierlein_essentials) \
 	chrome/content/css/xulapp.css \
+	chrome/content/img/geierlein-logo-color-black.png \
 	chrome/content/img/toolbar-convert.png \
 	chrome/content/img/toolbar-new.png \
 	chrome/content/img/toolbar-open.png \

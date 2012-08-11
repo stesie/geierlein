@@ -12,6 +12,11 @@ body.native .hide-native {
     display: none;
 }
 
+.navbar .brand {
+    padding-top: 2px;
+    padding-bottom: 0;
+}
+
 #protocol {
     width: 800px;
     margin-left: -400px;

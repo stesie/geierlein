@@ -31,7 +31,8 @@ toolbarbutton {
 }
 
 #taxbird image {
-    list-style-image: url(chrome://geierlein/content/img/taxbird-logo-1.png);
-    width: 130px;
-    height: 36px;
+    list-style-image: url(chrome://geierlein/content/img/geierlein-logo-color-black.png);
+    width: 125px;
+    height: 37px;
+    padding-right: 5px;
 }
