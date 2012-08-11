@@ -3,12 +3,11 @@
 body {
   padding:50px;
   font:14px/1.5 Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
-  color:#444;
+  color:#222;
   font-weight:300;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  color:#222;
   margin:0 0 20px;
 }
 
@@ -24,16 +23,8 @@ h1 {
   font-size:28px;
 }
 
-h2 {
-  color:#393939;
-}
-
-h3, h4, h5, h6 {
-  color:#494949;
-}
-
 a {
-  color:#39c;
+  color:#468847;
   font-weight:400;
   text-decoration:none;
 }
@@ -252,4 +243,49 @@ footer {
     font-size:12pt;
     color:#444;
   }
+}
+
+#key-features {
+  list-style: none;
+}
+
+#key-features > li {
+  min-height: 80px;
+}
+
+#key-features > li > div {
+  margin-left: 80px;
+}
+
+#key-features h3 {
+  margin-bottom: 5px;
+}
+
+.icon {
+  display: inline-block;
+  float: left;
+  width: 64px;
+  height: 64px;
+}
+
+.icon-smile {
+  background: url(../icons/smile.png) 0 0 no-repeat;
+}
+
+.icon-peace {
+  background: url(../icons/peace.png) 0 0 no-repeat;
+}
+
+.icon-clock {
+  background: url(../icons/clock.png) 0 0 no-repeat;
+}
+
+div.alert {
+  margin-top: 2em;
+}
+
+.alert {
+  color: #468847;
+  background-color: #DFF0D8;
+  border-color: #D6E9C6;
 }
