@@ -7,7 +7,7 @@ pkgdatadir := $(datadir)/geierlein
 
 VERSIONMAJOR := 0
 VERSIONMINOR := 3
-VERSIONBUILD := 2
+VERSIONBUILD := 3
 VERSION := $(VERSIONMAJOR).$(VERSIONMINOR).$(VERSIONBUILD)
 INSTALL := /usr/bin/install -c
 INSTALL_DATA := $(INSTALL) -m 644
@@ -176,7 +176,7 @@ test-all: test-forge test
 bump-version: $(version_files)
 	@if [ "$(NEW_VERSION)" = "" ]; then \
 	  echo NEW_VERSION argument not provided.; \
-	  echo Usage: make update-version NEW_VERSION=0.3.2; \
+	  echo Usage: make update-version NEW_VERSION=0.3.3; \
 	  exit 1; \
 	fi
 	sed -e 's;$(subst .,\.,$(VERSION));$(NEW_VERSION);g' -i $^
