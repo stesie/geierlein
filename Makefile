@@ -144,12 +144,15 @@ dist-nsis: wininst.nsi
 install: bin/xgeierlein
 	for file in $(xulapp_essentials); do \
 	  installdir="$${file%/*}"; \
-	  $(INSTALL) -d $(DESTDIR)$(pkgdatadir)/$$installdir; \
-	  $(INSTALL_DATA) -t $(DESTDIR)$(pkgdatadir)/$$installdir $$file; \
+	  $(INSTALL) -d "$(DESTDIR)$(pkgdatadir)/$$installdir"; \
+	  $(INSTALL_DATA) -t "$(DESTDIR)$(pkgdatadir)/$$installdir" "$$file"; \
 	done
-	$(INSTALL_DATA) -t $(DESTDIR)$(desktopfiledir) geierlein.desktop
-	$(INSTALL_DATA) -t $(DESTDIR)$(pixmapdir) geierlein.xpm
-	$(INSTALL) -t $(DESTDIR)$(bindir) bin/xgeierlein
+	$(INSTALL) -d "$(DESTDIR)$(desktopfiledir)"
+	$(INSTALL_DATA) -t "$(DESTDIR)$(desktopfiledir)" geierlein.desktop
+	$(INSTALL) -d "$(DESTDIR)$(pixmapdir)"
+	$(INSTALL_DATA) -t "$(DESTDIR)$(pixmapdir)" geierlein.xpm
+	$(INSTALL) -d "$(DESTDIR)$(bindir)"
+	$(INSTALL) -t "$(DESTDIR)$(bindir)" bin/xgeierlein
 
 uninstall:
 	rm -vrf $(DESTDIR)$(pkgdatadir)
