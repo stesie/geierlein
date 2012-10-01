@@ -150,14 +150,14 @@ install: bin/xgeierlein
 	$(INSTALL) -d "$(DESTDIR)$(desktopfiledir)"
 	$(INSTALL_DATA) -t "$(DESTDIR)$(desktopfiledir)" geierlein.desktop
 	$(INSTALL) -d "$(DESTDIR)$(pixmapdir)"
-	$(INSTALL_DATA) -t "$(DESTDIR)$(pixmapdir)" geierlein.xpm
+	$(INSTALL_DATA) -t "$(DESTDIR)$(pixmapdir)" geierlein.png
 	$(INSTALL) -d "$(DESTDIR)$(bindir)"
 	$(INSTALL) -t "$(DESTDIR)$(bindir)" bin/xgeierlein
 
 uninstall:
 	rm -vrf $(DESTDIR)$(pkgdatadir)
 	rm -vf $(DESTDIR)$(desktopfiledir)/geierlein.desktop
-	rm -vf $(DESTDIR)$(pixmapdir)/geierlein.xpm
+	rm -vf $(DESTDIR)$(pixmapdir)/geierlein.png
 	rm -vf $(DESTDIR)$(bindir)/bin/xgeierlein
 
 dist: dist-nsis
