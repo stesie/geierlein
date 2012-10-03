@@ -318,10 +318,15 @@
     $('.ustva').on('change keyup', function(ev) {
         return updateModelHandler(this, ustva);
     });
-    
+
     $('#land').on('change keyup', function(ev) {
         $('#steuernummer').attr('placeholder', ustva.getTaxNumberSample());
     });
+
+    $('input[type="text"].ustva[id^="Kz"]').before(function() {
+        var kz = this.id.substr(2);
+        return '<span class="kz add-on">' + kz + '</span>';
+    }).parent().addClass('input-prepend');
 
     geierlein.resetForm();
 

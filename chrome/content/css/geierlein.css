@@ -39,12 +39,35 @@ a.left {
 
 /* Use fixed size for .add-on, to make sure it fits into a div.span2
    together with a input.span2. */
-.input-append .add-on {
+.input-append .add-on, .input-prepend .add-on {
     width: 20px;
     min-width: 20px;
 }
+
 .input-append input.span2 {
     width: 99px;
+}
+
+input.span2 {
+    width: 109px;
+    margin-left: 22px;
+}
+
+.input-prepend input.span2 {
+    margin-left: 0;
+    border-bottom-left-radius: 3px;
+}
+
+.input-append.input-prepend input.span2 {
+    width: 79px;
+}
+
+.input-prepend .kz {
+    font-size: 10px;
+    line-height: 100%;
+    padding: 1px 0 0;
+    vertical-align: top;
+    height: 12px;
 }
 
 /* Remove padding from accordion inner container, since we put right-aligned
