@@ -93,13 +93,17 @@ function showResult(result) {
 }
 
 if(argv.sign) {
+    if(argv.sign === true) {
+        console.log('--sign requires an argument, the path to the PFX file.');
+        process.exit(1);
+    }
     process.stderr.write('SoftPSE password: ');
     getPassword(function(password) {
         process.stderr.write('\n');
 
         /* create signer context */
         var signer = new geierlein.Signer();
-        var pfx = require('fs').readFileSync(__dirname + '/../Testzertifikate/test-softpse_rsapss.pfx', 'binary');
+        var pfx = require('fs').readFileSync(argv.sign, 'binary');
         signer.setKeyFromPkcs12Der(pfx, password);
 
         /* run action */
