@@ -118,7 +118,7 @@ if(argv.sign) {
 function getPassword(cb) {
     process.stdin.resume();
     process.stdin.setEncoding('utf8');
-    tty.setRawMode(true);
+    process.stdin.setRawMode(true);
     var password = '';
     process.stdin.on('data', function(char) {
         char = char + '';
@@ -127,7 +127,7 @@ function getPassword(cb) {
             case '\n':
             case '\r':
             case '\u0004':  /* C-d */
-                tty.setRawMode(false);
+                process.stdin.setRawMode(false);
                 stdin.pause();
                 cb(password);
                 break;
