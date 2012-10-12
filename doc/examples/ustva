@@ -1,16 +1,17 @@
 #
 # Umsatzsteuervoranmeldung 2012 für Geierlein
+# (Datei muss für Geierlein UTF-8 codiert gespeichert werden)
 #
 
 #
 # Adresse des Steuerpflichtigen
 #
-name = Stefan Siegl
-strasse = Philipp-Zorn-Str. 30
-plz = 91522
-ort = Ansbach
-telefon = 0981/9720970
-email = stesie@brokenpipe.de
+name = Max Muster
+strasse = Beispielstraße 10
+plz = 80331
+ort = München
+telefon = 089/1234567
+email = max@muster.com
 
 # Angabe des Bundeslandes
 #
@@ -38,7 +39,7 @@ steuernummer = 203/698/02950
 
 # Voranmeldungszeitraum
 jahr = 2012
-zeitraum = 4
+zeitraum = 10
 
 
 #
