@@ -65,7 +65,8 @@ geierlein.Signer.prototype = {
         }
 
         /* Find the signature key by its friendlyName. */
-        var keyBag = p12.getBagsByFriendlyName('signaturekey');
+        var keyBag = p12.getBagsByFriendlyName('signaturekey',
+            forge.pki.oids.pkcs8ShroudedKeyBag);
         if(keyBag.length !== 1) {
             throw {
                 message: 'PKCS#12 PFX has not exactly one ' +
