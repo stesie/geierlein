@@ -103,6 +103,7 @@ geierlein.Signer.prototype = {
      */
     sign: function(data) {
         /* calculate digest */
+        data = forge.util.encodeUtf8(data);
         var md = forge.md.sha1.create();
         md.start();
         md.update(data);
