@@ -6,3 +6,5 @@ bin/xgeierlein
 Testzertifikate
 wininst.nsi
 geierlein-*-installer.exe
+geierlein-*.zip
+geierlein-*.tar.*
