@@ -85,17 +85,19 @@ geierlein.Datenlieferant.prototype = {
      * @return Datenlieferant XML block according to specification.
      */
     toXml: function() {
-        var r = '<Name>' + this.name + '</Name>' +
-            '<Strasse>' + this.strasse + '</Strasse>' +
-            '<PLZ>' + this.plz + '</PLZ>' +
-            '<Ort>' + this.ort + '</Ort>';
+        var esc = geierlein.util.Xml.prototype.escape;
+
+        var r = '<Name>' + esc(this.name) + '</Name>' +
+            '<Strasse>' + esc(this.strasse) + '</Strasse>' +
+            '<PLZ>' + esc(this.plz) + '</PLZ>' +
+            '<Ort>' + esc(this.ort) + '</Ort>';
 
         if(this.telefon !== undefined) {
-            r += '<Telefon>' + this.telefon + '</Telefon>';
+            r += '<Telefon>' + esc(this.telefon) + '</Telefon>';
         }
         
         if(this.email !== undefined) {
-            r += '<Email>' + this.email + '</Email>';
+            r += '<Email>' + esc(this.email) + '</Email>';
         }
         
         return r;

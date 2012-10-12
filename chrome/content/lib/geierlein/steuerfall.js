@@ -103,8 +103,10 @@ geierlein.Steuerfall.prototype = {
                     xml.writeElementString('HerstellerID', this.herstellerID);
                 }
                 
-                xml.writeElementString('DatenLieferant',
-                    encCb(this.datenlieferant.toString()));
+                xml.writeStartElement('DatenLieferant');
+                    xml.writeXml(encCb(xml.escape(this.datenlieferant.toString())));
+                xml.writeEndElement();
+
                 xml.writeStartElement('Datei');
                     xml.writeElementString('Verschluesselung', 'PKCS#7v1.5');
                     xml.writeElementString('Kompression', 'GZIP');
@@ -115,7 +117,8 @@ geierlein.Steuerfall.prototype = {
                 xml.writeElementString('VersionClient', '0.3.4');
             xml.writeEndElement();  // TransferHeader
         
-            xml.writeElementString('DatenTeil', datenteil);
+            xml.writeStartElement('DatenTeil');
+                xml.writeXml(datenteil);
     
         return xml.flush();
     },
@@ -177,18 +180,20 @@ geierlein.Steuerfall.prototype = {
 
                 if(signer !== undefined) {
                     signer.sign(nutzdaten);
-                    datenteil.writeString(signer.getSignatureXml());
+                    datenteil.writeXml(signer.getSignatureXml());
                 }
 
                 datenteil.writeStartElement('Hersteller');
                     datenteil.writeElementString('ProduktName', 'Geierlein');
                     datenteil.writeElementString('ProduktVersion', '0.3.4');
                 datenteil.writeEndElement();
-                datenteil.writeElementString('DatenLieferant',
-                    this.datenlieferant.toString());
+
+                datenteil.writeStartElement('DatenLieferant')
+                    datenteil.writeString(this.datenlieferant.toString());
+                datenteil.writeEndElement();
             datenteil.writeEndElement();    // NutzdatenHeader
 
-            datenteil.writeString(nutzdaten);
+            datenteil.writeXml(nutzdaten);
         return datenteil.flush(true);
     }
 };

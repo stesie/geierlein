@@ -271,8 +271,9 @@ geierlein.util.extend(geierlein.UStVA.prototype, {
             nutzdaten.writeAttributeString('art', 'UStVA');
             nutzdaten.writeAttributeString('version', this.jahr + '01');
 
-            nutzdaten.writeElementString('DatenLieferant',
-                this.datenlieferant.toXml());
+            nutzdaten.writeStartElement('DatenLieferant')
+                nutzdaten.writeXml(this.datenlieferant.toXml());
+            nutzdaten.writeEndElement();
 
             nutzdaten.writeElementString('Erstellungsdatum', erstellDatum);
 

@@ -59,17 +59,21 @@ XMLWriter.prototype = {
 	//add an attribute to the active node
 	writeAttributeString:function( name, value ){
 		if( this.active )
-			this.active.a[name] = value;
+			this.active.a[name] = this.escape( value, true );
 	},
 	//add a text node to the active node
 	writeString:function( text ){
+		this.writeXml( this.escape( text ));
+	},
+	//add plain xml markup to the active node
+	writeXml:function( text ){
 		if( this.active )
-			this.active.c.push(text);
+			this.active.c.push( text );
 	},
 	//shortcut, open an element, write the text and close
 	writeElementString:function( name, text, ns ){
 		this.writeStartElement( name, ns );
-		this.writeString( text );
+		this.writeString( this.escape( text ));
 		this.writeEndElement();
 	},
 	//add a text node wrapped with CDATA
@@ -79,6 +83,22 @@ XMLWriter.prototype = {
 	//add a text node wrapped in a comment
 	writeComment:function( text ){
 		this.writeString('<!-- ' + text + ' -->');
+	},
+	//escape characters that have a special meaning in XML
+	escape:function( text, isAttr ){
+		if( typeof text !== 'string' ) {
+			return text;
+		}
+
+		text = text.replace( /&/g, '&amp;' )
+			.replace( /</g, '&lt;' )
+			.replace( />/g, '&gt;' );
+
+		if( isAttr ) {
+			text = text.replace( /"/g, '&quot;' );
+		}
+
+		return text;
 	},
 	//generate the xml string, you can skip closing the last nodes
 	flush:function( noHeader ){

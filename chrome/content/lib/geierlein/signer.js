@@ -171,7 +171,7 @@ geierlein.Signer.prototype = {
                     sig.writeAttributeString('xmlns:dsig', 'http://www.w3.org/2000/09/xmldsig#');
                     sig.writeAttributeString('Id', 'Sign1');
 
-                    sig.writeString(this.getSignedInfoXml());
+                    sig.writeXml(this.getSignedInfoXml());
                     sig.writeElementString('dsig:SignatureValue', this.signatureStr);
 
                     sig.writeStartElement('dsig:KeyInfo');
