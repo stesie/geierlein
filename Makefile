@@ -160,9 +160,16 @@ uninstall:
 	rm -vf $(DESTDIR)$(pixmapdir)/geierlein.png
 	rm -vf $(DESTDIR)$(bindir)/bin/xgeierlein
 
-dist: dist-nsis
+geierlein-$(VERSION).tar.gz:
 	git archive-all --prefix geierlein-$(VERSION)/ geierlein-$(VERSION).tar.gz
+
+geierlein-$(VERSION).zip:
 	git archive-all --prefix geierlein-$(VERSION)/ geierlein-$(VERSION).zip
+
+geierlein-$(VERSION).tar.xz: geierlein-$(VERSION).tar.gz
+	gzip -cd $< | xz -ezcv > $@
+
+dist: dist-nsis geierlein-$(VERSION).zip geierlein-$(VERSION).tar.xz
 	git tag V$(VERSION)
 
 test:
