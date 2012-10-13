@@ -76,10 +76,22 @@ geierlein.validation.rules = {
             if(val === undefined) {
                 return true;
             }
+
+            /* dependant field must be defined, error otherwise. */
             if(this[otherKz] === undefined) {
                 return false;
             }
-            return parseFloat(val) < parseFloat(this[otherKz]);
+
+            var a = parseFloat(val);
+            var b = parseFloat(this[otherKz]);
+
+            /* Signs of both numbers must match, error otherwise. */
+            if((a <= 0) !== (b <= 0)) {
+                return false;
+            }
+
+            /* value must be less than value of dependant field */
+            return Math.abs(a) < Math.abs(b);
         };
     },
     
