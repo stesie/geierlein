@@ -19,18 +19,21 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from selenium.webdriver.support.ui import Select
 from lib import GeierleinTestCase
 
-class GeierleinTestOfflineTaxnumberSuggest(GeierleinTestCase):
-    def test_taxnumber_suggest(self):
+class GeierleinTestOfflineUnfoldWholeForm(GeierleinTestCase):
+    def test_unfold_refold(self):
         driver = self.driver
         driver.get(self.base_url + "/")
 
-        Select(driver.find_element_by_id("land")).select_by_visible_text("Bayern")
-        v = driver.find_element_by_id('steuernummer').get_attribute("placeholder")
-        self.assertEqual("123/123/12345", v)
+        # Kz41 should not be visible if short-form mode is active
+        # hence it should not be visible at startup.
+        self.assertEqual(False, self.driver.find_element_by_id("Kz41").is_displayed())
 
-        Select(driver.find_element_by_id("land")).select_by_visible_text(u"Baden-Württemberg")
-        v = driver.find_element_by_id('steuernummer').get_attribute("placeholder")
-        self.assertEqual("12345/12345", v)
+        # disable short-form-mode, Kz41 should become visible
+        driver.find_element_by_id("schnell").click()
+        self.wait_for_visible('id', 'Kz41')
+
+        # enable short-form-mode again, Kz41 should become hidden again
+        driver.find_element_by_id("schnell").click();
+        self.wait_for_not_visible('id', 'Kz41')

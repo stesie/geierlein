@@ -68,7 +68,7 @@ class GeierleinTestOnlineTransfer(GeierleinTestCase):
         driver.find_element_by_id("send-final").click()
 
         # wait for protocol
-	self.wait_for_visible("id", "protocol")
+        self.wait_for_visible("id", "protocol")
 
         # ... and finally close the protocol dialog
         driver.find_element_by_css_selector("#protocol .modal-header a.close").click()

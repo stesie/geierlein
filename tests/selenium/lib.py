@@ -37,10 +37,10 @@ class GeierleinTestCase(unittest.TestCase):
         self.driver.quit()
         self.assertEqual([], self.verificationErrors)
 
-    def wait_for_visible(self, how, what):
+    def wait_for_visible(self, how, what, state = True):
         for i in range(30):
             try:
-                if self.driver.find_element(how, what).is_displayed():
+                if self.driver.find_element(how, what).is_displayed() == state:
                     break
             except:
                 pass
@@ -48,3 +48,6 @@ class GeierleinTestCase(unittest.TestCase):
             time.sleep(1)
         else:
             self.fail("time out")
+
+    def wait_for_not_visible(self, how, what):
+        return self.wait_for_visible(how, what, False)
