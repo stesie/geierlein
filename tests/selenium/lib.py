@@ -51,3 +51,19 @@ class GeierleinTestCase(unittest.TestCase):
 
     def wait_for_not_visible(self, how, what):
         return self.wait_for_visible(how, what, False)
+
+    def wait_for_has_css_class(self, how, what, which, state = True):
+        for i in range(30):
+            hasClass = True
+            try:
+                self.driver.find_element(how, what).get_attribute('class').split(' ').index(which)
+            except ValueError:
+                hasClass= False
+
+            if hasClass == state:
+                break
+                
+            time.sleep(1)
+        else:
+            self.fail("time out")
+
