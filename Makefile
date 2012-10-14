@@ -11,6 +11,8 @@ VERSIONBUILD := 0
 VERSION := $(VERSIONMAJOR).$(VERSIONMINOR).$(VERSIONBUILD)
 INSTALL := /usr/bin/install -c
 INSTALL_DATA := $(INSTALL) -m 644
+PYTHON := python2
+WEBDRIVERS := Chrome Firefox
 
 forge_essentials := \
 	chrome/content/lib/forge/js/aes.js \
@@ -178,14 +180,24 @@ test:
 test-forge:
 	nodeunit chrome/content/lib/forge/tests/nodeunit
 
-test-all: test-forge test
+test-online:
+	(set -e; for A in $(WEBDRIVERS); do \
+		WEBDRIVER=$$A $(PYTHON) -m unittest discover -s tests/selenium/ -p "test_online*.py"; \
+	done)
+
+test-offline:
+	(set -e; for A in $(WEBDRIVERS); do \
+		WEBDRIVER=$$A $(PYTHON) -m unittest discover -s tests/selenium/ -p "test_offline*.py"; \
+	done)
+
+test-all: test-forge test test-offline test-online
 
 bump-version: $(version_files)
 	@if [ "$(NEW_VERSION)" = "" ]; then \
 	  echo NEW_VERSION argument not provided.; \
-	  echo Usage: make update-version NEW_VERSION=0.4.0; \
+	  echo Usage: make bump-version NEW_VERSION=0.4.0; \
 	  exit 1; \
 	fi
 	sed -e 's;$(subst .,\.,$(VERSION));$(NEW_VERSION);g' -i $^
 
-.PHONY: all clean dist install test test-forge test-all uninstall bump-version dist-nsis
+.PHONY: all clean dist install test test-forge test-all test-online test-offline uninstall bump-version dist-nsis
