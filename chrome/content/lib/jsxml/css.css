@@ -1,0 +1,11 @@
+.code {
+    font-family: "Courier New","Andale Mono","Vera Sans Mono",monospace;
+    font-size: 13px;
+    line-height: 150%;
+}
+#e01td {
+    text-align: right;
+}
+.e04div {
+    text-align: center;
+}

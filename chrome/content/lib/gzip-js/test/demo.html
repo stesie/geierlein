@@ -1,0 +1,29 @@
+<html>
+  <head>
+    <title>gzip-js browser demo</title>
+	<script type="text/javascript" src="../lib/rawdeflate.js"></script>
+	<script type="text/javascript" src="../lib/crc32.js"></script>
+	<script type="text/javascript" src="../lib/gzip.js"></script>
+	<script type="text/javascript" src="../lib/rawinflate.js"></script>
+	<script type="text/javascript">
+		function doDeflate() {
+			out = gzipjs.zip(document.forms.foo.input.value, {
+				level: 9
+			});
+			document.forms.foo.output.value = btoa(gzipjs.charArrayToString(out));
+		}
+	</script>
+  </head>
+  <body>
+	<h1>gzip-js browser demo</h1>
+
+	<form name="foo">
+		<p>Input (plain text)</p>
+		<textarea name="input"></textarea>
+
+		<input type="button" value="deflate!" onclick="doDeflate()" />
+		<p>Output (gzip result)</p>
+		<textarea name="output"></textarea>
+	</form>
+  </body>
+</html>

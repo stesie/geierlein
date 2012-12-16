@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>JS XML/XSLT Library</title>
+        <link rel="stylesheet" type="text/css" href="css.css">
+        
+        <!-- <script type="text/javascript" language="JavaScript" src="jquery/jquery.js"></script> -->
+        
+        <!-- <script type="text/javascript" language="JavaScript" src="prototype.js"></script> -->
+       
+        
+        <script type="text/javascript" language="JavaScript" src="yui/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+        <script type="text/javascript" language="JavaScript" src="yui/build/connection/connection-min.js"></script>
+
+        
+        <!--
+        <script type="text/javascript" language="JavaScript" src="extjs/ext-base.js"></script>
+        <script type="text/javascript" language="JavaScript" src="extjs/ext-all-debug.js"></script>
+        -->
+        
+        <script type="text/javascript" language="JavaScript" src="jsxml.js"></script>
+        <script type="text/javascript" language="JavaScript">
+        
+            jsxml.load('xml.xml', function(dom){
+                alert(jsxml.toXml(dom));
+            });
+            
+            var dom = jsxml.fromString('<?xml version="1.0" encoding="UTF-8"?><root/>'),
+                child = dom.createElement('child');
+            child.setAttribute('foo', 'bar');
+            dom.documentElement.appendChild(child);
+            alert(jsxml.toXml(dom));
+            
+        </script>
+    </head>
+    <body></body>
+</html>
