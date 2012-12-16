@@ -195,7 +195,7 @@ test-all: test-forge test test-offline test-online
 bump-version: $(version_files)
 	@if [ "$(NEW_VERSION)" = "" ]; then \
 	  echo NEW_VERSION argument not provided.; \
-	  echo Usage: make bump-version NEW_VERSION=0.4.0; \
+	  echo Usage: make bump-version NEW_VERSION=0.4.1; \
 	  exit 1; \
 	fi
 	sed -e 's;$(subst .,\.,$(VERSION));$(NEW_VERSION);g' -i $^
