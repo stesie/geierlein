@@ -12,7 +12,7 @@ VERSION := $(VERSIONMAJOR).$(VERSIONMINOR).$(VERSIONBUILD)
 INSTALL := /usr/bin/install -c
 INSTALL_DATA := $(INSTALL) -m 644
 PYTHON := python2
-WEBDRIVERS := Chrome Firefox
+WEBDRIVERS ?= Chrome Firefox
 
 forge_essentials := \
 	chrome/content/lib/forge/js/aes.js \
