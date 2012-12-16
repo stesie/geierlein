@@ -47,22 +47,6 @@ right on the command line.
     firefox -app application.ini -load pfad/zur/datei
 
 
- Runtime Dependencies
--------------------------------
-
-Geierlein's source code is [available on
-Github](https://github.com/stesie/geierlein).  If you'd like to use the
-bleeding edge version from there, keep in mind that you need to fetch
-the Git submodules in order to have a useable checkout:
-
-    git clone git://github.com/stesie/geierlein.git
-    git submodule init
-    git submodule update
-
-If you'd like to improve Geierlein, simply fork the project on Github,
-incorporate your changes and initiate a pull request.
-
-
  Frequently Asked Questions
 -------------------------------
 
