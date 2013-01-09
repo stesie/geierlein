@@ -7,7 +7,7 @@ pkgdatadir := $(datadir)/geierlein
 
 VERSIONMAJOR := 0
 VERSIONMINOR := 4
-VERSIONBUILD := 0
+VERSIONBUILD := 2
 VERSION := $(VERSIONMAJOR).$(VERSIONMINOR).$(VERSIONBUILD)
 INSTALL := /usr/bin/install -c
 INSTALL_DATA := $(INSTALL) -m 644
