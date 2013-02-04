@@ -284,9 +284,7 @@
                 var $el = $('#' + key);
 
                 if($el.prop('type') === 'checkbox') {
-                	if(newValue.trim() != '0') {
-                		$el.prop('checked', true).change();
-                	}
+                    $el.prop('checked', $.trim(newValue) !== '0').change();
                 } else if($el.length) {
                     $el.val(newValue).change();
                 }
