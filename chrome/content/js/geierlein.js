@@ -282,7 +282,10 @@
                 }
 
                 var $el = $('#' + key);
-                if($el.length) {
+
+                if($el.prop('type') === 'checkbox') {
+                    $el.prop('checked', $.trim(newValue) !== '0').change();
+                } else if($el.length) {
                     $el.val(newValue).change();
                 }
             }
