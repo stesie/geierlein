@@ -3,7 +3,7 @@
  *
  * @author Stefan Siegl
  *
- * Copyright (c) 2012 Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2012, 2013 Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -22,10 +22,10 @@
 (function() {
 
 var ipAddrs = [
-    '80.146.179.2',
-    '80.146.179.3',
-    '193.109.238.58', 
-    '193.109.238.59'
+    '62.157.211.58',
+    '62.157.211.59',
+    '193.109.238.26',
+    '193.109.238.27'
 ];
 
 function getRandomIpAddress() {
