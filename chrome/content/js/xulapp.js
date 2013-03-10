@@ -214,8 +214,8 @@ var xulapp = (function() {
                     var d = new Date();
                     d.setMonth(d.getMonth() - (d.getMonth() % 3));
                     d.setMonth(d.getMonth() - 3);
-                    cW.$('#jahr').val(d.getFullYear());
-                    cW.$('#zeitraum').val((d.getMonth() / 3) + 41);
+                    cW.$('#jahr').val(d.getFullYear()).change();
+                    cW.$('#zeitraum').val((d.getMonth() / 3) + 41).change();
                     break;
                 case 3: /* last transmission date */
                     try {
@@ -232,11 +232,10 @@ var xulapp = (function() {
                         } else {
                             month ++;
                         }
-                        cW.$('#jahr').val(year);
-                        cW.$('#zeitraum').val(month);
+                        cW.$('#jahr').val(year).change();
+                        cW.$('#zeitraum').val(month).change();
                     } catch(e) {}
             };
-            cW.$('#zeitraum').change();
         },
 
         /* Get autosave-dir as nsILocalFile instance.
