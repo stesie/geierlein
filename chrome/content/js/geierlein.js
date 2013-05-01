@@ -425,4 +425,13 @@
         };
         reader.readAsText(this.files[0]);
     });
+
+    $('#form-export').click(function(ev) {
+        ev.preventDefault();
+
+        var blob = new Blob([geierlein.serialize()], {
+            type: 'application/x-geierlein; charset=utf-8'
+        });
+        saveAs(blob, "Geierlein-UStVA-" + ustva.jahr + ("0" + ustva.zeitraum).substr(-2));
+    });
 }(jQuery, geierlein));
