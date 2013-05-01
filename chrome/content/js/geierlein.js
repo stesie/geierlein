@@ -3,7 +3,7 @@
  *
  * @author Stefan Siegl
  *
- * Copyright (c) 2012 Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2012, 2013 Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -399,8 +399,8 @@
      * Initialize tooltips on all input elements.
      */
     $('.ustva').tooltip({
-		container: 'body'
-	});
+	container: 'body'
+    });
 
     /**
      * Trigger browser's print functionality when print-button is clicked in
@@ -408,5 +408,21 @@
      */
     $('#protocol-print').click(function() {
         printIframe('protocol-frame');
+    });
+
+    /**
+     * Form import/export handling.
+     */
+    $('#form-import').click(function(ev) {
+        $('#file-select').click();
+        ev.preventDefault();
+    });
+
+    $('#file-select').change(function(ev) {
+        var reader = new FileReader();
+        reader.onload = function(data) {
+            geierlein.unserialize(data.target.result);
+        };
+        reader.readAsText(this.files[0]);
     });
 }(jQuery, geierlein));

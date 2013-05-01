@@ -15,7 +15,16 @@
                     <img src="img/geierlein-logo-color-white.png" alt="Geierlein Logo" />
                 </a>
                 <ul class="nav">
-                    <li class="active"><a href="#">Formular</a></li>
+                    <li class="dropdown">
+                      <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        Formular
+                        <b class="caret"></b>
+                      </a>
+                      <ul class="dropdown-menu">
+                        <li><a href="#" id="form-import">Import ...</a></li>
+                        <li><a href="#" id="form-export">Export ...</a></li>
+                      </ul>
+                    </li>
                     <li><a data-toggle="modal" href="#about">Info</a></li>
                     <li><a href="http://stesie.github.com/geierlein/" target="_blank">Website</a></li>
                 </ul>
@@ -754,6 +763,10 @@
             <a href="#" class="btn btn-primary" data-dismiss="modal">Schließen</a>
         </div>
     </div>
+
+    <form>
+        <input type="file" id="file-select" class="hide" />
+    </form>
 
     <script src="js/jquery-1.7.2.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
