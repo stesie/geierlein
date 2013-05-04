@@ -163,10 +163,10 @@ uninstall:
 	rm -vf $(DESTDIR)$(bindir)/bin/xgeierlein
 
 geierlein-$(VERSION).tar.gz:
-	git archive-all --prefix geierlein-$(VERSION)/ geierlein-$(VERSION).tar.gz
+	git archive --prefix geierlein-$(VERSION)/ -o geierlein-$(VERSION).tar.gz master
 
 geierlein-$(VERSION).zip:
-	git archive-all --prefix geierlein-$(VERSION)/ geierlein-$(VERSION).zip
+	git archive --prefix geierlein-$(VERSION)/ -o geierlein-$(VERSION).zip master
 
 geierlein-$(VERSION).tar.xz: geierlein-$(VERSION).tar.gz
 	gzip -cd $< | xz -ezcv > $@
