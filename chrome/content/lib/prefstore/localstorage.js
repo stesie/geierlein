@@ -1,5 +1,5 @@
 /**
- * XUL-based application preferences store.
+ * localStorage-based application preferences store.
  *
  * @author Stefan Siegl
  *
@@ -19,45 +19,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-if(typeof Components === 'object') {
-    function XulPrefstore(rootBranch) {
-        const C = Components.classes;
-        const I = Components.interfaces;
-
+if(typeof localStorage === 'object') {
+    function LocalStoragePrefstore(rootBranch) {
         if(rootBranch.substr(-1) !== '.') {
             rootBranch += '.';
         }
 
-        /* Initialize access to preferences system. */
-        var prefService = C['@mozilla.org/preferences-service;1']
-            .getService(I.nsIPrefService);
-        this.prefs = prefService.getBranch(rootBranch);
+        this.rootBranch = rootBranch;
     };
 
 
     (function() {
-        const C = Components.classes;
-        const I = Components.interfaces;
-
-        XulPrefstore.prototype = {
+        LocalStoragePrefstore.prototype = {
             getBoolPref: function(pref) {
-                return this.prefs.getBoolPref(pref);
+                return localStorage[this.rootBranch + pref];
             },
 
             getIntPref: function(pref) {
-                return this.prefs.getIntPref(pref);
+                return localStorage[this.rootBranch + pref];
             },
 
             getCharPref: function(pref) {
-                return this.prefs.getCharPref(pref);
+                return localStorage[this.rootBranch + pref];
             },
 
             setIntPref: function(pref, value) {
-                this.prefs.setIntPref(pref, value);
+                localStorage[this.rootBranch + pref] = value;
             },
 
             setCharPref: function(pref, value) {
-                this.prefs.setCharPref(pref, value);
+                localStorage[this.rootBranch + pref] = value;
             }
         };
     })();

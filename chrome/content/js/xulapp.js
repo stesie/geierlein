@@ -3,7 +3,7 @@
  *
  * @author Stefan Siegl
  *
- * Copyright (c) 2012 Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2012, 2013 Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -28,7 +28,6 @@ var xulapp = (function() {
 
     var doc = document.getElementById('doc');
     var cW = null;
-    var DEFAULT_ADDRESS_DATA_SELECTOR = '.datenlieferant, #steuernummer, #land';
     var filePath;
     var fileChanged = false;
     
@@ -146,16 +145,13 @@ var xulapp = (function() {
             }
         } else {
             /* Load default address data from preferences system. */
-            xulapp.loadDefaultAddressData();
+            cW.geierlein.loadDefaultAddressData();
             xulapp.autofillTimeRange();
         }
         
         if(cW.geierlein.isDatenlieferantValid()) {
             cW.$('#accordion-unternehmer').collapse();
         }
-
-        /* Bind store defaults button. */
-        cW.$('#store-defaults').click(xulapp.storeDefaultAddressData);
 
         /* Bind change-handler on form to notice changes. */
         cW.$('.ustva, .datenlieferant').on('change keyup', function() {
@@ -278,21 +274,6 @@ var xulapp = (function() {
             return fp;
         },
 
-        loadDefaultAddressData: function() {
-            cW.$(DEFAULT_ADDRESS_DATA_SELECTOR).each(function() {
-                var $el = cW.$(this);
-                $el.val(cW.prefstore.getCharPref('defaultAddress.' + this.id));
-                $el.change();
-            });
-        },
-
-        storeDefaultAddressData: function() {
-            this.blur();
-            cW.$(DEFAULT_ADDRESS_DATA_SELECTOR).each(function() {
-                cW.prefstore.setCharPref('defaultAddress.' + this.id, this.value);
-            });
-        },
-
         resetForm: function() {
             if(modalAskSaveChanges()) {
                 return; /* User asked to cancel. */
@@ -300,7 +281,6 @@ var xulapp = (function() {
 
             cW.geierlein.resetForm();
             filePath = undefined;
-            xulapp.loadDefaultAddressData();
             fileChanged = false;
         },
 
