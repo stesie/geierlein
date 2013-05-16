@@ -29,7 +29,6 @@ var xulapp = (function() {
     var doc = document.getElementById('doc');
     var cW = null;
     var DEFAULT_ADDRESS_DATA_SELECTOR = '.datenlieferant, #steuernummer, #land';
-    var prefs = null;
     var filePath;
     var fileChanged = false;
     
@@ -95,28 +94,26 @@ var xulapp = (function() {
             .addClass('xulapp')
             .on('reset-form', xulapp.autofillTimeRange)
             .on('send-taxcase', function(ev, asTestcase) {
-                if(prefs.getBoolPref('autosave.geierfile')) {
+                if(cW.prefstore.getBoolPref('autosave.geierfile')) {
                     var fp = xulapp.getAutosaveFilepath();
                     var data = cW.geierlein.serialize();
                     storeStringToFile(data, fp);
                 }
 
                 if(!asTestcase) {
-                    prefs.setIntPref('autofill.time.lastyear', cW.$('#jahr').val());
-                    prefs.setIntPref('autofill.time.lastmonth', cW.$('#zeitraum').val());
+                    cW.prefstore.setIntPref('autofill.time.lastyear', cW.$('#jahr').val());
+                    cW.prefstore.setIntPref('autofill.time.lastmonth', cW.$('#zeitraum').val());
                 }
             })
             .on('show-protocol', function(ev, res) {
-                if(prefs.getBoolPref('autosave.protocol')) {
+                if(cW.prefstore.getBoolPref('autosave.protocol')) {
                     var fp = xulapp.getAutosaveFilepath('.proto.xml');
                     storeStringToFile(res, fp);
                 }
             });
 
-        /* Initialize access to preferences system. */
-        var prefService = C['@mozilla.org/preferences-service;1']
-            .getService(I.nsIPrefService);
-        prefs = prefService.getBranch('geierlein.');
+        /* Initialize prefstore. */
+        cW.prefstore = new cW.XulPrefstore('geierlein');
 
         /* Get nsICommandLine instance. */
         var cmdLine = window.arguments[0];
@@ -192,7 +189,7 @@ var xulapp = (function() {
         cW.geierlein.transfer = cW.geierlein.transferDirect;
 
         /* Show developer menu if allowed by pref. */
-        if(prefs.getBoolPref('debug.showDevelMenu')) {
+        if(cW.prefstore.getBoolPref('debug.showDevelMenu')) {
             document.getElementsByClassName('hideDevel')[0].className = '';
         }
     }, false);
@@ -205,7 +202,7 @@ var xulapp = (function() {
 
     return {
         autofillTimeRange: function() {
-            switch(prefs.getIntPref('autofill.time.mode')) {
+            switch(cW.prefstore.getIntPref('autofill.time.mode')) {
                 case 1: /* last month */
                     /* do nothing, it's Geierlein's default to preselect
                        the last month. */
@@ -219,8 +216,8 @@ var xulapp = (function() {
                     break;
                 case 3: /* last transmission date */
                     try {
-                        var year = prefs.getIntPref('autofill.time.lastyear');
-                        var month = prefs.getIntPref('autofill.time.lastmonth');
+                        var year = cW.prefstore.getIntPref('autofill.time.lastyear');
+                        var month = cW.prefstore.getIntPref('autofill.time.lastmonth');
                         if(month === 12) {
                             /* Select first month of next year */
                             month = 1;
@@ -247,7 +244,7 @@ var xulapp = (function() {
         getAutosaveDir: function() {
             var fp;
             try {
-                fp = prefs.getComplexValue("autosave.dir", I.nsILocalFile);
+                fp = cW.prefstore.prefs.getComplexValue("autosave.dir", I.nsILocalFile);
             } catch(e) {
                 var dirService = C["@mozilla.org/file/directory_service;1"].getService(I.nsIProperties);
                 var curProcDir = dirService.get("PrefD", I.nsIFile);
@@ -284,7 +281,7 @@ var xulapp = (function() {
         loadDefaultAddressData: function() {
             cW.$(DEFAULT_ADDRESS_DATA_SELECTOR).each(function() {
                 var $el = cW.$(this);
-                $el.val(prefs.getCharPref('defaultAddress.' + this.id));
+                $el.val(cW.prefstore.getCharPref('defaultAddress.' + this.id));
                 $el.change();
             });
         },
@@ -292,7 +289,7 @@ var xulapp = (function() {
         storeDefaultAddressData: function() {
             this.blur();
             cW.$(DEFAULT_ADDRESS_DATA_SELECTOR).each(function() {
-                prefs.setCharPref('defaultAddress.' + this.id, this.value);
+                cW.prefstore.setCharPref('defaultAddress.' + this.id, this.value);
             });
         },
 
