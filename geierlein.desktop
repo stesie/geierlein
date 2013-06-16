@@ -1,8 +1,11 @@
 [Desktop Entry]
 Categories=Finance;Office;
 Name=Geierlein
-GenericName=Geierlein
-Comment=freier Elster-Client für Linux
+Name[de]=Geierlein
+GenericName=Elster client
+GenericName[de]=Elster-Client
+Comment=Send VAT declarations to Germany's fiscal authorities
+Comment[de]=Umsatzsteuervoranmeldungen an das Finanzamt übertragen
 Type=Application
 Exec=xgeierlein
 Icon=geierlein
