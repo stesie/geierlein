@@ -20,6 +20,7 @@
  */
 
 (function($, geierlein) {
+    var DEFAULT_ADDRESS_DATA_SELECTOR = '.datenlieferant, #steuernummer, #land';
     var $jahr = $('#jahr');
     var $zeitraum = $('#zeitraum');
 
@@ -217,6 +218,8 @@
         $zeitraum.val(d.getMonth() + 1);
         $zeitraum.change();
 
+        geierlein.loadDefaultAddressData();
+
         $('body').trigger('reset-form');
 
         /* Copy over all field data initially to consider browser's
@@ -294,10 +297,35 @@
         return true;
     };
 
+    geierlein.loadDefaultAddressData = function() {
+        $(DEFAULT_ADDRESS_DATA_SELECTOR).each(function() {
+            var $el = $(this);
+            $el.val(prefstore.getCharPref('defaultAddress.' + this.id));
+            $el.change();
+        });
+    };
+
+    geierlein.storeDefaultAddressData = function() {
+        this.blur();
+        $(DEFAULT_ADDRESS_DATA_SELECTOR).each(function() {
+            prefstore.setCharPref('defaultAddress.' + this.id, this.value);
+        });
+    };
+
+
+    /* Initialize localStorage-based Prefstore, if not running
+       in XUL-environment.  Otherwise use XUL-based storage. */
+    if(typeof Components === 'undefined') {
+        prefstore = new LocalStoragePrefstore('geierlein');
+    } else {
+        prefstore = new XulPrefstore('geierlein');
+    }
+
+
+
     /*
      * Model handling.
      */
-
     (function() {
         /* Fill year drop-down, supported is 2011 until now. */
         var d = new Date();
@@ -333,6 +361,9 @@
 
     geierlein.resetForm();
 
+    if(geierlein.isDatenlieferantValid()) {
+        $('#accordion-unternehmer').collapse();
+    }
 
     $('#zeitraum').on('change', function(ev) {
       var selected = $('option:selected', this);
@@ -399,8 +430,8 @@
      * Initialize tooltips on all input elements.
      */
     $('.ustva').tooltip({
-		container: 'body'
-	});
+        container: 'body'
+    });
 
     /**
      * Trigger browser's print functionality when print-button is clicked in
@@ -409,4 +440,7 @@
     $('#protocol-print').click(function() {
         printIframe('protocol-frame');
     });
+
+    /* Bind store defaults button. */
+    $('#store-defaults').click(geierlein.storeDefaultAddressData);
 }(jQuery, geierlein));
