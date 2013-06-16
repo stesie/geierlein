@@ -19,8 +19,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-if(typeof localStorage === 'object') {
-    function LocalStoragePrefstore(rootBranch) {
+(function(exports) {
+    var haveLocalStorage = false;
+
+    try {
+        if(typeof localStorage === 'object') {
+            haveLocalStorage = true;
+        }
+    } catch(ex) { }
+
+    if(!haveLocalStorage) {
+        return;
+    }
+
+    exports.LocalStoragePrefstore = function(rootBranch) {
         if(rootBranch.substr(-1) !== '.') {
             rootBranch += '.';
         }
@@ -28,28 +40,25 @@ if(typeof localStorage === 'object') {
         this.rootBranch = rootBranch;
     };
 
+    exports.LocalStoragePrefstore.prototype = {
+        getBoolPref: function(pref) {
+            return localStorage[this.rootBranch + pref];
+        },
 
-    (function() {
-        LocalStoragePrefstore.prototype = {
-            getBoolPref: function(pref) {
-                return localStorage[this.rootBranch + pref];
-            },
+        getIntPref: function(pref) {
+            return localStorage[this.rootBranch + pref];
+        },
 
-            getIntPref: function(pref) {
-                return localStorage[this.rootBranch + pref];
-            },
+        getCharPref: function(pref) {
+            return localStorage[this.rootBranch + pref];
+        },
 
-            getCharPref: function(pref) {
-                return localStorage[this.rootBranch + pref];
-            },
+        setIntPref: function(pref, value) {
+            localStorage[this.rootBranch + pref] = value;
+        },
 
-            setIntPref: function(pref, value) {
-                localStorage[this.rootBranch + pref] = value;
-            },
-
-            setCharPref: function(pref, value) {
-                localStorage[this.rootBranch + pref] = value;
-            }
-        };
-    })();
-}
+        setCharPref: function(pref, value) {
+            localStorage[this.rootBranch + pref] = value;
+        }
+    };
+})(this);
