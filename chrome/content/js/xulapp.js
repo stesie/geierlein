@@ -111,9 +111,6 @@ var xulapp = (function() {
                 }
             });
 
-        /* Initialize prefstore. */
-        cW.prefstore = new cW.XulPrefstore('geierlein');
-
         /* Get nsICommandLine instance. */
         var cmdLine = window.arguments[0];
         cmdLine = cmdLine.QueryInterface(I.nsICommandLine);

@@ -314,10 +314,13 @@
 
 
     /* Initialize localStorage-based Prefstore, if not running
-       in XUL-environment. */
+       in XUL-environment.  Otherwise use XUL-based storage. */
     if(typeof Components === 'undefined') {
         prefstore = new LocalStoragePrefstore('geierlein');
-    };
+    } else {
+        prefstore = new XulPrefstore('geierlein');
+    }
+
 
 
     /*
@@ -427,8 +430,8 @@
      * Initialize tooltips on all input elements.
      */
     $('.ustva').tooltip({
-		container: 'body'
-	});
+        container: 'body'
+    });
 
     /**
      * Trigger browser's print functionality when print-button is clicked in
