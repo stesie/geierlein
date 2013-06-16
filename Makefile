@@ -6,8 +6,8 @@ desktopfiledir := $(datadir)/applications
 pkgdatadir := $(datadir)/geierlein
 
 VERSIONMAJOR := 0
-VERSIONMINOR := 4
-VERSIONBUILD := 3
+VERSIONMINOR := 5
+VERSIONBUILD := 0
 VERSION := $(VERSIONMAJOR).$(VERSIONMINOR).$(VERSIONBUILD)
 INSTALL := /usr/bin/install -c
 INSTALL_DATA := $(INSTALL) -m 644
@@ -195,7 +195,7 @@ test-all: test-forge test test-offline test-online
 bump-version: $(version_files)
 	@if [ "$(NEW_VERSION)" = "" ]; then \
 	  echo NEW_VERSION argument not provided.; \
-	  echo Usage: make bump-version NEW_VERSION=0.4.3; \
+	  echo Usage: make bump-version NEW_VERSION=0.5.0; \
 	  exit 1; \
 	fi
 	sed -e 's;$(subst .,\.,$(VERSION));$(NEW_VERSION);g' -i $^
