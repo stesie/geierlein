@@ -222,6 +222,33 @@
 
         $('body').trigger('reset-form');
 
+        if(location.hash === '#importLocalStorage') {
+            var importData = prefstore.getCharPref('import');
+            prefstore.setCharPref('import', '');
+        }
+
+        if(location.hash === '#importWindowName') {
+            var importData = window.name;
+            window.name = '';
+        }
+
+        if(importData !== '') {
+            if(geierlein.unserialize(importData)) {
+                var message = '<p><strong>Datenübernahme aus der Drittanwendung erfolgreich.</strong></p>' +
+                    '<p>Die bereitgestellten Daten wurden in das Formular übernommen.</p>';
+                var classes = 'alert-success';
+            } else {
+                var message = '<p><strong>Datenübernahme aus der Drittanwendung gescheitert.</strong></p>' +
+                    '<p>Die bereitgestellten Daten konnten nicht verarbeitet werden, da diese fehlerhaft aufgebaut sind.</p>';
+                var classes = 'alert-error';
+            }
+
+            $('<div class="alert">')
+            .addClass(classes).html(message)
+            .prepend('<button class="close" data-dismiss="alert">×</button>')
+            .prependTo('#main');
+        }
+
         /* Copy over all field data initially to consider browser's
          * auto-fill data, etc.pp
          */
@@ -267,8 +294,6 @@
         try {
             data = geierlein.util.parseFile(data);
         } catch(e) {
-            alert('Das Format der Datei ist fehlerhaft.  ' +
-                'Die Datei kann nicht geöffnet werden');
             return false;
         }
 
@@ -449,7 +474,10 @@
     $('#file-select').change(function(ev) {
         var reader = new FileReader();
         reader.onload = function(data) {
-            geierlein.unserialize(data.target.result);
+            if(!geierlein.unserialize(data.target.result)) {
+                alert('Das Format der Datei ist fehlerhaft.  ' +
+                    'Die Datei kann nicht importiert werden');
+            }
         };
         reader.readAsText(this.files[0]);
     });

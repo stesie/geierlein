@@ -325,6 +325,9 @@ var xulapp = (function() {
                 if(cW.geierlein.unserialize(data)) {
                     filePath = loadFilePath;
                     fileChanged = false;
+                } else {
+                    alert('Das Format der Datei ist fehlerhaft.  ' +
+                        'Die Datei kann nicht geöffnet werden');
                 }
             });
         },
