@@ -17,6 +17,10 @@ pref("geierlein.defaultAddress.steuernummer", "");
 pref("geierlein.debug.showDevelMenu", false);
 
 
+/* prefwindow basics */
+pref("browser.preferences.instantApply", false);
+
+
 /* extension manager */
 pref("xpinstall.dialog.confirm", "chrome://mozapps/content/xpinstall/xpinstallConfirm.xul");
 pref("xpinstall.dialog.progress.skin", "chrome://mozapps/content/extensions/extensions.xul?type=themes");
