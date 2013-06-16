@@ -82,9 +82,9 @@ geierlein_essentials := \
 	chrome/content/img/glyphicons-halflings.png \
 	chrome/content/img/geierlein-logo-color-white.png \
 	chrome/content/index.html \
-	chrome/content/js/bootstrap.min.js \
+	chrome/content/lib/bootstrap.min.js \
 	chrome/content/js/geierlein.js \
-	chrome/content/js/jquery-1.7.2.min.js \
+	chrome/content/lib/jquery-2.0.2.min.js \
 	chrome/content/js/jquery.input.multiply.js \
 	chrome/content/js/jquery.input.totalize.js \
 	chrome/content/xsl/ustva.xsl
