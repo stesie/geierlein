@@ -114,11 +114,18 @@ if(argv.sign) {
     action(undefined, showResult);
 }
 
+function setRawMode(state) {
+    if(typeof process.stdin.setRawMode === 'function') {
+        return process.stdin.setRawMode(state);
+    }
+
+    return require('tty').setRawMode(state);
+}
 
 function getPassword(cb) {
     process.stdin.resume();
     process.stdin.setEncoding('utf8');
-    process.stdin.setRawMode(true);
+    setRawMode(true);
     var password = '';
     process.stdin.on('data', function(char) {
         char = char + '';
@@ -127,7 +134,7 @@ function getPassword(cb) {
             case '\n':
             case '\r':
             case '\u0004':  /* C-d */
-                process.stdin.setRawMode(false);
+                setRawMode(false);
                 stdin.pause();
                 cb(password);
                 break;
