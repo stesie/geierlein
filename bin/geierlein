@@ -58,7 +58,7 @@ for(var key in data) {
 }
 
 if(ustva.kz83 === undefined) {
-    ustva.kz83 = ustva.calculateKz83();
+    ustva.kz83 = +ustva.calculateKz83().toFixed(2);
 }
 
 var validationResult = ustva.validate();
