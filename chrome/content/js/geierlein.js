@@ -317,6 +317,10 @@
        in XUL-environment.  Otherwise use XUL-based storage. */
     if(typeof Components === 'undefined') {
         prefstore = new LocalStoragePrefstore('geierlein');
+
+        if(prefstore.getCharPref('defaultAddress.land') === undefined) {
+            prefstore.setCharPref('defaultAddress.land', '1');
+        }
     } else {
         prefstore = new XulPrefstore('geierlein');
     }
