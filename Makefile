@@ -84,6 +84,8 @@ geierlein_essentials := \
 	chrome/content/index.html \
 	chrome/content/lib/bootstrap.min.js \
 	chrome/content/js/geierlein.js \
+	chrome/content/lib/prefstore/localstorage.js \
+	chrome/content/lib/prefstore/xul.js \
 	chrome/content/lib/jquery-2.0.2.min.js \
 	chrome/content/js/jquery.input.multiply.js \
 	chrome/content/js/jquery.input.totalize.js \
