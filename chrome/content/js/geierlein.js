@@ -232,7 +232,7 @@
             window.name = '';
         }
 
-        if(importData !== '') {
+        if(importData !== undefined && importData !== '') {
             if(geierlein.unserialize(importData)) {
                 var message = '<p><strong>Datenübernahme aus der Drittanwendung erfolgreich.</strong></p>' +
                     '<p>Die bereitgestellten Daten wurden in das Formular übernommen.</p>';
