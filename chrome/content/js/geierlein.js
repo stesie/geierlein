@@ -3,7 +3,7 @@
  *
  * @author Stefan Siegl
  *
- * Copyright (c) 2012 Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2012, 2013 Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -222,6 +222,33 @@
 
         $('body').trigger('reset-form');
 
+        if(location.hash === '#importLocalStorage') {
+            var importData = prefstore.getCharPref('import');
+            prefstore.setCharPref('import', '');
+        }
+
+        if(location.hash === '#importWindowName') {
+            var importData = window.name;
+            window.name = '';
+        }
+
+        if(importData !== '') {
+            if(geierlein.unserialize(importData)) {
+                var message = '<p><strong>Datenübernahme aus der Drittanwendung erfolgreich.</strong></p>' +
+                    '<p>Die bereitgestellten Daten wurden in das Formular übernommen.</p>';
+                var classes = 'alert-success';
+            } else {
+                var message = '<p><strong>Datenübernahme aus der Drittanwendung gescheitert.</strong></p>' +
+                    '<p>Die bereitgestellten Daten konnten nicht verarbeitet werden, da diese fehlerhaft aufgebaut sind.</p>';
+                var classes = 'alert-error';
+            }
+
+            $('<div class="alert">')
+            .addClass(classes).html(message)
+            .prepend('<button class="close" data-dismiss="alert">×</button>')
+            .prependTo('#main');
+        }
+
         /* Copy over all field data initially to consider browser's
          * auto-fill data, etc.pp
          */
@@ -267,8 +294,6 @@
         try {
             data = geierlein.util.parseFile(data);
         } catch(e) {
-            alert('Das Format der Datei ist fehlerhaft.  ' +
-                'Die Datei kann nicht geöffnet werden');
             return false;
         }
 
@@ -445,6 +470,35 @@
         printIframe('protocol-frame');
     });
 
+    /**
+     * Form import/export handling.
+     */
+    $('#form-import').click(function(ev) {
+        $('#file-select').click();
+        ev.preventDefault();
+    });
+
+    $('#file-select').change(function(ev) {
+        var reader = new FileReader();
+        reader.onload = function(data) {
+            if(!geierlein.unserialize(data.target.result)) {
+                alert('Das Format der Datei ist fehlerhaft.  ' +
+                    'Die Datei kann nicht importiert werden');
+            }
+        };
+        reader.readAsText(this.files[0]);
+    });
+
+    $('#form-export').click(function(ev) {
+        ev.preventDefault();
+
+        var blob = new Blob([geierlein.serialize()], {
+            type: 'application/x-geierlein; charset=utf-8'
+        });
+        saveAs(blob, "Geierlein-UStVA-" + ustva.jahr + ("0" + ustva.zeitraum).substr(-2));
+    });
+
     /* Bind store defaults button. */
     $('#store-defaults').click(geierlein.storeDefaultAddressData);
+
 }(jQuery, geierlein));
