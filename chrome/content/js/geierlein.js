@@ -21,6 +21,7 @@
 
 (function($, geierlein) {
     var DEFAULT_ADDRESS_DATA_SELECTOR = '.datenlieferant, #steuernummer, #land';
+    var $svzjahr = $('#ustsvza-jahr');
     var $jahr = $('#jahr');
     var $zeitraum = $('#zeitraum');
 
@@ -360,6 +361,7 @@
         var d = new Date();
         for(var year = d.getFullYear(); year >= 2011; year --) {
             $('<option>').text(year).appendTo($jahr);
+            $('<option>').text(year).appendTo($svzjahr);
         }
     })();
 
@@ -498,7 +500,42 @@
         saveAs(blob, "Geierlein-UStVA-" + ustva.jahr + ("0" + ustva.zeitraum).substr(-2));
     });
 
-    /* Bind store defaults button. */
+
+    /**
+     * Bind store defaults button.
+     */
     $('#store-defaults').click(geierlein.storeDefaultAddressData);
+
+
+    /**
+     * Bind "Dauerfristverlängerung" events.
+     */
+    $('#form-ustsvza').click(function(ev) {
+        ev.preventDefault();
+
+        if(!geierlein.isDatenlieferantValid()) {
+            alert('Zur Abgabe einer Dauerfristverlängerung muss vorab der Bereich "Unternehmer" korrekt ausgefüllt werden.');
+            return;
+        }
+
+        $('#ustsvza').modal();
+    });
+
+    $('#ustsvza-rhythmus').change(function(ev) {
+        var elname = '#ustsvza-svz-' + $('#ustsvza-rhythmus').val();
+        $('.ustsvza-svz').not(elname).hide();
+        $(elname).show();
+    });
+
+    $('#ustsvza-vjsum').on('change keyup', function(ev) {
+        var vjsum = +$('#ustsvza-vjsum').val();
+
+        if(isNaN(vjsum)) {
+            $('#Kz38').val('');
+        }
+        else {
+            $('#Kz38').val(Math.max(0, Math.floor(vjsum / 11)));
+        }
+    });
 
 }(jQuery, geierlein));

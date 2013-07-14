@@ -25,6 +25,7 @@
                             <li><a href="#" id="form-export">Export ...</a></li>
                         </ul>
                     </li>
+                    <li><a href="#" id="form-ustsvza">Dauerfristverlängerung</a></li>
                     <li><a data-toggle="modal" href="#about">Info</a></li>
                     <li><a href="http://stesie.github.io/geierlein/" target="_blank">Website</a></li>
                 </ul>
@@ -772,6 +773,73 @@
             <a href="#" id="protocol-save" class="btn left hide-native">Speichern</a>
             <a href="#" id="protocol-print" class="btn left">Drucken</a>
             <a href="#" class="btn btn-primary" data-dismiss="modal">Schließen</a>
+        </div>
+    </div>
+
+    <div class="modal hide" id="ustsvza">
+        <div class="modal-header">
+            <a class="close" data-dismiss="modal">×</a>
+            <h3>Antrag auf Dauerfristverlängerung …</h3>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal">
+                <fieldset>
+                    <div class="control-group">
+                        <label class="control-label span1" for="ustsvza-jahr">Jahr</label>
+                        <div class="span4">
+                            <select id="ustsvza-jahr" class="span4 ustsvza">
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label class="control-label span1" for="ustsvza-rhythmus">Abgaberhythmus</label>
+                        <div class="span4">
+                            <select id="ustsvza-rhythmus" class="span4 ustsvza">
+                                <option value="0">Quartal</option>
+                                <option value="1">Monat</option>
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <div id="ustsvza-svz-1" class="ustsvza-svz hide">
+                    <fieldset>
+                        <h4>Anmeldung der Sondervorauszahlung</h4>
+
+                        <div class="control-group">
+                            <label class="control-label span1" for="ustsvza-vjsum">Vorauszahlungen Vorjahr</label>
+                            <div class="span4">
+                                <input type="text" id="ustsvza-vjsum" class="span4 ustsvza"
+                                       title="Summe der verbleibenden Umsatzsteuer-Vorauszahlungen zuzüglich der angerechneten Sondervorauszahlung für das Vorjahr"/>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label span1" for="Kz38">Sondervorauszahlung</label>
+                            <div class="span4 input-prepend">
+                                <span class="kz add-on">38</span>
+                                <input type="text" id="Kz38" class="span4 ustsvza multiply" disabled/>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div id="ustsvza-svz-0" class="ustsvza-svz">
+                    <div class="alert alert-info">
+                        <p>
+                            Der Antrag auf Dauerfristverlängerung ist nicht zu stellen, wenn Dauerfrist-
+                            verlängerung bereits gewährt worden ist. Er ist nicht jährlich zu wiederholen.
+                            Eine Sondervorauszahlung ist nicht zu berechnen und anzumelden.
+                        </p>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="btn left" data-dismiss="modal">Abbrechen</a>
+            <a href="#" class="btn" id="ustsvza-send-test">Senden als Testfall</a>
+            <a href="#" class="btn btn-primary" id="ustsvza-send">Daten senden</a>
         </div>
     </div>
 
