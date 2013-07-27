@@ -35,7 +35,7 @@ email = max@muster.com
 # Hier die Zahl des gewünschten Bundeslandes angeben.
 land = 2	# Bayern
 
-steuernummer = 203/698/02950
+steuernummer = 123/123/12345
 
 # Voranmeldungszeitraum
 jahr = 2012
