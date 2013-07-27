@@ -40,17 +40,30 @@
         this.rootBranch = rootBranch;
     };
 
+    function fetch(key) {
+        var value = localStorage[key];
+
+        /* Firefox returns "null" for undefined keys.  Instead Chromium returns
+           "undefined" for undefined keys.  Normalize to what Chromium does
+           return. */
+        if(value === null) {
+            value = undefined;
+        }
+
+        return value;
+    }
+
     exports.LocalStoragePrefstore.prototype = {
         getBoolPref: function(pref) {
-            return localStorage[this.rootBranch + pref];
+            return fetch(this.rootBranch + pref);
         },
 
         getIntPref: function(pref) {
-            return localStorage[this.rootBranch + pref];
+            return fetch(this.rootBranch + pref);
         },
 
         getCharPref: function(pref) {
-            return localStorage[this.rootBranch + pref];
+            return fetch(this.rootBranch + pref);
         },
 
         setIntPref: function(pref, value) {
