@@ -19,7 +19,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-if(typeof Components === 'object') {
+var hasComponentsAccess = typeof Components === 'object';
+if(hasComponentsAccess) {
+    /* Test whether we are just seeing the Components object, which is true
+       even in Mozilla Firefox, but are denied permission to access it. */
+    try {
+        Components.classes;
+    } catch(e) {
+        hasComponentsAccess = false;
+    }
+}
+
+if(hasComponentsAccess) {
     function XulPrefstore(rootBranch) {
         const C = Components.classes;
         const I = Components.interfaces;

@@ -340,7 +340,17 @@
 
     /* Initialize localStorage-based Prefstore, if not running
        in XUL-environment.  Otherwise use XUL-based storage. */
-    if(typeof Components === 'undefined') {
+    var useLocalStore = typeof Components === 'undefined';
+    if(!useLocalStore) {
+        /* Test whether we are just seeing the Components object, which is true
+           even in Mozilla Firefox, but are denied permission to access it. */
+        try {
+            Components.classes;
+        } catch(e) {
+            useLocalStore = true;
+        }
+    }
+    if(useLocalStore) {
         prefstore = new LocalStoragePrefstore('geierlein');
 
         if(prefstore.getCharPref('defaultAddress.land') === undefined) {
