@@ -11,3 +11,5 @@ geierlein-*.tar.*
 chrome/content/mobile.html
 chromedriver.log
 *.pyc
+.dir-locals.el
+*~
