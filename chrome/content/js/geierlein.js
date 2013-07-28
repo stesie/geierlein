@@ -345,7 +345,7 @@
         /* Test whether we are just seeing the Components object, which is true
            even in Mozilla Firefox, but are denied permission to access it. */
         try {
-            Components.classes;
+            useLocalStore = typeof Components.classes !== 'object';
         } catch(e) {
             useLocalStore = true;
         }
