@@ -174,7 +174,21 @@ geierlein-$(VERSION).tar.xz: geierlein-$(VERSION).tar.gz
 	gzip -cd $< | xz -ezcv > $@
 
 dist: dist-nsis geierlein-$(VERSION).zip geierlein-$(VERSION).tar.xz
-	git tag V$(VERSION)
+	git tag -f V$(VERSION)
+
+autodist: dist
+	cp Makefile Makefile.autodist
+	$(MAKE) -f Makefile.autodist autodist-run
+	rm -f Makefile.autodist
+
+autodist-run:
+	scp geierlein-$(VERSION)-installer.exe gandalf.zerties.org:/srv/www/taxbird.de/downloads/geierlein
+	git checkout gh-pages
+	sed -e "s/geierlein\/archive\/V[0-9\.]\+\.zip/geierlein\/archive\/V$(VERSION).zip/" \
+		-e "s/geierlein-[0-9\.]\+-installer.exe/geierlein-$(VERSION)-installer.exe/" \
+		-i~ _layouts/default.html
+	git commit _layouts/default.html -m "Update links to version $(VERSION)"
+	git checkout master
 
 test:
 	npm test
@@ -208,4 +222,4 @@ bump-version: $(version_files)
 	sed -e 's;$(subst .,\.,$(VERSION));$(NEW_VERSION);g' -i~ $^
 	git commit -m "Bump version to $(NEW_VERSION)" $^
 
-.PHONY: all clean dist install test test-forge test-all test-online test-offline uninstall bump-version dist-nsis
+.PHONY: all clean autodist autodist-run dist install test test-forge test-all test-online test-offline uninstall bump-version dist-nsis
