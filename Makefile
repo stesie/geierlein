@@ -200,6 +200,12 @@ bump-version: $(version_files)
 	  echo Usage: make bump-version NEW_VERSION=0.5.3; \
 	  exit 1; \
 	fi
-	sed -e 's;$(subst .,\.,$(VERSION));$(NEW_VERSION);g' -i $^
+	(bump_version() { \
+		sed -i~ Makefile -e "s/\(VERSIONMAJOR :=\) .*/\1 $$1/" \
+			-e "s/\(VERSIONMINOR :=\) .*/\1 $$2/" \
+			-e "s/\(VERSIONBUILD :=\) .*/\1 $$3/"; \
+	}; IFS=.; version="$(NEW_VERSION)"; bump_version $$version; unset IFS;)
+	sed -e 's;$(subst .,\.,$(VERSION));$(NEW_VERSION);g' -i~ $^
+	git commit -m "Bump version to $(NEW_VERSION)" $^
 
 .PHONY: all clean dist install test test-forge test-all test-online test-offline uninstall bump-version dist-nsis
