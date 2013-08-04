@@ -6,6 +6,7 @@ console.log('Key-pair created.');
 
 console.log('Creating self-signed certificate...');
 var cert = forge.pki.createCertificate();
+cert.publicKey = keys.publicKey;
 cert.serialNumber = '01';
 cert.validity.notBefore = new Date();
 cert.validity.notAfter = new Date();
@@ -42,18 +43,34 @@ cert.setExtensions([{
   keyEncipherment: true,
   dataEncipherment: true
 }, {
+  name: 'extKeyUsage',
+  serverAuth: true,
+  clientAuth: true,
+  codeSigning: true,
+  emailProtection: true,
+  timeStamping: true
+}, {
+  name: 'nsCertType',
+  client: true,
+  server: true,
+  email: true,
+  objsign: true,
+  sslCA: true,
+  emailCA: true,
+  objCA: true
+}, {
   name: 'subjectAltName',
   altNames: [{
     type: 6, // URI
     value: 'http://example.org/webid#me'
   }]
+}, {
+  name: 'subjectKeyIdentifier'
 }]);
-// FIXME: add subjectKeyIdentifier extension
 // FIXME: add authorityKeyIdentifier extension
-cert.publicKey = keys.publicKey;
 
 // self-sign certificate
-cert.sign(keys.privateKey);
+cert.sign(keys.privateKey/*, forge.md.sha256.create()*/);
 console.log('Certificate created.');
 
 // PEM-format keys and cert
@@ -77,6 +94,8 @@ try {
   forge.pki.verifyCertificateChain(caStore, [cert],
     function(vfd, depth, chain) {
       if(vfd === true) {
+        console.log('SubjectKeyIdentifier verified: ' +
+          cert.verifySubjectKeyIdentifier());
         console.log('Certificate verified.');
       }
       return true;

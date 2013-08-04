@@ -91,12 +91,16 @@ class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
 
 def create_http_server(options, script_dir):
     """Start a static file server"""
+    # use UTF-8 encoding for javascript files
+    m = SimpleHTTPServer.SimpleHTTPRequestHandler.extensions_map
+    m['.js'] = 'application/javascript;charset=UTF-8'
+
     Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
 #    httpd = SocketServer.TCPServer((options.host, options.port), Handler)
     httpd = ThreadedTCPServer((options.host, options.port), Handler)
     if options.tls:
         if not have_ssl:
-            raise Exception("SSL support from Python 2.6 or later is required.")
+            raise Exception("SSL support from Python 2.7 or later is required.")
 
         # setup session args if we session support
         sess_args = {}

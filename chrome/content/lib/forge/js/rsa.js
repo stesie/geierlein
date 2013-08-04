@@ -1,28 +1,16 @@
 /**
- * Javascript implementation of a basic RSA algorithms.
+ * Javascript implementation of basic RSA algorithms.
  *
  * @author Dave Longley
  *
- * Copyright (c) 2010-2012 Digital Bazaar, Inc.
+ * Copyright (c) 2010-2013 Digital Bazaar, Inc.
  */
 (function() {
+function initModule(forge) {
+/* ########## Begin module implementation ########## */
 
-// define forge
-if(typeof(window) !== 'undefined') {
-  var forge = window.forge = window.forge || {};
-}
-// define node.js module
-else if(typeof(module) !== 'undefined' && module.exports) {
-  var forge = {
-    asn1: require('./asn1'),
-    pki: {
-      oids: require('./oids')
-    },
-    random: require('./random'),
-    util: require('./util')
-  };
-  BigInteger = require('./jsbn');
-  module.exports = forge.pki.rsa = {};
+if(typeof BigInteger === 'undefined') {
+  BigInteger = forge.jsbn.BigInteger;
 }
 
 // shortcut for asn.1 API
@@ -32,10 +20,11 @@ var asn1 = forge.asn1;
  * RSA encryption and decryption, see RFC 2313.
  */
 forge.pki = forge.pki || {};
-forge.pki.rsa = forge.pki.rsa || {};
+forge.pki.rsa = forge.rsa = forge.rsa || {};
 var pki = forge.pki;
 
-
+// for finding primes, which are 30k+i for i = 1, 7, 11, 13, 17, 19, 23, 29
+var GCD_30_DELTA = [6, 4, 2, 4, 2, 4, 6, 2];
 
 /**
  * Wrap digest in DigestInfo object.
@@ -51,6 +40,7 @@ var pki = forge.pki;
  * Digest ::= OCTET STRING
  *
  * @param md the message digest object with the hash to sign.
+ *
  * @return the encoded message (ready for RSA encrytion)
  */
 var emsaPkcs1v15encode = function(md) {
@@ -85,7 +75,6 @@ var emsaPkcs1v15encode = function(md) {
   // encode digest info
   return asn1.toDer(digestInfo).getBytes();
 };
-
 
 /**
  * Performs x^c mod n (RSA encryption or decryption operation).
@@ -216,85 +205,45 @@ var _modPow = function(x, key, pub) {
 };
 
 /**
+ * NOTE: THIS METHOD IS DEPRECATED, use 'sign' on a private key object or
+ * 'encrypt' on a public key object instead.
+ *
  * Performs RSA encryption.
  *
  * The parameter bt controls whether to put padding bytes before the
- * message passed in.  Set bt to either true or false to disable padding
+ * message passed in. Set bt to either true or false to disable padding
  * completely (in order to handle e.g. EMSA-PSS encoding seperately before),
  * signaling whether the encryption operation is a public key operation
  * (i.e. encrypting data) or not, i.e. private key operation (data signing).
  *
  * For PKCS#1 v1.5 padding pass in the block type to use, i.e. either 0x01
- * (for signing) or 0x02 (for encryption).  The key operation mode (private
+ * (for signing) or 0x02 (for encryption). The key operation mode (private
  * or public) is derived from this flag in that case).
  *
  * @param m the message to encrypt as a byte string.
  * @param key the RSA key to use.
  * @param bt for PKCS#1 v1.5 padding, the block type to use
  *   (0x01 for private key, 0x02 for public),
- *   to disable padding: true = public key, false = private key
+ *   to disable padding: true = public key, false = private key.
+ *
  * @return the encrypted bytes as a string.
  */
 pki.rsa.encrypt = function(m, key, bt) {
   var pub = bt;
-  var eb = forge.util.createBuffer();
+  var eb;
 
   // get the length of the modulus in bytes
   var k = Math.ceil(key.n.bitLength() / 8);
 
   if(bt !== false && bt !== true) {
-    /* use PKCS#1 v1.5 padding */
-    if(m.length > (k - 11)) {
-      throw {
-        message: 'Message is too long to encrypt.',
-        length: m.length,
-        max: (k - 11)
-      };
-    }
-
-    /* A block type BT, a padding string PS, and the data D shall be
-      formatted into an octet string EB, the encryption block:
-
-      EB = 00 || BT || PS || 00 || D
-
-      The block type BT shall be a single octet indicating the structure of
-      the encryption block. For this version of the document it shall have
-      value 00, 01, or 02. For a private-key operation, the block type
-      shall be 00 or 01. For a public-key operation, it shall be 02.
-
-      The padding string PS shall consist of k-3-||D|| octets. For block
-      type 00, the octets shall have value 00; for block type 01, they
-      shall have value FF; and for block type 02, they shall be
-      pseudorandomly generated and nonzero. This makes the length of the
-      encryption block EB equal to k. */
-
-    // build the encryption block
-    eb.putByte(0x00);
-    eb.putByte(bt);
-
-    // create the padding, get key type
-    var padNum = k - 3 - m.length;
-    var padByte;
-    if(bt === 0x00 || bt === 0x01) {
-      pub = false;
-      padByte = (bt === 0x00) ? 0x00 : 0xFF;
-      for(var i = 0; i < padNum; ++i) {
-        eb.putByte(padByte);
-      }
-    }
-    else {
-      pub = true;
-      for(var i = 0; i < padNum; ++i) {
-        padByte = Math.floor(Math.random() * 255) + 1;
-        eb.putByte(padByte);
-      }
-    }
-
-    // zero followed by message
-    eb.putByte(0x00);
+    // legacy, default to PKCS#1 v1.5 padding
+    pub = (bt === 0x02);
+    eb = _encodePkcs1_v1_5(m, key, bt);
   }
-
-  eb.putBytes(m);
+  else {
+    eb = forge.util.createBuffer();
+    eb.putBytes(m);
+  }
 
   // load encryption block as big integer 'x'
   // FIXME: hex conversion inefficient, get BigInteger w/byte strings
@@ -318,6 +267,9 @@ pki.rsa.encrypt = function(m, key, bt) {
 };
 
 /**
+ * NOTE: THIS METHOD IS DEPRECATED, use 'decrypt' on a private key object or
+ * 'verify' on a public key object instead.
+ *
  * Performs RSA decryption.
  *
  * The parameter ml controls whether to apply PKCS#1 v1.5 padding
@@ -328,18 +280,16 @@ pki.rsa.encrypt = function(m, key, bt) {
  * @param ed the encrypted data to decrypt in as a byte string.
  * @param key the RSA key to use.
  * @param pub true for a public key operation, false for private.
- * @param ml the message length, if known.  false to disable padding.
+ * @param ml the message length, if known, false to disable padding.
  *
  * @return the decrypted message as a byte string.
  */
 pki.rsa.decrypt = function(ed, key, pub, ml) {
-  var m = forge.util.createBuffer();
-
   // get the length of the modulus in bytes
   var k = Math.ceil(key.n.bitLength() / 8);
 
   // error if the length of the encrypted data ED is not k
-  if(ed.length != k) {
+  if(ed.length !== k) {
     throw {
       message: 'Encrypted message length is invalid.',
       length: ed.length,
@@ -350,6 +300,14 @@ pki.rsa.decrypt = function(ed, key, pub, ml) {
   // convert encrypted data into a big integer
   // FIXME: hex conversion inefficient, get BigInteger w/byte strings
   var y = new BigInteger(forge.util.createBuffer(ed).toHex(), 16);
+
+  // y must be less than the modulus or it wasn't the result of
+  // a previous mod operation (encryption) using that modulus
+  if(y.compareTo(key.n) >= 0) {
+    throw {
+      message: 'Encrypted message is invalid.'
+    };
+  }
 
   // do RSA decryption
   var x = _modPow(y, key, pub);
@@ -367,70 +325,8 @@ pki.rsa.decrypt = function(ed, key, pub, ml) {
   eb.putBytes(forge.util.hexToBytes(xhex));
 
   if(ml !== false) {
-    /* It is an error if any of the following conditions occurs:
-
-      1. The encryption block EB cannot be parsed unambiguously.
-      2. The padding string PS consists of fewer than eight octets
-        or is inconsisent with the block type BT.
-      3. The decryption process is a public-key operation and the block
-        type BT is not 00 or 01, or the decryption process is a
-        private-key operation and the block type is not 02.
-     */
-
-    // parse the encryption block
-    var first = eb.getByte();
-    var bt = eb.getByte();
-    if(first !== 0x00 ||
-      (pub && bt !== 0x00 && bt !== 0x01) ||
-      (!pub && bt != 0x02) ||
-      (pub && bt === 0x00 && typeof(ml) === 'undefined')) {
-      throw {
-        message: 'Encryption block is invalid.'
-      };
-    }
-
-    var padNum = 0;
-    if(bt === 0x00) {
-      // check all padding bytes for 0x00
-      padNum = k - 3 - ml;
-      for(var i = 0; i < padNum; ++i) {
-        if(eb.getByte() !== 0x00) {
-          throw {
-            message: 'Encryption block is invalid.'
-          };
-        }
-      }
-    }
-    else if(bt === 0x01) {
-      // find the first byte that isn't 0xFF, should be after all padding
-      padNum = 0;
-      while(eb.length() > 1) {
-        if(eb.getByte() !== 0xFF) {
-          --eb.read;
-          break;
-        }
-        ++padNum;
-      }
-    }
-    else if(bt === 0x02) {
-      // look for 0x00 byte
-      padNum = 0;
-      while(eb.length() > 1) {
-        if(eb.getByte() === 0x00) {
-          --eb.read;
-          break;
-        }
-        ++padNum;
-      }
-    }
-
-    // zero must be 0x00 and padNum must be (k - 3 - message length)
-    var zero = eb.getByte();
-    if(zero !== 0x00 || padNum !== (k - 3 - eb.length())) {
-      throw {
-        message: 'Encryption block is invalid.'
-      };
-    }
+    // legacy, default to PKCS#1 v1.5 padding
+    return _decodePkcs1_v1_5(eb.getBytes(), key, pub);
   }
 
   // return message
@@ -443,7 +339,7 @@ pki.rsa.decrypt = function(ed, key, pub, ml) {
  * display progress updates.
  *
  * @param bits the size for the private key in bits, defaults to 1024.
- * @param e the public exponent to use, defaults to 65537.
+ * @param e the public exponent to use, defaults to 65537 (0x10001).
  *
  * @return the state object to use to generate the key-pair.
  */
@@ -458,33 +354,28 @@ pki.rsa.createKeyPairGenerationState = function(bits, e) {
   var rng = {
     // x is an array to fill with bytes
     nextBytes: function(x) {
-      var tmp1 = +new Date();
       var b = forge.random.getBytes(x.length);
       for(var i = 0; i < x.length; ++i) {
         x[i] = b.charCodeAt(i);
       }
-      var tmp2 = +new Date();
     }
   };
 
   var rval = {
     state: 0,
-    itrs: 0,
-    maxItrs: 100,
     bits: bits,
     rng: rng,
-    e: new BigInteger((e || 65537).toString(16), 16),
+    eInt: e || 65537,
+    e: new BigInteger(null),
     p: null,
     q: null,
     qBits: bits >> 1,
     pBits: bits - (bits >> 1),
     pqState: 0,
     num: null,
-    six: new BigInteger(null),
-    addNext: 2,
     keys: null
   };
-  rval.six.fromInt(6);
+  rval.e.fromInt(rval.eInt);
 
   return rval;
 };
@@ -520,7 +411,14 @@ pki.rsa.createKeyPairGenerationState = function(bits, e) {
  * @return true if the key-generation completed, false if not.
  */
 pki.rsa.stepKeyPairGenerationState = function(state, n) {
-  // do key generation (from Tom Wu's rsa.js, see jsbn.js license)
+  // do key generation (based on Tom Wu's rsa.js, see jsbn.js license)
+  // with some minor optimizations and designed to run in steps
+
+  // local state vars
+  var THIRTY = new BigInteger(null);
+  THIRTY.fromInt(30);
+  var deltaIdx = 0;
+  var op_or = function(x,y) { return x|y; };
 
   // keep stepping until time limit is reached or done
   var t1 = +new Date();
@@ -529,70 +427,43 @@ pki.rsa.stepKeyPairGenerationState = function(state, n) {
   while(state.keys === null && (n <= 0 || total < n)) {
     // generate p or q
     if(state.state === 0) {
+      /* Note: All primes are of the form:
+
+        30k+i, for i < 30 and gcd(30, i)=1, where there are 8 values for i
+
+        When we generate a random number, we always align it at 30k + 1. Each
+        time the number is determined not to be prime we add to get to the
+        next 'i', eg: if the number was at 30k + 1 we add 6. */
       var bits = (state.p === null) ? state.pBits : state.qBits;
       var bits1 = bits - 1;
 
       // get a random number
       if(state.pqState === 0) {
-        state.itrs = 0;
         state.num = new BigInteger(bits, state.rng);
-        state.r = null;
-        // force number to be odd
-        if(state.num.isEven()) {
-          state.num.dAddOffset(1, 0);
-        }
         // force MSB set
         if(!state.num.testBit(bits1)) {
           state.num.bitwiseTo(
-            BigInteger.ONE.shiftLeft(bits1),
-            function(x,y){ return x|y; }, state.num);
+            BigInteger.ONE.shiftLeft(bits1), op_or, state.num);
         }
+        // align number on 30k+1 boundary
+        state.num.dAddOffset(31 - state.num.mod(THIRTY).byteValue(), 0);
+        deltaIdx = 0;
+
         ++state.pqState;
       }
       // try to make the number a prime
       else if(state.pqState === 1) {
-        /* Note: All primes are of the form 6k +/- 1. So to find
-          a probable prime we first align the number at a possible
-          prime. Then each time the number is determined not to be
-          prime we add 2 if the number was at 6k - 1 or we add 4 if
-          the number was at 6k + 1. */
-        // FIXME: need to use a faster strategy than this ...
-        // this is the bottleneck
-        if(state.addNext === null) {
-          // r will be 1, 3, or 5 since num is odd
-          var r = state.num.mod(state.six).byteValue();
-          // if we are at 3, advance to 5
-          if(r === 3) {
-            state.num.mod.dAddOffset(2);
-            r = 5;
-          }
-
-          // set add next
-          state.addNext = (r === 1) ? 2 : 4;
+        // overflow, try again
+        if(state.num.bitLength() > bits) {
+          state.pqState = 0;
         }
-
         // do primality test
-        var pp = state.num.isProbablePrime(1);
-        if(pp) {
+        else if(state.num.isProbablePrime(1)) {
           ++state.pqState;
         }
-        // do max iterations before trying a new number
-        else if(state.itrs < state.maxItrs) {
-          // add addNext to get to next potential odd number
-          state.num.dAddOffset(state.addNext, 0);
-          if(state.num.bitLength() > bits) {
-            state.addNext = null;
-            state.num.subTo(
-               BigInteger.ONE.shiftLeft(bits1), state.num);
-          }
-          else {
-            state.addNext = (state.addNext === 4) ? 2 : 4;
-          }
-          ++state.itrs;
-        }
         else {
-          // too many iterations, try again
-          state.pqState = 0;
+          // get next potential prime
+          state.num.dAddOffset(GCD_30_DELTA[deltaIdx++ % 8], 0);
         }
       }
       // ensure number is coprime with e
@@ -620,86 +491,155 @@ pki.rsa.stepKeyPairGenerationState = function(state, n) {
         state.num = null;
       }
     }
-     // ensure p is larger than q (swap them if not)
-     else if(state.state === 1) {
-       if(state.p.compareTo(state.q) < 0) {
-         state.num = state.p;
-         state.p = state.q;
-         state.q = state.num;
-       }
-       ++state.state;
-     }
-     // compute phi: (p - 1)(q - 1) (Euler's totient function)
-     else if(state.state === 2) {
-       state.p1 = state.p.subtract(BigInteger.ONE);
-       state.q1 = state.q.subtract(BigInteger.ONE);
-       state.phi = state.p1.multiply(state.q1);
-       ++state.state;
-     }
-     // ensure e and phi are coprime
-     else if(state.state === 3) {
-       if(state.phi.gcd(state.e).compareTo(BigInteger.ONE) === 0) {
-         // phi and e are coprime, advance
-         ++state.state;
-       }
-       else {
-         // phi and e aren't coprime, so generate a new p and q
-         state.p = null;
-         state.q = null;
-         state.state = 0;
-       }
-     }
-     // create n, ensure n is has the right number of bits
-     else if(state.state === 4) {
-       state.n = state.p.multiply(state.q);
+    // ensure p is larger than q (swap them if not)
+    else if(state.state === 1) {
+      if(state.p.compareTo(state.q) < 0) {
+        state.num = state.p;
+        state.p = state.q;
+        state.q = state.num;
+      }
+      ++state.state;
+    }
+    // compute phi: (p - 1)(q - 1) (Euler's totient function)
+    else if(state.state === 2) {
+      state.p1 = state.p.subtract(BigInteger.ONE);
+      state.q1 = state.q.subtract(BigInteger.ONE);
+      state.phi = state.p1.multiply(state.q1);
+      ++state.state;
+    }
+    // ensure e and phi are coprime
+    else if(state.state === 3) {
+      if(state.phi.gcd(state.e).compareTo(BigInteger.ONE) === 0) {
+        // phi and e are coprime, advance
+        ++state.state;
+      }
+      else {
+        // phi and e aren't coprime, so generate a new p and q
+        state.p = null;
+        state.q = null;
+        state.state = 0;
+      }
+    }
+    // create n, ensure n is has the right number of bits
+    else if(state.state === 4) {
+      state.n = state.p.multiply(state.q);
 
-       // ensure n is right number of bits
-       if(state.n.bitLength() === state.bits) {
-         // success, advance
-         ++state.state;
-       }
-       else {
-         // failed, get new q
-         state.q = null;
-         state.state = 0;
-       }
-     }
-     // set keys
-     else if(state.state === 5) {
-       var d = state.e.modInverse(state.phi);
-       state.keys = {
-         privateKey: forge.pki.rsa.setPrivateKey(
-           state.n, state.e, d, state.p, state.q,
-           d.mod(state.p1), d.mod(state.q1),
-           state.q.modInverse(state.p)),
-         publicKey: forge.pki.rsa.setPublicKey(state.n, state.e)
-       };
-     }
+      // ensure n is right number of bits
+      if(state.n.bitLength() === state.bits) {
+        // success, advance
+        ++state.state;
+      }
+      else {
+        // failed, get new q
+        state.q = null;
+        state.state = 0;
+      }
+    }
+    // set keys
+    else if(state.state === 5) {
+      var d = state.e.modInverse(state.phi);
+      state.keys = {
+        privateKey: forge.pki.rsa.setPrivateKey(
+          state.n, state.e, d, state.p, state.q,
+          d.mod(state.p1), d.mod(state.q1),
+          state.q.modInverse(state.p)),
+        publicKey: forge.pki.rsa.setPublicKey(state.n, state.e)
+      };
+    }
 
-     // update timing
-     t2 = +new Date();
-     total += t2 - t1;
-     t1 = t2;
+    // update timing
+    t2 = +new Date();
+    total += t2 - t1;
+    t1 = t2;
   }
 
   return state.keys !== null;
 };
 
 /**
- * Generates an RSA public-private key pair in a single call. To generate
- * a key-pair in steps (to allow for progress updates and to prevent
- * blocking or warnings in slow browsers) then use the key-pair generation
- * state functions.
+ * Generates an RSA public-private key pair in a single call.
  *
- * @param bits the size for the private key in bits, defaults to 1024.
- * @param e the public exponent to use, defaults to 65537.
+ * To generate a key-pair in steps (to allow for progress updates and to
+ * prevent blocking or warnings in slow browsers) then use the key-pair
+ * generation state functions.
+ *
+ * To generate a key-pair asynchronously (either through web-workers, if
+ * available, or by breaking up the work on the main thread), pass a
+ * callback function.
+ *
+ * @param [bits] the size for the private key in bits, defaults to 1024.
+ * @param [e] the public exponent to use, defaults to 65537.
+ * @param [options] options for key-pair generation, if given then 'bits'
+ *          and 'e' must *not* be given:
+ *          bits the size for the private key in bits, (default: 1024).
+ *          e the public exponent to use, (default: 65537 (0x10001)).
+ *          workerScript the worker script URL.
+ *          workers the number of web workers (if supported) to use,
+ *            (default: 2).
+ *          workLoad the size of the work load, ie: number of possible prime
+ *            numbers for each web worker to check per work assignment,
+ *            (default: 100).
+ *          e the public exponent to use, defaults to 65537.
+ * @param [callback(err, keypair)] called once the operation completes.
  *
  * @return an object with privateKey and publicKey properties.
  */
-pki.rsa.generateKeyPair = function(bits, e) {
+pki.rsa.generateKeyPair = function(bits, e, options, callback) {
+  // (bits), (options), (callback)
+  if(arguments.length === 1) {
+    if(typeof bits === 'object') {
+      options = bits;
+      bits = undefined;
+    }
+    else if(typeof bits === 'function') {
+      callback = bits;
+      bits = undefined;
+    }
+  }
+  // (bits, options), (bits, callback), (options, callback)
+  else if(arguments.length === 2) {
+    if(typeof bits === 'number') {
+      if(typeof e === 'function') {
+        callback = e;
+      }
+      else {
+        options = e;
+      }
+    }
+    else {
+      options = bits;
+      callback = e;
+      bits = undefined;
+    }
+    e = undefined;
+  }
+  // (bits, e, options), (bits, e, callback), (bits, options, callback)
+  else if(arguments.length === 3) {
+    if(typeof e === 'number') {
+      if(typeof options === 'function') {
+        callback = options;
+        options = undefined;
+      }
+    }
+    else {
+      callback = options;
+      options = e;
+      e = undefined;
+    }
+  }
+  options = options || {};
+  if(bits === undefined) {
+    bits = options.bits || 1024;
+  }
+  if(e === undefined) {
+    e = options.e || 0x10001;
+  }
   var state = pki.rsa.createKeyPairGenerationState(bits, e);
-  pki.rsa.stepKeyPairGenerationState(state, 0);
-  return state.keys;
+  if(!callback) {
+    pki.rsa.stepKeyPairGenerationState(state, 0);
+    return state.keys;
+  }
+  _generateKeyPair(state, options, callback);
 };
 
 /**
@@ -717,24 +657,63 @@ pki.rsa.setPublicKey = function(n, e) {
   };
 
   /**
-   * Encrypts the given data with this public key.
+   * Encrypts the given data with this public key. Newer applications
+   * should use the 'RSA-OAEP' decryption scheme, 'RSAES-PKCS1-V1_5' is for
+   * legacy applications.
    *
    * @param data the byte string to encrypt.
+   * @param scheme the encryption scheme to use:
+   *          'RSAES-PKCS1-V1_5' (default),
+   *          'RSA-OAEP',
+   *          'RAW', 'NONE', or null to perform raw RSA encryption.
+   * @param schemeOptions any scheme-specific options.
    *
    * @return the encrypted byte string.
    */
-  key.encrypt = function(data) {
-    return pki.rsa.encrypt(data, key, 0x02);
+  key.encrypt = function(data, scheme, schemeOptions) {
+    if(typeof scheme === 'string') {
+      scheme = scheme.toUpperCase();
+    }
+    else if(scheme === undefined) {
+      scheme = 'RSAES-PKCS1-V1_5';
+    }
+
+    if(scheme === 'RSAES-PKCS1-V1_5') {
+      scheme = {
+        encode: function(m, key, pub) {
+          return _encodePkcs1_v1_5(m, key, 0x02).getBytes();
+        }
+      };
+    }
+    else if(scheme === 'RSA-OAEP' || scheme === 'RSAES-OAEP') {
+      scheme = {
+        encode: function(m, key) {
+          return forge.pkcs1.encode_rsa_oaep(key, m, schemeOptions);
+        }
+      };
+    }
+    else if(['RAW', 'NONE', 'NULL', null].indexOf(scheme) !== -1) {
+      scheme = { encode: function(e) { return e; } };
+    }
+    else {
+      throw {
+        message: 'Unsupported encryption scheme: "' + scheme + '".'
+      };
+    }
+
+    // do scheme-based encoding then rsa encryption
+    var e = scheme.encode(data, key, true);
+    return pki.rsa.encrypt(e, key, true);
   };
 
   /**
    * Verifies the given signature against the given digest.
    *
    * PKCS#1 supports multiple (currently two) signature schemes:
-   * RSASSA-PKCS1-v1_5 and RSASSA-PSS.
+   * RSASSA-PKCS1-V1_5 and RSASSA-PSS.
    *
    * By default this implementation uses the "old scheme", i.e.
-   * RSASSA-PKCS1-v1_5, in which case once RSA-decrypted, the
+   * RSASSA-PKCS1-V1_5, in which case once RSA-decrypted, the
    * signature is an OCTET STRING that holds a DigestInfo.
    *
    * DigestInfo ::= SEQUENCE {
@@ -745,28 +724,51 @@ pki.rsa.setPublicKey = function(n, e) {
    * Digest ::= OCTET STRING
    *
    * To perform PSS signature verification, provide an instance
-   * of Forge PSS object as scheme parameter.
+   * of Forge PSS object as the scheme parameter.
    *
    * @param digest the message digest hash to compare against the signature.
    * @param signature the signature to verify.
-   * @param scheme signature scheme to use, undefined for PKCS#1 v1.5
-   *   padding style.
+   * @param scheme signature verification scheme to use:
+   *          'RSASSA-PKCS1-V1_5' or undefined for RSASSA PKCS#1 v1.5,
+   *          a Forge PSS object for RSASSA-PSS,
+   *          'NONE' or null for none, DigestInfo will not be expected, but
+   *            PKCS#1 v1.5 padding will still be used.
+   *
    * @return true if the signature was verified, false if not.
    */
    key.verify = function(digest, signature, scheme) {
-     // do rsa decryption
-     var ml = scheme === undefined ? undefined : false;
-     var d = pki.rsa.decrypt(signature, key, true, ml);
-
-     if(scheme === undefined) {
-       // d is ASN.1 BER-encoded DigestInfo
-       var obj = asn1.fromDer(d);
-
-       // compare the given digest to the decrypted one
-       return digest === obj.value[1].value;
-     } else {
-       return scheme.verify(digest, d, key.n.bitLength());
+     if(typeof scheme === 'string') {
+       scheme = scheme.toUpperCase();
      }
+     else if(scheme === undefined) {
+       scheme = 'RSASSA-PKCS1-V1_5';
+     }
+
+     if(scheme === 'RSASSA-PKCS1-V1_5') {
+       scheme = {
+         verify: function(digest, d) {
+           // remove padding
+           d = _decodePkcs1_v1_5(d, key, true);
+           // d is ASN.1 BER-encoded DigestInfo
+           var obj = asn1.fromDer(d);
+           // compare the given digest to the decrypted one
+           return digest === obj.value[1].value;
+         }
+       };
+     }
+     else if(scheme === 'NONE' || scheme === 'NULL' || scheme === null) {
+       scheme = {
+         verify: function(digest, d) {
+           // remove padding
+           d = _decodePkcs1_v1_5(d, key, true);
+           return digest === d;
+         }
+       };
+     }
+
+     // do rsa decryption w/o any decoding, then verify -- which does decoding
+     var d = pki.rsa.decrypt(signature, key, true, false);
+     return scheme.verify(digest, d, key.n.bitLength());
   };
 
   return key;
@@ -800,39 +802,94 @@ pki.rsa.setPrivateKey = function(n, e, d, p, q, dP, dQ, qInv) {
   };
 
   /**
-   * Decrypts the given data with this private key.
+   * Decrypts the given data with this private key. The decryption scheme
+   * must match the one used to encrypt the data.
    *
    * @param data the byte string to decrypt.
+   * @param scheme the decryption scheme to use:
+   *          'RSAES-PKCS1-V1_5' (default),
+   *          'RSA-OAEP',
+   *          'RAW', 'NONE', or null to perform raw RSA decryption.
+   * @param schemeOptions any scheme-specific options.
    *
    * @return the decrypted byte string.
    */
-  key.decrypt = function(data) {
-    return pki.rsa.decrypt(data, key, false);
+  key.decrypt = function(data, scheme, schemeOptions) {
+    if(typeof scheme === 'string') {
+      scheme = scheme.toUpperCase();
+    }
+    else if(scheme === undefined) {
+      scheme = 'RSAES-PKCS1-V1_5';
+    }
+
+    // do rsa decryption w/o any decoding
+    var d = pki.rsa.decrypt(data, key, false, false);
+
+    if(scheme === 'RSAES-PKCS1-V1_5') {
+      scheme = { decode: _decodePkcs1_v1_5 };
+    }
+    else if(scheme === 'RSA-OAEP' || scheme === 'RSAES-OAEP') {
+      scheme = {
+        decode: function(d, key) {
+          return forge.pkcs1.decode_rsa_oaep(key, d, schemeOptions);
+        }
+      };
+    }
+    else if(['RAW', 'NONE', 'NULL', null].indexOf(scheme) !== -1) {
+      scheme = { decode: function(d) { return d; } };
+    }
+    else {
+      throw {
+        message: 'Unsupported encryption scheme: "' + scheme + '".'
+      };
+    }
+
+    // decode according to scheme
+    return scheme.decode(d, key, false);
   };
 
   /**
    * Signs the given digest, producing a signature.
    *
    * PKCS#1 supports multiple (currently two) signature schemes:
-   * RSASSA-PKCS1-v1_5 and RSASSA-PSS.
+   * RSASSA-PKCS1-V1_5 and RSASSA-PSS.
    *
    * By default this implementation uses the "old scheme", i.e.
-   * RSASSA-PKCS1-v1_5.  In order to generate a PSS signature, provide
-   * an instance of Forge PSS object as scheme parameter.
+   * RSASSA-PKCS1-V1_5. In order to generate a PSS signature, provide
+   * an instance of Forge PSS object as the scheme parameter.
    *
    * @param md the message digest object with the hash to sign.
-   * @param scheme signature scheme to use, undefined for PKCS#1 v1.5
-   *   padding style.
+   * @param scheme the signature scheme to use:
+   *          'RSASSA-PKCS1-V1_5' or undefined for RSASSA PKCS#1 v1.5,
+   *          a Forge PSS object for RSASSA-PSS,
+   *          'NONE' or null for none, DigestInfo will not be used but
+   *            PKCS#1 v1.5 padding will still be used.
+   *
    * @return the signature as a byte string.
    */
   key.sign = function(md, scheme) {
-    var bt = false;  /* private key operation */
+    /* Note: The internal implementation of RSA operations is being
+      transitioned away from a PKCS#1 v1.5 hard-coded scheme. Some legacy
+      code like the use of an encoding block identifier 'bt' will eventually
+      be removed. */
 
-    if(scheme === undefined) {
+    // private key operation
+    var bt = false;
+
+    if(typeof scheme === 'string') {
+      scheme = scheme.toUpperCase();
+    }
+
+    if(scheme === undefined || scheme === 'RSASSA-PKCS1-V1_5') {
       scheme = { encode: emsaPkcs1v15encode };
       bt = 0x01;
     }
+    else if(scheme === 'NONE' || scheme === 'NULL' || scheme === null) {
+      scheme = { encode: function() { return md; } };
+      bt = 0x01;
+    }
 
+    // encode and then encrypt
     var d = scheme.encode(md, key.n.bitLength());
     return pki.rsa.encrypt(d, key, bt);
   };
@@ -840,4 +897,406 @@ pki.rsa.setPrivateKey = function(n, e, d, p, q, dP, dQ, qInv) {
   return key;
 };
 
+/**
+ * Encodes a message using PKCS#1 v1.5 padding.
+ *
+ * @param m the message to encode.
+ * @param key the RSA key to use.
+ * @param bt the block type to use, i.e. either 0x01 (for signing) or 0x02
+ *          (for encryption).
+ *
+ * @return the padded byte buffer.
+ */
+function _encodePkcs1_v1_5(m, key, bt) {
+  var eb = forge.util.createBuffer();
+
+  // get the length of the modulus in bytes
+  var k = Math.ceil(key.n.bitLength() / 8);
+
+  /* use PKCS#1 v1.5 padding */
+  if(m.length > (k - 11)) {
+    throw {
+      message: 'Message is too long for PKCS#1 v1.5 padding.',
+      length: m.length,
+      max: (k - 11)
+    };
+  }
+
+  /* A block type BT, a padding string PS, and the data D shall be
+    formatted into an octet string EB, the encryption block:
+
+    EB = 00 || BT || PS || 00 || D
+
+    The block type BT shall be a single octet indicating the structure of
+    the encryption block. For this version of the document it shall have
+    value 00, 01, or 02. For a private-key operation, the block type
+    shall be 00 or 01. For a public-key operation, it shall be 02.
+
+    The padding string PS shall consist of k-3-||D|| octets. For block
+    type 00, the octets shall have value 00; for block type 01, they
+    shall have value FF; and for block type 02, they shall be
+    pseudorandomly generated and nonzero. This makes the length of the
+    encryption block EB equal to k. */
+
+  // build the encryption block
+  eb.putByte(0x00);
+  eb.putByte(bt);
+
+  // create the padding
+  var padNum = k - 3 - m.length;
+  var padByte;
+  // private key op
+  if(bt === 0x00 || bt === 0x01) {
+    padByte = (bt === 0x00) ? 0x00 : 0xFF;
+    for(var i = 0; i < padNum; ++i) {
+      eb.putByte(padByte);
+    }
+  }
+  // public key op
+  else {
+    for(var i = 0; i < padNum; ++i) {
+      padByte = Math.floor(Math.random() * 255) + 1;
+      eb.putByte(padByte);
+    }
+  }
+
+  // zero followed by message
+  eb.putByte(0x00);
+  eb.putBytes(m);
+
+  return eb;
+}
+
+/**
+ * Decodes a message using PKCS#1 v1.5 padding.
+ *
+ * @param em the message to decode.
+ * @param key the RSA key to use.
+ * @param pub true if the key is a public key, false if it is private.
+ * @param ml the message length, if specified.
+ *
+ * @return the decoded bytes.
+ */
+function _decodePkcs1_v1_5(em, key, pub, ml) {
+  // get the length of the modulus in bytes
+  var k = Math.ceil(key.n.bitLength() / 8);
+
+  /* It is an error if any of the following conditions occurs:
+
+    1. The encryption block EB cannot be parsed unambiguously.
+    2. The padding string PS consists of fewer than eight octets
+      or is inconsisent with the block type BT.
+    3. The decryption process is a public-key operation and the block
+      type BT is not 00 or 01, or the decryption process is a
+      private-key operation and the block type is not 02.
+   */
+
+  // parse the encryption block
+  var eb = forge.util.createBuffer(em);
+  var first = eb.getByte();
+  var bt = eb.getByte();
+  if(first !== 0x00 ||
+    (pub && bt !== 0x00 && bt !== 0x01) ||
+    (!pub && bt != 0x02) ||
+    (pub && bt === 0x00 && typeof(ml) === 'undefined')) {
+    throw {
+      message: 'Encryption block is invalid.'
+    };
+  }
+
+  var padNum = 0;
+  if(bt === 0x00) {
+    // check all padding bytes for 0x00
+    padNum = k - 3 - ml;
+    for(var i = 0; i < padNum; ++i) {
+      if(eb.getByte() !== 0x00) {
+        throw {
+          message: 'Encryption block is invalid.'
+        };
+      }
+    }
+  }
+  else if(bt === 0x01) {
+    // find the first byte that isn't 0xFF, should be after all padding
+    padNum = 0;
+    while(eb.length() > 1) {
+      if(eb.getByte() !== 0xFF) {
+        --eb.read;
+        break;
+      }
+      ++padNum;
+    }
+  }
+  else if(bt === 0x02) {
+    // look for 0x00 byte
+    padNum = 0;
+    while(eb.length() > 1) {
+      if(eb.getByte() === 0x00) {
+        --eb.read;
+        break;
+      }
+      ++padNum;
+    }
+  }
+
+  // zero must be 0x00 and padNum must be (k - 3 - message length)
+  var zero = eb.getByte();
+  if(zero !== 0x00 || padNum !== (k - 3 - eb.length())) {
+    throw {
+      message: 'Encryption block is invalid.'
+    };
+  }
+
+  return eb.getBytes();
+}
+
+/**
+ * Runs the key-generation algorithm asynchronously, either in the background
+ * via Web Workers, or using the main thread and setImmediate.
+ *
+ * @param state the key-pair generation state.
+ * @param [options] options for key-pair generation:
+ *          workerScript the worker script URL.
+ *          workers the number of web workers (if supported) to use,
+ *            (default: 2).
+ *          workLoad the size of the work load, ie: number of possible prime
+ *            numbers for each web worker to check per work assignment,
+ *            (default: 100).
+ * @param callback(err, keypair) called once the operation completes.
+ */
+function _generateKeyPair(state, options, callback) {
+  if(typeof options === 'function') {
+    callback = options;
+    options = {};
+  }
+
+  // web workers unavailable, use setImmediate
+  if(typeof(Worker) === 'undefined') {
+    function step() {
+      // 10 ms gives 5ms of leeway for other calculations before dropping
+      // below 60fps (1000/60 == 16.67), but in reality, the number will
+      // likely be higher due to an 'atomic' big int modPow
+      if(forge.pki.rsa.stepKeyPairGenerationState(state, 10)) {
+        return callback(null, state.keys);
+      }
+      forge.util.setImmediate(step);
+    }
+    return step();
+  }
+
+  // use web workers to generate keys
+  var numWorkers = options.workers || 2;
+  var workLoad = options.workLoad || 100;
+  var range = workLoad * 30/8;
+  var workerScript = options.workerScript || 'forge/prime.worker.js';
+  var THIRTY = new BigInteger(null);
+  THIRTY.fromInt(30);
+  var op_or = function(x,y) { return x|y; };
+  generate();
+
+  function generate() {
+    // find p and then q (done in series to simplify setting worker number)
+    getPrime(state.pBits, function(err, num) {
+      if(err) {
+        return callback(err);
+      }
+      state.p = num;
+      getPrime(state.qBits, finish);
+    });
+  }
+
+  // implement prime number generation using web workers
+  function getPrime(bits, callback) {
+    // TODO: consider optimizing by starting workers outside getPrime() ...
+    // note that in order to clean up they will have to be made internally
+    // asynchronous which may actually be slower
+
+    // start workers immediately
+    var workers = [];
+    for(var i = 0; i < numWorkers; ++i) {
+      // FIXME: fix path or use blob URLs
+      workers[i] = new Worker(workerScript);
+    }
+    var running = numWorkers;
+
+    // initialize random number
+    var num = generateRandom();
+
+    // listen for requests from workers and assign ranges to find prime
+    for(var i = 0; i < numWorkers; ++i) {
+      workers[i].addEventListener('message', workerMessage);
+    }
+
+    /* Note: The distribution of random numbers is unknown. Therefore, each
+    web worker is continuously allocated a range of numbers to check for a
+    random number until one is found.
+
+    Every 30 numbers will be checked just 8 times, because prime numbers
+    have the form:
+
+    30k+i, for i < 30 and gcd(30, i)=1 (there are 8 values of i for this)
+
+    Therefore, if we want a web worker to run N checks before asking for
+    a new range of numbers, each range must contain N*30/8 numbers.
+
+    For 100 checks (workLoad), this is a range of 375. */
+
+    function generateRandom() {
+      var bits1 = bits - 1;
+      var num = new BigInteger(bits, state.rng);
+      // force MSB set
+      if(!num.testBit(bits1)) {
+        num.bitwiseTo(BigInteger.ONE.shiftLeft(bits1), op_or, num);
+      }
+      // align number on 30k+1 boundary
+      num.dAddOffset(31 - num.mod(THIRTY).byteValue(), 0);
+      return num;
+    }
+
+    var found = false;
+    function workerMessage(e) {
+      // ignore message, prime already found
+      if(found) {
+        return;
+      }
+
+      --running;
+      var data = e.data;
+      if(data.found) {
+        // terminate all workers
+        for(var i = 0; i < workers.length; ++i) {
+          workers[i].terminate();
+        }
+        found = true;
+        return callback(null, new BigInteger(data.prime, 16));
+      }
+
+      // overflow, regenerate prime
+      if(num.bitLength() > bits) {
+        num = generateRandom();
+      }
+
+      // assign new range to check
+      var hex = num.toString(16);
+
+      // start prime search
+      e.target.postMessage({
+        e: state.eInt,
+        hex: hex,
+        workLoad: workLoad
+      });
+
+      num.dAddOffset(range, 0);
+    }
+  }
+
+  function finish(err, num) {
+    // set q
+    state.q = num;
+
+    // ensure p is larger than q (swap them if not)
+    if(state.p.compareTo(state.q) < 0) {
+      var tmp = state.p;
+      state.p = state.q;
+      state.q = tmp;
+    }
+
+    // compute phi: (p - 1)(q - 1) (Euler's totient function)
+    state.p1 = state.p.subtract(BigInteger.ONE);
+    state.q1 = state.q.subtract(BigInteger.ONE);
+    state.phi = state.p1.multiply(state.q1);
+
+    // ensure e and phi are coprime
+    if(state.phi.gcd(state.e).compareTo(BigInteger.ONE) !== 0) {
+      // phi and e aren't coprime, so generate a new p and q
+      state.p = state.q = null;
+      generate();
+      return;
+    }
+
+    // create n, ensure n is has the right number of bits
+    state.n = state.p.multiply(state.q);
+    if(state.n.bitLength() !== state.bits) {
+      // failed, get new q
+      state.q = null;
+      getPrime(state.qBits, finish);
+      return;
+    }
+
+    // set keys
+    var d = state.e.modInverse(state.phi);
+    state.keys = {
+      privateKey: forge.pki.rsa.setPrivateKey(
+        state.n, state.e, d, state.p, state.q,
+        d.mod(state.p1), d.mod(state.q1),
+        state.q.modInverse(state.p)),
+      publicKey: forge.pki.rsa.setPublicKey(state.n, state.e)
+    };
+
+    callback(null, state.keys);
+  }
+}
+
+} // end module implementation
+
+/* ########## Begin module wrapper ########## */
+var name = 'rsa';
+if(typeof define !== 'function') {
+  // NodeJS -> AMD
+  if(typeof module === 'object' && module.exports) {
+    var nodeJS = true;
+    define = function(ids, factory) {
+      factory(require, module);
+    };
+  }
+  // <script>
+  else {
+    if(typeof forge === 'undefined') {
+      forge = {};
+    }
+    return initModule(forge);
+  }
+}
+// AMD
+var deps;
+var defineFunc = function(require, module) {
+  module.exports = function(forge) {
+    var mods = deps.map(function(dep) {
+      return require(dep);
+    }).concat(initModule);
+    // handle circular dependencies
+    forge = forge || {};
+    forge.defined = forge.defined || {};
+    if(forge.defined[name]) {
+      return forge[name];
+    }
+    forge.defined[name] = true;
+    for(var i = 0; i < mods.length; ++i) {
+      mods[i](forge);
+    }
+    return forge[name];
+  };
+};
+var tmpDefine = define;
+define = function(ids, factory) {
+  deps = (typeof ids === 'string') ? factory.slice(2) : ids.slice(2);
+  if(nodeJS) {
+    delete define;
+    return tmpDefine.apply(null, Array.prototype.slice.call(arguments, 0));
+  }
+  define = tmpDefine;
+  return define.apply(null, Array.prototype.slice.call(arguments, 0));
+};
+define([
+  'require',
+  'module',
+  './asn1',
+  './oids',
+  './random',
+  './util',
+  './jsbn',
+  './pkcs1'
+], function() {
+  defineFunc.apply(null, Array.prototype.slice.call(arguments, 0));
+});
 })();

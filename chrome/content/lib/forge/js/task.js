@@ -5,24 +5,11 @@
  * @author Dave Longley
  * @author David I. Lehn <dlehn@digitalbazaar.com>
  *
- * Copyright (c) 2009-2012 Digital Bazaar, Inc.
+ * Copyright (c) 2009-2013 Digital Bazaar, Inc.
  */
 (function() {
-
-// define forge
-if(typeof(window) !== 'undefined') {
-  var forge = window.forge = window.forge || {};
-  forge.task = {};
-}
-// define node.js module
-else if(typeof(module) !== 'undefined' && module.exports) {
-  var forge = {
-    debug: require('./debug'),
-    log: require('./log'),
-    util: require('./util')
-  };
-  module.exports = forge.task = {};
-}
+/* ########## Begin module implementation ########## */
+function initModule(forge) {
 
 // logging category
 var cat = 'forge.task';
@@ -271,7 +258,7 @@ Task.prototype.next = function(name, subrun) {
  */
 Task.prototype.parallel = function(name, subrun) {
   // juggle parameters if it looks like no name is given
-  if(name.constructor == Array) {
+  if(forge.util.isArray(name)) {
     subrun = name;
 
     // inherit parent's name
@@ -341,7 +328,7 @@ Task.prototype.start = function() {
  * task will not resume until the requested number of permits have
  * been released with call(s) to unblock().
  *
- * @param n number of permits to wait for (default: 1).
+ * @param n number of permits to wait for(default: 1).
  */
 Task.prototype.block = function(n) {
   n = typeof(n) === 'undefined' ? 1 : n;
@@ -639,6 +626,7 @@ var finish = function(task, suppressCallbacks) {
 };
 
 /* Tasks API */
+forge.task = forge.task || {};
 
 /**
  * Starts a new task that will run the passed function asynchronously.
@@ -746,4 +734,57 @@ forge.task.createCondition = function() {
   return cond;
 };
 
+} // end module implementation
+
+/* ########## Begin module wrapper ########## */
+var name = 'task';
+if(typeof define !== 'function') {
+  // NodeJS -> AMD
+  if(typeof module === 'object' && module.exports) {
+    var nodeJS = true;
+    define = function(ids, factory) {
+      factory(require, module);
+    };
+  }
+  // <script>
+  else {
+    if(typeof forge === 'undefined') {
+      forge = {};
+    }
+    return initModule(forge);
+  }
+}
+// AMD
+var deps;
+var defineFunc = function(require, module) {
+  module.exports = function(forge) {
+    var mods = deps.map(function(dep) {
+      return require(dep);
+    }).concat(initModule);
+    // handle circular dependencies
+    forge = forge || {};
+    forge.defined = forge.defined || {};
+    if(forge.defined[name]) {
+      return forge[name];
+    }
+    forge.defined[name] = true;
+    for(var i = 0; i < mods.length; ++i) {
+      mods[i](forge);
+    }
+    return forge[name];
+  };
+};
+var tmpDefine = define;
+define = function(ids, factory) {
+  deps = (typeof ids === 'string') ? factory.slice(2) : ids.slice(2);
+  if(nodeJS) {
+    delete define;
+    return tmpDefine.apply(null, Array.prototype.slice.call(arguments, 0));
+  }
+  define = tmpDefine;
+  return define.apply(null, Array.prototype.slice.call(arguments, 0));
+};
+define(['require', 'module', './debug', './log', './util'], function() {
+  defineFunc.apply(null, Array.prototype.slice.call(arguments, 0));
+});
 })();

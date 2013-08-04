@@ -8,26 +8,9 @@
  * Information on the RC2 cipher is available from RFC #2268,
  * http://www.ietf.org/rfc/rfc2268.txt
  */
-
-(function()
-{
-
-// define forge
-var forge = {};
-if(typeof(window) !== 'undefined')
-{
-  forge = window.forge = window.forge || {};
-  forge.rc2 = {};
-}
-// define node.js module
-else if(typeof(module) !== 'undefined' && module.exports)
-{
-  forge =
-  {
-    util: require('./util')
-  };
-  module.exports = forge.rc2 = {};
-}
+(function() {
+/* ########## Begin module implementation ########## */
+function initModule(forge) {
 
 var piTable = [
   0xd9, 0x78, 0xf9, 0xc4, 0x19, 0xdd, 0xb5, 0xed, 0x28, 0xe9, 0xfd, 0x79, 0x4a, 0xa0, 0xd8, 0x9d,
@@ -80,9 +63,8 @@ var ror = function(word, bits) {
 };
 
 
-
-
 /* RC2 API */
+forge.rc2 = forge.rc2 || {};
 
 /**
  * Perform RC2 key expansion as per RFC #2268, section 2.
@@ -92,7 +74,7 @@ var ror = function(word, bits) {
  * @return the expanded RC2 key (ByteBuffer of 128 bytes)
  */
 forge.rc2.expandKey = function(key, effKeyBits) {
-  if(key.constructor == String) {
+  if(typeof key === 'string') {
     key = forge.util.createBuffer(key);
   }
   effKeyBits = effKeyBits || 128;
@@ -268,7 +250,7 @@ var createCipher = function(key, bits, encrypt)
     start: function(iv, output) {
       if(iv) {
         /* CBC mode */
-        if(key.constructor == String && iv.length == 8) {
+        if(typeof key === 'string' && iv.length === 8) {
           iv = forge.util.createBuffer(iv);
         }
       }
@@ -320,7 +302,7 @@ var createCipher = function(key, bits, encrypt)
         } else {
           // add PKCS#7 padding to block (each pad byte is the
           // value of the number of pad bytes)
-          var padding = (_input.length() == 8) ? 8 : (8 - _input.length());
+          var padding = (_input.length() === 8) ? 8 : (8 - _input.length());
           _input.fillWithByte(padding, padding);
         }
       }
@@ -433,4 +415,58 @@ forge.rc2.startDecrypting = function(key, iv, output) {
 forge.rc2.createDecryptionCipher = function(key, bits) {
   return createCipher(key, bits, false);
 };
+
+} // end module implementation
+
+/* ########## Begin module wrapper ########## */
+var name = 'rc2';
+if(typeof define !== 'function') {
+  // NodeJS -> AMD
+  if(typeof module === 'object' && module.exports) {
+    var nodeJS = true;
+    define = function(ids, factory) {
+      factory(require, module);
+    };
+  }
+  // <script>
+  else {
+    if(typeof forge === 'undefined') {
+      forge = {};
+    }
+    return initModule(forge);
+  }
+}
+// AMD
+var deps;
+var defineFunc = function(require, module) {
+  module.exports = function(forge) {
+    var mods = deps.map(function(dep) {
+      return require(dep);
+    }).concat(initModule);
+    // handle circular dependencies
+    forge = forge || {};
+    forge.defined = forge.defined || {};
+    if(forge.defined[name]) {
+      return forge[name];
+    }
+    forge.defined[name] = true;
+    for(var i = 0; i < mods.length; ++i) {
+      mods[i](forge);
+    }
+    return forge[name];
+  };
+};
+var tmpDefine = define;
+define = function(ids, factory) {
+  deps = (typeof ids === 'string') ? factory.slice(2) : ids.slice(2);
+  if(nodeJS) {
+    delete define;
+    return tmpDefine.apply(null, Array.prototype.slice.call(arguments, 0));
+  }
+  define = tmpDefine;
+  return define.apply(null, Array.prototype.slice.call(arguments, 0));
+};
+define(['require', 'module', './util'], function() {
+  defineFunc.apply(null, Array.prototype.slice.call(arguments, 0));
+});
 })();

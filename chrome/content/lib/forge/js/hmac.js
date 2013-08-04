@@ -8,23 +8,11 @@
  * Copyright (c) 2010-2012 Digital Bazaar, Inc. All rights reserved.
  */
 (function() {
-
-// define forge
-if(typeof(window) !== 'undefined') {
-  var forge = window.forge = window.forge || {};
-  forge.hmac = {};
-}
-// define node.js module
-else if(typeof(module) !== 'undefined' && module.exports) {
-  var forge = {
-    md: require('./md'),
-    util: require('./util')
-  };
-  module.exports = forge.hmac = {};
-}
+/* ########## Begin module implementation ########## */
+function initModule(forge) {
 
 /* HMAC API */
-var hmac = forge.hmac;
+var hmac = forge.hmac = forge.hmac || {};
 
 /**
  * Creates an HMAC object that uses the given message digest object.
@@ -57,7 +45,7 @@ hmac.create = function() {
    */
   ctx.start = function(md, key) {
     if(md !== null) {
-      if(md.constructor == String) {
+      if(typeof md === 'string') {
         // create builtin message digest
         md = md.toLowerCase();
         if(md in forge.md.algorithms) {
@@ -79,11 +67,11 @@ hmac.create = function() {
     }
     else {
       // convert string into byte buffer
-      if(key.constructor == String) {
+      if(typeof key === 'string') {
         key = forge.util.createBuffer(key);
       }
       // convert byte array into byte buffer
-      else if(key.constructor == Array) {
+      else if(forge.util.isArray(key)) {
         var tmp = key;
         key = forge.util.createBuffer();
         for(var i = 0; i < tmp.length; ++i) {
@@ -161,4 +149,57 @@ hmac.create = function() {
   return ctx;
 };
 
+} // end module implementation
+
+/* ########## Begin module wrapper ########## */
+var name = 'hmac';
+if(typeof define !== 'function') {
+  // NodeJS -> AMD
+  if(typeof module === 'object' && module.exports) {
+    var nodeJS = true;
+    define = function(ids, factory) {
+      factory(require, module);
+    };
+  }
+  // <script>
+  else {
+    if(typeof forge === 'undefined') {
+      forge = {};
+    }
+    return initModule(forge);
+  }
+}
+// AMD
+var deps;
+var defineFunc = function(require, module) {
+  module.exports = function(forge) {
+    var mods = deps.map(function(dep) {
+      return require(dep);
+    }).concat(initModule);
+    // handle circular dependencies
+    forge = forge || {};
+    forge.defined = forge.defined || {};
+    if(forge.defined[name]) {
+      return forge[name];
+    }
+    forge.defined[name] = true;
+    for(var i = 0; i < mods.length; ++i) {
+      mods[i](forge);
+    }
+    return forge[name];
+  };
+};
+var tmpDefine = define;
+define = function(ids, factory) {
+  deps = (typeof ids === 'string') ? factory.slice(2) : ids.slice(2);
+  if(nodeJS) {
+    delete define;
+    return tmpDefine.apply(null, Array.prototype.slice.call(arguments, 0));
+  }
+  define = tmpDefine;
+  return define.apply(null, Array.prototype.slice.call(arguments, 0));
+};
+define(['require', 'module', './md', './util'], function() {
+  defineFunc.apply(null, Array.prototype.slice.call(arguments, 0));
+});
 })();
