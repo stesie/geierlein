@@ -76,7 +76,15 @@ var validationRules = {
     kz10: [rules.option],
     kz26: [rules.option],
     kz29: [rules.option],
-    kz38: [rules.unsignedInt]
+    kz38: [
+        function(val) {
+            if(this.type === 'Umsatzsteuersondervorauszahlung') {
+                return val !== undefined && rules.unsignedInt(val);
+            } else {
+                return val === undefined;
+            }
+        }
+    ]
 };
 
 function writeOption(val) {

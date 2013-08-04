@@ -3,7 +3,7 @@
  *
  * @author Stefan Siegl
  *
- * Copyright (c) 2012 Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2012, 2013 Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -26,6 +26,7 @@ var geierlein = {
     taxnumber: require('./taxnumber.js'),
     transfer: require('./transfer.js'),
     UStVA: require('./ustva.js'),
+    UStSvzA: require('./ustsvza.js'),
     util: require('./util.js'),
     validation: require('./validation.js')
 };
