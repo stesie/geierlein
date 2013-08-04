@@ -180,6 +180,8 @@ autodist: dist
 	cp Makefile Makefile.autodist
 	$(MAKE) -f Makefile.autodist autodist-run
 	rm -f Makefile.autodist
+	git push
+	git push --tags
 
 autodist-run:
 	scp geierlein-$(VERSION)-installer.exe gandalf.zerties.org:/srv/www/taxbird.de/downloads/geierlein
