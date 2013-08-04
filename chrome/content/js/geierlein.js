@@ -104,7 +104,8 @@
      * Handle send button event in signature control dialog.
      */
     function doSendFinal(ev) {
-        var asTestcase = $('#warn-no-testcase').css('display') === 'none';
+        var asTestcase = $('#prepare-send').data('asTestcase');
+        var formClass = $('#prepare-send').data('formClass');
 
         if($('#sig-enable').prop('checked')) {
             /* send with signature */
@@ -134,14 +135,14 @@
                     $('#wait').modal('hide');
                     return;
                 }
-                geierlein.sendData(asTestcase, signer);
+                geierlein.sendData(asTestcase, signer, formClass);
             };
             reader.readAsBinaryString(pfx[0]);
 
         } else {
             /* transfer without signature */
             $('#prepare-send').modal('hide');
-            geierlein.sendData(asTestcase, undefined);
+            geierlein.sendData(asTestcase, undefined, formClass);
         }
 
         return false;
@@ -156,17 +157,24 @@
      * Prepare submission of tax declaration, display signature control dialog
      *
      * @param asTestcase Whether to set test-marker in the declaration or not.
+     * @param formClass Which form to send (ustva or ustsvza)
      * @return void
      */
-    geierlein.startSendData = function(asTestcase) {
-        if(ustva.validate() !== true) {
+    geierlein.startSendData = function(asTestcase, formClass) {
+        formClass = formClass || ustva;
+
+        if(formClass.validate() !== true) {
             alert('Das Formular enthält noch ungültige Feldwerte, ' +
                 'Übertragung nicht möglich.');
-            return;
+            return false;
         }
 
         $('#warn-no-testcase').toggle(!asTestcase);
-        $('#prepare-send').modal();
+        $('#prepare-send')
+            .data('asTestcase', asTestcase)
+            .data('formClass', formClass)
+            .modal();
+        return true;
     };
 
     /**
@@ -176,10 +184,11 @@
      * @param signer Geierlein signer context (undefined for no signature)
      * @return void
      */
-    geierlein.sendData = function(asTestcase, signer) {
+    geierlein.sendData = function(asTestcase, signer, formClass) {
+        formClass = formClass || ustva;
         $('body').trigger('send-taxcase', asTestcase);
 
-        ustva.toEncryptedXml(asTestcase, signer, function(data, cb) {
+        formClass.toEncryptedXml(asTestcase, signer, function(data, cb) {
             $('#wait').modal();
             geierlein.transfer(data, cb);
         }, function(res) {
@@ -257,7 +266,7 @@
         /* Copy over all field data initially to consider browser's
          * auto-fill data, etc.pp
          */
-        $('.datenlieferant, .ustva').change();
+        $('.datenlieferant, .ustva, .ustsvza').change();
     };
 
     geierlein.serialize = function() {
@@ -547,5 +556,21 @@
             $('#SVZ-Kz38').val(Math.max(0, Math.floor(vjsum / 11)));
         }
     });
+
+    $('#SVZ-send').on('click', function(ev) {
+        if(geierlein.startSendData(false, ustsvza)) {
+            $('#ustsvza').modal('hide');
+        }
+        return false;
+    });
+
+    $('#SVZ-send-testcase').on('click', function(ev) {
+        if(geierlein.startSendData(true, ustsvza)) {
+            $('#ustsvza').modal('hide');
+        }
+        return false;
+    });
+
+
 
 }(jQuery, geierlein));
