@@ -11,11 +11,18 @@ function getDummyDatenlieferant() {
     return dl;
 }
 
-function getDummyTaxcase() {
+function getDummyUStSvz() {
     var ustsvza = new geierlein.UStSvzA(getDummyDatenlieferant(), '2012', 'Umsatzsteuersondervorauszahlung');
     ustsvza.land = 2;
     ustsvza.steuernummer = '203/698/02950';
     ustsvza.kz38 = 1234;
+    return ustsvza;
+}
+
+function getDummyDauerfrist() {
+    var ustsvza = new geierlein.UStSvzA(getDummyDatenlieferant(), '2012', 'Dauerfristverlaengerung');
+    ustsvza.land = 2;
+    ustsvza.steuernummer = '203/698/02950';
     return ustsvza;
 }
 
@@ -57,9 +64,9 @@ exports.testValidate = function(test) {
     test.done();
 };
 
-exports.testGetDatenteilXml = function(test) {
+exports.testGetDatenteilXmlUStSvz = function(test) {
     var exp;
-    var ustsvza = getDummyTaxcase();
+    var ustsvza = getDummyUStSvz();
 
     // the datenteil xml containts two fields (NutzdatenTicket and
     // Erstellungsdatum) which change from time to time, hence replace
@@ -85,3 +92,30 @@ exports.testGetDatenteilXml = function(test) {
     test.done();
 };
 
+exports.testGetDatenteilXmlDauerfrist = function(test) {
+    var exp;
+    var ustsvza = getDummyDauerfrist();
+
+    // the datenteil xml containts two fields (NutzdatenTicket and
+    // Erstellungsdatum) which change from time to time, hence replace
+    // them by dummy values using regular expressions, matching
+    // good-looking content.
+    function filter(xml) {
+        xml = xml
+            .replace(/\t/g, '')
+            .replace(/<NutzdatenTicket>\d+<\/NutzdatenTicket>/,
+                     '<NutzdatenTicket>123456789</NutzdatenTicket>')
+            .replace(/<Erstellungsdatum>20\d{6}<\/Erstellungsdatum>/,
+                     '<Erstellungsdatum>20120707</Erstellungsdatum>');
+        return xml;
+    }
+
+    exp = fs.readFileSync(__dirname + '/_files/ustsvza_dauerfrist_datenteil_test.xml', 'ascii')
+        .replace(/\t/g, '');
+    test.equal(filter(ustsvza.getDatenteilXml(true)), exp);
+
+    exp = fs.readFileSync(__dirname + '/_files/ustsvza_dauerfrist_datenteil_echt.xml', 'ascii')
+        .replace(/\t/g, '');
+    test.equal(filter(ustsvza.getDatenteilXml(false)), exp);
+    test.done();
+};

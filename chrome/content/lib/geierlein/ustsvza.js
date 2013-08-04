@@ -91,18 +91,20 @@ function writeOption(val) {
     return val ? '1' : false;
 }
 
-function writeInt(val) {
-    return (+val).toString();
+function writeOptionalInt(val) {
+    return val === undefined ? false : (+val).toString();
 }
 
 var xmlWritingRules = {
     kz10: writeOption,
     kz26: writeOption,
     kz29: writeOption,
-    kz38: writeInt
+    kz38: writeOptionalInt
 };
 
 geierlein.util.extend(geierlein.UStSvzA.prototype, {
+    datenart: 'UStVA',
+
     validate: function(field) {
         var i = geierlein.validation.validate.call(this, validationRules, field);
 
