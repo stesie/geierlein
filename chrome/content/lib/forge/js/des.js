@@ -26,26 +26,9 @@
  *
  * Copyright (c) 2012 Stefan Siegl <stesie@brokenpipe.de>
  */
-
-(function()
-{
-
-// define forge
-var forge = {};
-if(typeof(window) !== 'undefined')
-{
-  forge = window.forge = window.forge || {};
-  forge.des = {};
-}
-// define node.js module
-else if(typeof(module) !== 'undefined' && module.exports)
-{
-  forge =
-  {
-    util: require('./util')
-  };
-  module.exports = forge.des = {};
-}
+(function() {
+/* ########## Begin module implementation ########## */
+function initModule(forge) {
 
 var spfunction1 = [0x1010400,0,0x10000,0x1010404,0x1010004,0x10404,0x4,0x10000,0x400,0x1010400,0x1010404,0x400,0x1000404,0x1010004,0x1000000,0x4,0x404,0x1000400,0x1000400,0x10400,0x10400,0x1010000,0x1010000,0x1000404,0x10004,0x1000004,0x1000004,0x10004,0,0x404,0x10404,0x1000000,0x10000,0x1010404,0x4,0x1010000,0x1010400,0x1000000,0x1000000,0x400,0x1010004,0x10000,0x10400,0x1000004,0x400,0x4,0x1000404,0x10404,0x1010404,0x10004,0x1010000,0x1000404,0x1000004,0x404,0x10404,0x1010400,0x404,0x1000400,0x1000400,0,0x10004,0x10400,0,0x1010004];
 var spfunction2 = [-0x7fef7fe0,-0x7fff8000,0x8000,0x108020,0x100000,0x20,-0x7fefffe0,-0x7fff7fe0,-0x7fffffe0,-0x7fef7fe0,-0x7fef8000,-0x80000000,-0x7fff8000,0x100000,0x20,-0x7fefffe0,0x108000,0x100020,-0x7fff7fe0,0,-0x80000000,0x8000,0x108020,-0x7ff00000,0x100020,-0x7fffffe0,0,0x108000,0x8020,-0x7fef8000,-0x7ff00000,0x8020,0,0x108020,-0x7fefffe0,0x100000,-0x7fff7fe0,-0x7ff00000,-0x7fef8000,0x8000,-0x7ff00000,-0x7fff8000,0x20,-0x7fef7fe0,0x108020,0x20,0x8000,-0x80000000,0x8020,-0x7fef8000,0x100000,-0x7fffffe0,0x100020,-0x7fff7fe0,-0x7fffffe0,0x100020,0x108000,0,-0x7fff8000,0x8020,-0x80000000,-0x7fefffe0,-0x7fef7fe0,0x108000];
@@ -55,8 +38,6 @@ var spfunction5 = [0x100,0x2080100,0x2080000,0x42000100,0x80000,0x100,0x40000000
 var spfunction6 = [0x20000010,0x20400000,0x4000,0x20404010,0x20400000,0x10,0x20404010,0x400000,0x20004000,0x404010,0x400000,0x20000010,0x400010,0x20004000,0x20000000,0x4010,0,0x400010,0x20004010,0x4000,0x404000,0x20004010,0x10,0x20400010,0x20400010,0,0x404010,0x20404000,0x4010,0x404000,0x20404000,0x20000000,0x20004000,0x10,0x20400010,0x404000,0x20404010,0x400000,0x4010,0x20000010,0x400000,0x20004000,0x20000000,0x4010,0x20000010,0x20404010,0x404000,0x20400000,0x404010,0x20404000,0,0x20400010,0x10,0x4000,0x20400000,0x404010,0x4000,0x400010,0x20004010,0,0x20404000,0x20000000,0x400010,0x20004010];
 var spfunction7 = [0x200000,0x4200002,0x4000802,0,0x800,0x4000802,0x200802,0x4200800,0x4200802,0x200000,0,0x4000002,0x2,0x4000000,0x4200002,0x802,0x4000800,0x200802,0x200002,0x4000800,0x4000002,0x4200000,0x4200800,0x200002,0x4200000,0x800,0x802,0x4200802,0x200800,0x2,0x4000000,0x200800,0x4000000,0x200800,0x200000,0x4000802,0x4000802,0x4200002,0x4200002,0x2,0x200002,0x4000000,0x4000800,0x200000,0x4200800,0x802,0x200802,0x4200800,0x802,0x4000002,0x4200802,0x4200000,0x200800,0,0x2,0x4200802,0,0x200802,0x4200000,0x800,0x4000002,0x4000800,0x800,0x200002];
 var spfunction8 = [0x10001040,0x1000,0x40000,0x10041040,0x10000000,0x10001040,0x40,0x10000000,0x40040,0x10040000,0x10041040,0x41000,0x10041000,0x41040,0x1000,0x40,0x10040000,0x10000040,0x10001000,0x1040,0x41000,0x40040,0x10040040,0x10041000,0x1040,0,0,0x10040040,0x10000040,0x10001000,0x41040,0x40000,0x41040,0x40000,0x10041000,0x1000,0x40,0x10040040,0x1000,0x41040,0x10001000,0x40,0x10000040,0x10040000,0x10040040,0x10000000,0x40000,0x10001040,0,0x10041040,0x40040,0x10000040,0x10040000,0x10001000,0x10001040,0,0x10041040,0x41000,0x41000,0x1040,0x1040,0x40040,0x10000000,0x10041000];
-
-
 
 /**
  * Create necessary sub keys.
@@ -91,7 +72,7 @@ function des_createKeys (key) {
   var shifts = [0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0];
 
   var n = 0, temp;
-  for (var j = 0; j < iterations; j ++) {
+  for(var j = 0; j < iterations; j ++) {
     var left = key.getInt32();
     var right = key.getInt32();
 
@@ -111,9 +92,9 @@ function des_createKeys (key) {
     right = temp;
 
     //now go through and perform these shifts on the left and right keys
-    for (var i=0; i < shifts.length; i++) {
+    for(var i=0; i < shifts.length; i++) {
       //shift the keys either one or two bits to the left
-      if (shifts[i]) {
+      if(shifts[i]) {
         left = (left << 2) | (left >>> 26); right = (right << 2) | (right >>> 26);
       } else {
         left = (left << 1) | (left >>> 27); right = (right << 1) | (right >>> 27);
@@ -140,9 +121,6 @@ function des_createKeys (key) {
   return keys;
 }
 
-
-
-
 /**
  * Creates an DES cipher object.
  *
@@ -151,9 +129,8 @@ function des_createKeys (key) {
  *
  * @return the cipher.
  */
-var _createCipher = function(key, encrypt)
-{
-  if(key.constructor == String && (key.length == 8 || key.length == 24)) {
+var _createCipher = function(key, encrypt) {
+  if(typeof key === 'string' && (key.length === 8 || key.length === 24)) {
     key = forge.util.createBuffer(key);
   }
 
@@ -172,10 +149,10 @@ var _createCipher = function(key, encrypt)
   var _finish = false, _input = null, _output = null;
 
   /* Set up the loops for single and triple DES. */
-  var iterations = keys.length == 32 ? 3 : 9;  // single or triple des
+  var iterations = keys.length === 32 ? 3 : 9;  // single or triple des
   var looping;
 
-  if (iterations == 3) {
+  if(iterations === 3) {
     looping = encrypt
       ? [0, 32, 2]
       : [30, -2, -2];
@@ -200,7 +177,7 @@ var _createCipher = function(key, encrypt)
      */
     start: function(iv, output) {
       if(iv) {
-        if(key.constructor == String && iv.length == 8) {
+        if(typeof iv === 'string' && iv.length === 8) {
           iv = forge.util.createBuffer(iv);
         }
 
@@ -238,8 +215,8 @@ var _createCipher = function(key, encrypt)
         var right = _input.getInt32();
 
         //for Cipher Block Chaining mode, xor the message with the previous result
-        if (mode == 1) {
-          if (encrypt) {
+        if(mode === 1) {
+          if(encrypt) {
             left ^= cbcleft;
             right ^= cbcright;
           } else {
@@ -257,16 +234,16 @@ var _createCipher = function(key, encrypt)
         temp = ((right >>> 8) ^ left) & 0x00ff00ff; left ^= temp; right ^= (temp << 8);
         temp = ((left >>> 1) ^ right) & 0x55555555; right ^= temp; left ^= (temp << 1);
 
-        left = ((left << 1) | (left >>> 31)); 
-        right = ((right << 1) | (right >>> 31)); 
+        left = ((left << 1) | (left >>> 31));
+        right = ((right << 1) | (right >>> 31));
 
-        for (var j = 0; j < iterations; j += 3) {
+        for(var j = 0; j < iterations; j += 3) {
           var endloop = looping[j+1];
           var loopinc = looping[j+2];
 
-          //now go through and perform the encryption or decryption  
-          for (var i = looping[j]; i != endloop; i += loopinc) {
-            var right1 = right ^ keys[i]; 
+          //now go through and perform the encryption or decryption
+          for(var i = looping[j]; i != endloop; i += loopinc) {
+            var right1 = right ^ keys[i];
             var right2 = ((right >>> 4) | (right << 28)) ^ keys[i+1];
 
             //the result is attained by passing these bytes through the S selection functions
@@ -281,8 +258,8 @@ var _createCipher = function(key, encrypt)
         }
 
         //move then each one bit to the right
-        left = ((left >>> 1) | (left << 31)); 
-        right = ((right >>> 1) | (right << 31)); 
+        left = ((left >>> 1) | (left << 31));
+        right = ((right >>> 1) | (right << 31));
 
         //now perform IP-1, which is IP in the opposite direction
         temp = ((left >>> 1) ^ right) & 0x55555555; right ^= temp; left ^= (temp << 1);
@@ -292,8 +269,8 @@ var _createCipher = function(key, encrypt)
         temp = ((left >>> 4) ^ right) & 0x0f0f0f0f; right ^= temp; left ^= (temp << 4);
 
         //for Cipher Block Chaining mode, xor the message with the previous result
-        if (mode == 1) {
-          if (encrypt) {
+        if(mode === 1) {
+          if(encrypt) {
             cbcleft = left;
             cbcright = right;
           } else {
@@ -324,7 +301,7 @@ var _createCipher = function(key, encrypt)
         } else {
           // add PKCS#7 padding to block (each pad byte is the
           // value of the number of pad bytes)
-          var padding = (_input.length() == 8) ? 8 : (8 - _input.length());
+          var padding = (_input.length() === 8) ? 8 : (8 - _input.length());
           _input.fillWithByte(padding, padding);
         }
       }
@@ -363,9 +340,8 @@ var _createCipher = function(key, encrypt)
   return cipher;
 };
 
-
-
 /* DES API */
+forge.des = forge.des || {};
 
 /**
  * Creates a DES cipher object to encrypt data in ECB or CBC mode using the
@@ -380,8 +356,7 @@ var _createCipher = function(key, encrypt)
  *
  * @return the cipher.
  */
-forge.des.startEncrypting = function(key, iv, output)
-{
+forge.des.startEncrypting = function(key, iv, output) {
   var cipher = _createCipher(key, true);
   cipher.start(iv, output);
   return cipher;
@@ -400,8 +375,7 @@ forge.des.startEncrypting = function(key, iv, output)
  *
  * @return the cipher.
  */
-forge.des.createEncryptionCipher = function(key)
-{
+forge.des.createEncryptionCipher = function(key) {
   return _createCipher(key, true);
 };
 
@@ -418,8 +392,7 @@ forge.des.createEncryptionCipher = function(key)
  *
  * @return the cipher.
  */
-forge.des.startDecrypting = function(key, iv, output)
-{
+forge.des.startDecrypting = function(key, iv, output) {
   var cipher = _createCipher(key, false);
   cipher.start(iv, output);
   return cipher;
@@ -438,9 +411,61 @@ forge.des.startDecrypting = function(key, iv, output)
  *
  * @return the cipher.
  */
-forge.des.createDecryptionCipher = function(key)
-{
+forge.des.createDecryptionCipher = function(key) {
   return _createCipher(key, false);
 };
 
+} // end module implementation
+
+/* ########## Begin module wrapper ########## */
+var name = 'des';
+if(typeof define !== 'function') {
+  // NodeJS -> AMD
+  if(typeof module === 'object' && module.exports) {
+    var nodeJS = true;
+    define = function(ids, factory) {
+      factory(require, module);
+    };
+  }
+  // <script>
+  else {
+    if(typeof forge === 'undefined') {
+      forge = {};
+    }
+    return initModule(forge);
+  }
+}
+// AMD
+var deps;
+var defineFunc = function(require, module) {
+  module.exports = function(forge) {
+    var mods = deps.map(function(dep) {
+      return require(dep);
+    }).concat(initModule);
+    // handle circular dependencies
+    forge = forge || {};
+    forge.defined = forge.defined || {};
+    if(forge.defined[name]) {
+      return forge[name];
+    }
+    forge.defined[name] = true;
+    for(var i = 0; i < mods.length; ++i) {
+      mods[i](forge);
+    }
+    return forge[name];
+  };
+};
+var tmpDefine = define;
+define = function(ids, factory) {
+  deps = (typeof ids === 'string') ? factory.slice(2) : ids.slice(2);
+  if(nodeJS) {
+    delete define;
+    return tmpDefine.apply(null, Array.prototype.slice.call(arguments, 0));
+  }
+  define = tmpDefine;
+  return define.apply(null, Array.prototype.slice.call(arguments, 0));
+};
+define(['require', 'module', './util'], function() {
+  defineFunc.apply(null, Array.prototype.slice.call(arguments, 0));
+});
 })();

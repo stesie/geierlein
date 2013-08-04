@@ -3,7 +3,7 @@
  *
  * @author Dave Longley
  *
- * Copyright (c) 2010-2012 Digital Bazaar, Inc.
+ * Copyright (c) 2010-2013 Digital Bazaar, Inc.
  *
  * An API for storing data using the Abstract Syntax Notation Number One
  * format using DER (Distinguished Encoding Rules) encoding. This encoding is
@@ -134,22 +134,11 @@
  * 0x06062A864886F70D
  */
 (function() {
+/* ########## Begin module implementation ########## */
+function initModule(forge) {
 
-// define forge
-if(typeof(window) !== 'undefined') {
-  var forge = window.forge = window.forge || {};
-  forge.asn1 = {};
-}
-// define node.js module
-else if(typeof(module) !== 'undefined' && module.exports) {
-  var forge = {
-    util: require('./util')
-  };
-  module.exports = forge.asn1 = {};
-}
-
-/* ASN.1 implementation and API */
-var asn1 = forge.asn1;
+/* ASN.1 API */
+var asn1 = forge.asn1 = forge.asn1 || {};
 
 /**
  * ASN.1 classes.
@@ -205,11 +194,23 @@ asn1.create = function(tagClass, type, constructed, value) {
     constructed, it will contain a list of other asn1 objects. If not,
     it will contain the ASN.1 value as an array of bytes formatted
     according to the ASN.1 data type. */
+
+  // remove undefined values
+  if(forge.util.isArray(value)) {
+    var tmp = [];
+    for(var i = 0; i < value.length; ++i) {
+      if(value[i] !== undefined) {
+        tmp.push(value[i]);
+      }
+    }
+    value = tmp;
+  }
+
   return {
     tagClass: tagClass,
     type: type,
     constructed: constructed,
-    composed: constructed || (value.constructor == Array),
+    composed: constructed || forge.util.isArray(value),
     value: value
   };
 };
@@ -225,7 +226,7 @@ asn1.create = function(tagClass, type, constructed, value) {
  */
 var _getValueLength = function(b) {
   var b2 = b.getByte();
-  if(b2 == 0x80) {
+  if(b2 === 0x80) {
     return undefined;
   }
 
@@ -248,12 +249,18 @@ var _getValueLength = function(b) {
  * Parses an asn1 object from a byte buffer in DER format.
  *
  * @param bytes the byte buffer to parse from.
+ * @param strict true to be strict when checking value lengths, false to
+ *          allow truncated values (default: true).
  *
  * @return the parsed asn1 object.
  */
-asn1.fromDer = function(bytes) {
+asn1.fromDer = function(bytes, strict) {
+  if(strict === undefined) {
+    strict = true;
+  }
+
   // wrap in buffer if needed
-  if(bytes.constructor == String) {
+  if(typeof bytes === 'string') {
     bytes = forge.util.createBuffer(bytes);
   }
 
@@ -279,17 +286,21 @@ asn1.fromDer = function(bytes) {
 
   // ensure there are enough bytes to get the value
   if(bytes.length() < length) {
-    throw {
-      message: 'Too few bytes to read ASN.1 value.',
-      detail: bytes.length() + ' < ' + length
-    };
+    if(strict) {
+      throw {
+        message: 'Too few bytes to read ASN.1 value.',
+        detail: bytes.length() + ' < ' + length
+      };
+    }
+    // Note: be lenient with truncated values
+    length = bytes.length();
   }
 
   // prepare to get value
   var value;
 
   // constructed flag is bit 6 (32 = 0x20) of the first byte
-  var constructed = ((b1 & 0x20) == 0x20);
+  var constructed = ((b1 & 0x20) === 0x20);
 
   // determine if the value is composed of other ASN.1 objects (if its
   // constructed it will be and if its a BITSTRING it may be)
@@ -310,8 +321,7 @@ asn1.fromDer = function(bytes) {
       // and the length is valid, assume we've got an ASN.1 object
       b1 = bytes.getByte();
       var tc = (b1 & 0xC0);
-      if(tc === asn1.Class.UNIVERSAL ||
-        tc === asn1.Class.CONTEXT_SPECIFIC) {
+      if(tc === asn1.Class.UNIVERSAL || tc === asn1.Class.CONTEXT_SPECIFIC) {
         try {
           var len = _getValueLength(bytes);
           composed = (len === length - (bytes.read - read));
@@ -338,14 +348,14 @@ asn1.fromDer = function(bytes) {
           bytes.getBytes(2);
           break;
         }
-        value.push(asn1.fromDer(bytes));
+        value.push(asn1.fromDer(bytes, strict));
       }
     }
     else {
       // parsing asn1 object of definite length
       var start = bytes.length();
       while(length > 0) {
-        value.push(asn1.fromDer(bytes));
+        value.push(asn1.fromDer(bytes, strict));
         length -= start - bytes.length();
         start = bytes.length();
       }
@@ -366,7 +376,8 @@ asn1.fromDer = function(bytes) {
       for(var i = 0; i < length; i += 2) {
         value += String.fromCharCode(bytes.getInt16());
       }
-    } else {
+    }
+    else {
       value = bytes.getBytes(length);
     }
   }
@@ -405,12 +416,21 @@ asn1.toDer = function(obj) {
 
     // add all of the child DER bytes together
     for(var i = 0; i < obj.value.length; ++i) {
-      value.putBuffer(asn1.toDer(obj.value[i]));
+      if(obj.value[i] !== undefined) {
+        value.putBuffer(asn1.toDer(obj.value[i]));
+      }
     }
   }
   // use asn1.value directly
   else {
-    value.putBytes(obj.value);
+    if(obj.type === asn1.Type.BMPSTRING) {
+      for(var i = 0; i < obj.value.length; ++i) {
+        value.putInt16(obj.value.charCodeAt(i));
+      }
+    }
+    else {
+      value.putBytes(obj.value);
+    }
   }
 
   // add tag byte
@@ -509,7 +529,7 @@ asn1.derToOid = function(bytes) {
   var oid;
 
   // wrap in buffer if needed
-  if(bytes.constructor == String) {
+  if(typeof bytes === 'string') {
     bytes = forge.util.createBuffer(bytes);
   }
 
@@ -667,7 +687,7 @@ asn1.generalizedTimeToDate = function(gentime) {
   var offset = 0;
   var isUTC = false;
 
-  if(gentime.charAt(gentime.length - 1) == 'Z') {
+  if(gentime.charAt(gentime.length - 1) === 'Z') {
     isUTC = true;
   }
 
@@ -690,7 +710,7 @@ asn1.generalizedTimeToDate = function(gentime) {
   }
 
   // check for second fraction
-  if(gentime.charAt(14) == '.') {
+  if(gentime.charAt(14) === '.') {
     fff = parseFloat(gentime.substr(14), 10) * 1000;
   }
 
@@ -777,7 +797,7 @@ asn1.validate = function(obj, v, capture, errors) {
       rval = true;
 
       // handle sub values
-      if(v.value && v.value.constructor == Array) {
+      if(v.value && forge.util.isArray(v.value)) {
         var j = 0;
         for(var i = 0; rval && i < v.value.length; ++i) {
           rval = v.value[i].optional || false;
@@ -881,64 +901,72 @@ asn1.prettyPrint = function(obj, level, indentation) {
   }
 
   if(obj.tagClass === asn1.Class.UNIVERSAL) {
+    rval += obj.type;
+
     // known types
     switch(obj.type) {
     case asn1.Type.NONE:
-      rval += 'None';
+      rval += ' (None)';
       break;
     case asn1.Type.BOOLEAN:
-      rval += 'Boolean';
+      rval += ' (Boolean)';
       break;
     case asn1.Type.BITSTRING:
-      rval += 'Bit string';
+      rval += ' (Bit string)';
       break;
     case asn1.Type.INTEGER:
-      rval += 'Integer';
+      rval += ' (Integer)';
       break;
     case asn1.Type.OCTETSTRING:
-      rval += 'Octet string';
+      rval += ' (Octet string)';
       break;
     case asn1.Type.NULL:
-      rval += 'Null';
+      rval += ' (Null)';
       break;
     case asn1.Type.OID:
-      rval += 'Object Identifier';
+      rval += ' (Object Identifier)';
       break;
     case asn1.Type.ODESC:
-      rval += 'Object Descriptor';
+      rval += ' (Object Descriptor)';
       break;
     case asn1.Type.EXTERNAL:
-      rval += 'External or Instance of';
+      rval += ' (External or Instance of)';
       break;
     case asn1.Type.REAL:
-      rval += 'Real';
+      rval += ' (Real)';
       break;
     case asn1.Type.ENUMERATED:
-      rval += 'Enumerated';
+      rval += ' (Enumerated)';
       break;
     case asn1.Type.EMBEDDED:
-      rval += 'Embedded PDV';
+      rval += ' (Embedded PDV)';
+      break;
+    case asn1.Type.UTF8:
+      rval += ' (UTF8)';
       break;
     case asn1.Type.ROID:
-      rval += 'Relative Object Identifier';
+      rval += ' (Relative Object Identifier)';
       break;
     case asn1.Type.SEQUENCE:
-      rval += 'Sequence';
+      rval += ' (Sequence)';
       break;
     case asn1.Type.SET:
-      rval += 'Set';
+      rval += ' (Set)';
       break;
     case asn1.Type.PRINTABLESTRING:
-      rval += 'Printable String';
+      rval += ' (Printable String)';
       break;
     case asn1.Type.IA5String:
-      rval += 'IA5String (ASCII)';
+      rval += ' (IA5String (ASCII))';
       break;
     case asn1.Type.UTCTIME:
-      rval += 'UTC time';
+      rval += ' (UTC time)';
       break;
-    default:
-      rval += obj.type;
+    case asn1.Type.GENERALIZEDTIME:
+      rval += ' (Generalized time)';
+      break;
+    case asn1.Type.BMPSTRING:
+      rval += ' (BMP String)';
       break;
     }
   }
@@ -950,18 +978,32 @@ asn1.prettyPrint = function(obj, level, indentation) {
   rval += indent + 'Constructed: ' + obj.constructed + '\n';
 
   if(obj.composed) {
-    rval += indent + 'Sub values: ' + obj.value.length;
+    var subvalues = 0;
+    var sub = '';
     for(var i = 0; i < obj.value.length; ++i) {
-      rval += asn1.prettyPrint(obj.value[i], level + 1, indentation);
-      if((i + 1) < obj.value.length) {
-        rval += ',';
+      if(obj.value[i] !== undefined) {
+        subvalues += 1;
+        sub += asn1.prettyPrint(obj.value[i], level + 1, indentation);
+        if((i + 1) < obj.value.length) {
+          sub += ',';
+        }
       }
     }
+    rval += indent + 'Sub values: ' + subvalues + sub;
   }
   else {
     rval += indent + 'Value: ';
+    if(obj.type === asn1.Type.OID) {
+      var oid = asn1.derToOid(obj.value);
+      rval += oid;
+      if(forge.pki && forge.pki.oids) {
+        if(oid in forge.pki.oids) {
+          rval += ' (' + forge.pki.oids[oid] + ')';
+        }
+      }
+    }
     // FIXME: choose output (hex vs. printable) based on asn1.Type
-    if(_nonLatinRegex.test(obj.value)) {
+    else if(_nonLatinRegex.test(obj.value)) {
       rval += '0x' + forge.util.createBuffer(obj.value, 'utf8').toHex();
     }
     else if(obj.value.length === 0) {
@@ -975,4 +1017,57 @@ asn1.prettyPrint = function(obj, level, indentation) {
   return rval;
 };
 
+} // end module implementation
+
+/* ########## Begin module wrapper ########## */
+var name = 'asn1';
+if(typeof define !== 'function') {
+  // NodeJS -> AMD
+  if(typeof module === 'object' && module.exports) {
+    var nodeJS = true;
+    define = function(ids, factory) {
+      factory(require, module);
+    };
+  }
+  // <script>
+  else {
+    if(typeof forge === 'undefined') {
+      forge = {};
+    }
+    return initModule(forge);
+  }
+}
+// AMD
+var deps;
+var defineFunc = function(require, module) {
+  module.exports = function(forge) {
+    var mods = deps.map(function(dep) {
+      return require(dep);
+    }).concat(initModule);
+    // handle circular dependencies
+    forge = forge || {};
+    forge.defined = forge.defined || {};
+    if(forge.defined[name]) {
+      return forge[name];
+    }
+    forge.defined[name] = true;
+    for(var i = 0; i < mods.length; ++i) {
+      mods[i](forge);
+    }
+    return forge[name];
+  };
+};
+var tmpDefine = define;
+define = function(ids, factory) {
+  deps = (typeof ids === 'string') ? factory.slice(2) : ids.slice(2);
+  if(nodeJS) {
+    delete define;
+    return tmpDefine.apply(null, Array.prototype.slice.call(arguments, 0));
+  }
+  define = tmpDefine;
+  return define.apply(null, Array.prototype.slice.call(arguments, 0));
+};
+define(['require', 'module', './util', './oids'], function() {
+  defineFunc.apply(null, Array.prototype.slice.call(arguments, 0));
+});
 })();

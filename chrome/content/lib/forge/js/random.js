@@ -11,25 +11,18 @@
  *
  * @author Dave Longley
  *
- * Copyright (c) 2009-2012 Digital Bazaar, Inc.
+ * Copyright (c) 2009-2013 Digital Bazaar, Inc.
  */
-(function($) {
+(function() {
+/* ########## Begin module implementation ########## */
+function initModule(forge) {
 
-// define forge
-if(typeof(window) !== 'undefined') {
-  var forge = window.forge = window.forge || {};
-  forge.random = {};
+// forge.random already defined
+if(forge.random && forge.random.getBytes) {
+  return;
 }
-// define node.js module
-else if(typeof(module) !== 'undefined' && module.exports) {
-  var forge = {
-    aes: require('./aes'),
-    md: require('./md'),
-    prng: require('./prng'),
-    util: require('./util')
-  };
-  module.exports = forge.random = {};
-}
+
+(function(jQuery) {
 
 // the default prng plugin, uses AES-128
 var prng_aes = {};
@@ -49,7 +42,7 @@ prng_aes.formatKey = function(key) {
 };
 prng_aes.formatSeed = function(seed) {
   // convert seed into 32-bit integers
-  tmp = forge.util.createBuffer(seed);
+  var tmp = forge.util.createBuffer(seed);
   seed = new Array(4);
   seed[0] = tmp.getInt32();
   seed[1] = tmp.getInt32();
@@ -75,56 +68,154 @@ prng_aes.md = forge.md.sha1;
 // create default prng context
 var _ctx = forge.prng.create(prng_aes);
 
-// get load time entropy
-_ctx.collectInt(+new Date(), 32);
+// add other sources of entropy only if window.crypto.getRandomValues is not
+// available -- otherwise this source will be automatically used by the prng
+var _nodejs = (
+  typeof process !== 'undefined' && process.versions && process.versions.node);
+if(forge.disableNativeCode || (!_nodejs && !(typeof window !== 'undefined' &&
+  window.crypto && window.crypto.getRandomValues))) {
 
-// add some entropy from navigator object
-if(typeof(navigator) !== 'undefined') {
-  var _navBytes = '';
-  for(var key in navigator) {
-    try {
-      if(typeof(navigator[key]) == 'string') {
-        _navBytes += navigator[key];
-      }
-    } catch(e) {
-      /* Some navigator keys might not be accessible, e.g. the geolocation
-         attribute throws an exception if touched in Mozilla chrome:// context.
-
-         Silently ignore this and just don't use this as a source of entropy. */
-    }
+  // if this is a web worker, do not use weak entropy, instead register to
+  // receive strong entropy asynchronously from the main thread
+  if(typeof window === 'undefined' || window.document === undefined) {
+    // FIXME:
   }
-  _ctx.collect(_navBytes);
-  _navBytes = null;
-}
 
-// add mouse and keyboard collectors if jquery is available
-if($) {
-  // set up mouse entropy capture
-  $().mousemove(function(e) {
-    // add mouse coords
-    _ctx.collectInt(e.clientX, 16);
-    _ctx.collectInt(e.clientY, 16);
-  });
+  // get load time entropy
+  _ctx.collectInt(+new Date(), 32);
 
-  // set up keyboard entropy capture
-  $().keypress(function(e) {
-    _ctx.collectInt(e.charCode, 8);
-  });
+  // add some entropy from navigator object
+  if(typeof(navigator) !== 'undefined') {
+    var _navBytes = '';
+    for(var key in navigator) {
+      try {
+        if(typeof(navigator[key]) == 'string') {
+          _navBytes += navigator[key];
+        }
+      }
+      catch(e) {
+        /* Some navigator keys might not be accessible, e.g. the geolocation
+          attribute throws an exception if touched in Mozilla chrome://
+          context.
+
+          Silently ignore this and just don't use this as a source of
+          entropy. */
+      }
+    }
+    _ctx.collect(_navBytes);
+    _navBytes = null;
+  }
+
+  // add mouse and keyboard collectors if jquery is available
+  if(jQuery) {
+    // set up mouse entropy capture
+    jQuery().mousemove(function(e) {
+      // add mouse coords
+      _ctx.collectInt(e.clientX, 16);
+      _ctx.collectInt(e.clientY, 16);
+    });
+
+    // set up keyboard entropy capture
+    jQuery().keypress(function(e) {
+      _ctx.collectInt(e.charCode, 8);
+    });
+  }
 }
 
 /* Random API */
+if(!forge.random) {
+  forge.random = _ctx;
+}
+else {
+  // extend forge.random with _ctx
+  for(var key in _ctx) {
+    forge.random[key] = _ctx[key];
+  }
+}
 
 /**
- * Gets random bytes. This method tries to make the bytes more
- * unpredictable by drawing from data that can be collected from
- * the user of the browser, ie mouse movement.
+ * Gets random bytes. If a native secure crypto API is unavailable, this
+ * method tries to make the bytes more unpredictable by drawing from data that
+ * can be collected from the user of the browser, eg: mouse movement.
+ *
+ * If a callback is given, this method will be called asynchronously.
+ *
+ * @param count the number of random bytes to get.
+ * @param [callback(err, bytes)] called once the operation completes.
+ *
+ * @return the random bytes in a string.
+ */
+forge.random.getBytes = function(count, callback) {
+  return forge.random.generate(count, callback);
+};
+
+/**
+ * Gets random bytes asynchronously. If a native secure crypto API is
+ * unavailable, this method tries to make the bytes more unpredictable by
+ * drawing from data that can be collected from the user of the browser,
+ * eg: mouse movement.
  *
  * @param count the number of random bytes to get.
  *
  * @return the random bytes in a string.
  */
-forge.random.getBytes = function(count) {
-  return _ctx.generate(count);
+forge.random.getBytesSync = function(count) {
+  return forge.random.generate(count);
 };
 
 })(typeof(jQuery) !== 'undefined' ? jQuery : null);
+
+} // end module implementation
+
+/* ########## Begin module wrapper ########## */
+var name = 'random';
+if(typeof define !== 'function') {
+  // NodeJS -> AMD
+  if(typeof module === 'object' && module.exports) {
+    var nodeJS = true;
+    define = function(ids, factory) {
+      factory(require, module);
+    };
+  }
+  // <script>
+  else {
+    if(typeof forge === 'undefined') {
+      forge = {};
+    }
+    return initModule(forge);
+  }
+}
+// AMD
+var deps;
+var defineFunc = function(require, module) {
+  module.exports = function(forge) {
+    var mods = deps.map(function(dep) {
+      return require(dep);
+    }).concat(initModule);
+    // handle circular dependencies
+    forge = forge || {};
+    forge.defined = forge.defined || {};
+    if(forge.defined[name]) {
+      return forge[name];
+    }
+    forge.defined[name] = true;
+    for(var i = 0; i < mods.length; ++i) {
+      mods[i](forge);
+    }
+    return forge[name];
+  };
+};
+var tmpDefine = define;
+define = function(ids, factory) {
+  deps = (typeof ids === 'string') ? factory.slice(2) : ids.slice(2);
+  if(nodeJS) {
+    delete define;
+    return tmpDefine.apply(null, Array.prototype.slice.call(arguments, 0));
+  }
+  define = tmpDefine;
+  return define.apply(null, Array.prototype.slice.call(arguments, 0));
+};
+define(['require', 'module', './aes', './md', './prng', './util'], function() {
+  defineFunc.apply(null, Array.prototype.slice.call(arguments, 0));
+});
+})();

@@ -304,7 +304,7 @@ var _initSocket = function(client, socket, tlsOptions) {
 
   // wrap socket for TLS
   if(tlsOptions) {
-    socket = window.forge.tls.wrapSocket({
+    socket = forge.tls.wrapSocket({
       sessionId: null,
       sessionCache: {},
       caStore: tlsOptions.caStore,
@@ -901,6 +901,9 @@ http.createRequest = function(options) {
 
   // add custom headers
   var headers = options.headers || [];
+  if(!forge.util.isArray(headers)) {
+    headers = [headers];
+  }
   for(var i = 0; i < headers.length; ++i) {
     for(var name in headers[i]) {
       request.appendField(name, headers[i][name]);
@@ -929,7 +932,7 @@ http.createRequest = function(options) {
   };
 
   /**
-   * Converts an http request into a string that can be sent as a
+   * Converts an http request into a string that can be sent as an
    * HTTP request. Does not include any data.
    *
    * @return the string representation of the request.
@@ -1202,7 +1205,7 @@ http.createResponse = function() {
     if(contentLength !== null && contentLength >= 0) {
       response.body = response.body || '';
       response.body += b.getBytes(contentLength);
-      response.bodyReceived = (response.body.length == contentLength);
+      response.bodyReceived = (response.body.length === contentLength);
     }
     // read chunked encoding
     else if(transferEncoding !== null) {
@@ -1320,6 +1323,36 @@ http.createResponse = function() {
      return rval;
   };
 
+  /**
+   * Converts an http response into a string that can be sent as an
+   * HTTP response. Does not include any data.
+   *
+   * @return the string representation of the response.
+   */
+  response.toString = function() {
+    /* Sample response header:
+      HTTP/1.0 200 OK
+      Host: www.someurl.com
+      Connection: close
+     */
+
+    // build start line
+    var rval =
+      response.version + ' ' + response.code + ' ' + response.message + '\r\n';
+
+    // add each header
+    for(var name in response.fields) {
+      var fields = response.fields[name];
+      for(var i = 0; i < fields.length; ++i) {
+        rval += name + ': ' + fields[i] + '\r\n';
+      }
+    }
+    // final terminating CRLF
+    rval += '\r\n';
+
+    return rval;
+  };
+
   return response;
 };
 
@@ -1342,7 +1375,7 @@ http.withinCookieDomain = function(url, cookie) {
   var rval = false;
 
   // cookie may be null, a cookie object, or a domain string
-  var domain = (cookie === null || cookie.constructor == String) ?
+  var domain = (cookie === null || typeof cookie === 'string') ?
     cookie : cookie.domain;
 
   // any domain will do
@@ -1352,7 +1385,7 @@ http.withinCookieDomain = function(url, cookie) {
   // ensure domain starts with a '.'
   else if(domain.charAt(0) === '.') {
     // parse URL as necessary
-    if(url.constructor == String) {
+    if(typeof url === 'string') {
       url = http.parseUrl(url);
     }
 
@@ -1370,7 +1403,9 @@ http.withinCookieDomain = function(url, cookie) {
 };
 
 // public access to http namespace
-window.forge = window.forge || {};
-window.forge.http = http;
+if(typeof forge === 'undefined') {
+  forge = {};
+}
+forge.http = http;
 
 })();

@@ -1,5 +1,5 @@
 /**
- * Javascript implementation of PKCS#7 v1.5.  Currently only certain parts of
+ * Javascript implementation of PKCS#7 v1.5. Currently only certain parts of
  * PKCS#7 are implemented, especially the enveloped-data content type.
  *
  * @author Stefan Siegl
@@ -16,36 +16,14 @@
  * PKCS standards like PKCS #12.
  */
 (function() {
-
-// define forge
-var forge = {};
-if(typeof(window) !== 'undefined') {
-  forge = window.forge = window.forge || {};
-}
-// define node.js module
-else if(typeof(module) !== 'undefined' && module.exports) {
-  forge = {
-    aes: require('./aes'),
-    asn1: require('./asn1'),
-    des: require('./des'),
-    pkcs7: {
-      asn1: require('./pkcs7asn1')
-    },
-    pki: require('./pki'),
-    random: require('./random'),
-    util: require('./util')
-  };
-  module.exports = forge.pkcs7;
-}
+/* ########## Begin module implementation ########## */
+function initModule(forge) {
 
 // shortcut for ASN.1 API
 var asn1 = forge.asn1;
 
 // shortcut for PKCS#7 API
 var p7 = forge.pkcs7 = forge.pkcs7 || {};
-
-
-    
 
 /**
  * Converts a PKCS#7 message from PEM format.
@@ -55,8 +33,24 @@ var p7 = forge.pkcs7 = forge.pkcs7 || {};
  * @return the PKCS#7 message.
  */
 p7.messageFromPem = function(pem) {
-  var der = forge.pki.pemToDer(pem);
-  var obj = asn1.fromDer(der);
+  var msg = forge.pem.decode(pem)[0];
+
+  if(msg.type !== 'PKCS7') {
+    throw {
+      message: 'Could not convert PKCS#7 message from PEM; PEM header type ' +
+        'is not "PKCS#7".',
+      headerType: msg.type
+    };
+  }
+  if(msg.procType && msg.procType.type === 'ENCRYPTED') {
+    throw {
+      message: 'Could not convert PKCS#7 message from PEM; PEM is encrypted.'
+    };
+  }
+
+  // convert DER to ASN.1 object
+  var obj = asn1.fromDer(msg.body);
+
   return p7.messageFromAsn1(obj);
 };
 
@@ -69,12 +63,12 @@ p7.messageFromPem = function(pem) {
  * @return The PEM-formatted PKCS#7 message.
  */
 p7.messageToPem = function(msg, maxline) {
-  var out = asn1.toDer(msg.toAsn1());
-  out = forge.util.encode64(out.getBytes(), maxline || 64);
-  return (
-    '-----BEGIN PKCS7-----\r\n' +
-    out +
-    '\r\n-----END PKCS7-----');
+  // convert to ASN.1, then DER, then PEM-encode
+  var pemObj = {
+    type: 'PKCS7',
+    body: asn1.toDer(msg.toAsn1()).getBytes()
+  };
+  return forge.pem.encode(pemObj, {maxline: maxline});
 };
 
 /**
@@ -107,6 +101,10 @@ p7.messageFromAsn1 = function(obj) {
 
     case forge.pki.oids.encryptedData:
       msg = p7.createEncryptedData();
+      break;
+
+    case forge.pki.oids.signedData:
+      msg = p7.createSignedData();
       break;
 
     default:
@@ -282,27 +280,50 @@ var _fromAsn1 = function(msg, obj, validator) {
     };
   }
 
-  var content = "";
-  if(capture.encContent.constructor === Array) {
-    for(var i = 0; i < capture.encContent.length; i ++) {
-      if(capture.encContent[i].type !== asn1.Type.OCTETSTRING) {
-        throw {
-          message: 'Malformed PKCS#7 message, expecting encrypted '
-            + 'content constructed of only OCTET STRING objects.'
-        };
+  if(capture.encContent) {
+    var content = '';
+    if(forge.util.isArray(capture.encContent)) {
+      for(var i = 0; i < capture.encContent.length; ++i) {
+        if(capture.encContent[i].type !== asn1.Type.OCTETSTRING) {
+          throw {
+            message: 'Malformed PKCS#7 message, expecting encrypted ' +
+              'content constructed of only OCTET STRING objects.'
+          };
+        }
+        content += capture.encContent[i].value;
       }
-      content += capture.encContent[i].value;
     }
-  } else {
-    content = capture.encContent;
+    else {
+      content = capture.encContent;
+    }
+    msg.encContent = {
+      algorithm: asn1.derToOid(capture.encAlgorithm),
+      parameter: forge.util.createBuffer(capture.encParameter.value),
+      content: forge.util.createBuffer(content)
+    };
+  }
+
+  if(capture.content) {
+    var content = '';
+    if(forge.util.isArray(capture.content)) {
+      for(var i = 0; i < capture.content.length; ++i) {
+        if(capture.content[i].type !== asn1.Type.OCTETSTRING) {
+          throw {
+            message: 'Malformed PKCS#7 message, expecting ' +
+              'content constructed of only OCTET STRING objects.'
+          };
+        }
+        content += capture.content[i].value;
+      }
+    }
+    else {
+      content = capture.content;
+    }
+    msg.content = forge.util.createBuffer(content);
   }
 
   msg.version = capture.version.charCodeAt(0);
-  msg.encContent = {
-    algorithm: asn1.derToOid(capture.encAlgorithm),
-    parameter: forge.util.createBuffer(capture.encParameter.value),
-    content: forge.util.createBuffer(content)
-  };
+  msg.rawCapture = capture;
 
   return capture;
 };
@@ -356,6 +377,19 @@ var _decryptContent = function (msg) {
 
     msg.content = ciph.output;
   }
+};
+
+p7.createSignedData = function() {
+  var msg = null;
+  msg = {
+    type: forge.pki.oids.signedData,
+    version: 1,
+    fromAsn1: function(obj) {
+      // validate SignedData content block and capture data.
+      _fromAsn1(msg, obj, p7.asn1.signedDataValidator);
+    }
+  };
+  return msg;
 };
 
 /**
@@ -447,16 +481,16 @@ p7.createEnvelopedData = function() {
     },
 
     /**
-     * Find recipient by X.509 certificate's subject.
+     * Find recipient by X.509 certificate's issuer.
      *
-     * @param cert The certificate for which's subject to look for.
+     * @param cert the certificate with the issuer to look for.
      *
-     * @return The recipient object
+     * @return the recipient object.
      */
     findRecipient: function(cert) {
-      var sAttr = cert.subject.attributes;
+      var sAttr = cert.issuer.attributes;
 
-      for(var i = 0; i < msg.recipients.length; i ++) {
+      for(var i = 0; i < msg.recipients.length; ++i) {
         var r = msg.recipients[i];
         var rAttr = r.issuer;
 
@@ -469,9 +503,9 @@ p7.createEnvelopedData = function() {
         }
 
         var match = true;
-        for(var j = 0; j < sAttr.length; j ++) {
-          if(rAttr[j].type !== sAttr[j].type
-            || rAttr[j].value !== sAttr[j].value) {
+        for(var j = 0; j < sAttr.length; ++j) {
+          if(rAttr[j].type !== sAttr[j].type ||
+            rAttr[j].value !== sAttr[j].value) {
             match = false;
             break;
           }
@@ -637,4 +671,68 @@ p7.createEnvelopedData = function() {
   return msg;
 };
 
+} // end module implementation
+
+/* ########## Begin module wrapper ########## */
+var name = 'pkcs7';
+if(typeof define !== 'function') {
+  // NodeJS -> AMD
+  if(typeof module === 'object' && module.exports) {
+    var nodeJS = true;
+    define = function(ids, factory) {
+      factory(require, module);
+    };
+  }
+  // <script>
+  else {
+    if(typeof forge === 'undefined') {
+      forge = {};
+    }
+    return initModule(forge);
+  }
+}
+// AMD
+var deps;
+var defineFunc = function(require, module) {
+  module.exports = function(forge) {
+    var mods = deps.map(function(dep) {
+      return require(dep);
+    }).concat(initModule);
+    // handle circular dependencies
+    forge = forge || {};
+    forge.defined = forge.defined || {};
+    if(forge.defined[name]) {
+      return forge[name];
+    }
+    forge.defined[name] = true;
+    for(var i = 0; i < mods.length; ++i) {
+      mods[i](forge);
+    }
+    return forge[name];
+  };
+};
+var tmpDefine = define;
+define = function(ids, factory) {
+  deps = (typeof ids === 'string') ? factory.slice(2) : ids.slice(2);
+  if(nodeJS) {
+    delete define;
+    return tmpDefine.apply(null, Array.prototype.slice.call(arguments, 0));
+  }
+  define = tmpDefine;
+  return define.apply(null, Array.prototype.slice.call(arguments, 0));
+};
+define([
+  'require',
+  'module',
+  './aes',
+  './asn1',
+  './des',
+  './pem',
+  './pkcs7asn1',
+  './pki',
+  './random',
+  './util'
+], function() {
+  defineFunc.apply(null, Array.prototype.slice.call(arguments, 0));
+});
 })();

@@ -6,20 +6,8 @@
  * Copyright (c) 2012 Stefan Siegl <stesie@brokenpipe.de>
  */
 (function() {
-
-// define forge
-var forge = {};
-if(typeof(window) !== 'undefined') {
-  forge = window.forge = window.forge || {};
-}
-// define node.js module
-else if(typeof(module) !== 'undefined' && module.exports) {
-  forge = {
-    random: require('./random'),
-    util: require('./util')
-  };
-  module.exports = forge.pss = {};
-}
+/* ########## Begin module implementation ########## */
+function initModule(forge) {
 
 // shortcut for PSS API
 var pss = forge.pss = forge.pss || {};
@@ -53,7 +41,7 @@ pss.create = function(hash, mgf, sLen) {
     var emLen = Math.ceil(emBits / 8);
 
     /* c. Convert the message representative m to an encoded message EM
-     *    of length emLen = (modBits - 1) / 8 octets, where modBits
+     *    of length emLen = ceil((modBits - 1) / 8) octets, where modBits
      *    is the length in bits of the RSA modulus n */
     em = em.substr(-emLen);
 
@@ -144,7 +132,7 @@ pss.create = function(hash, mgf, sLen) {
    *
    * @param md the message digest object with the hash to sign.
    * @param modsBits Length of the RSA modulus in bits.
-   * @return the encoded message, string of length (modBits - 1) / 8
+   * @return the encoded message, string of length ceil((modBits - 1) / 8)
    */
   pssobj.encode = function(md, modBits) {
     var i;
@@ -211,4 +199,57 @@ pss.create = function(hash, mgf, sLen) {
   return pssobj;
 };
 
+} // end module implementation
+
+/* ########## Begin module wrapper ########## */
+var name = 'pss';
+if(typeof define !== 'function') {
+  // NodeJS -> AMD
+  if(typeof module === 'object' && module.exports) {
+    var nodeJS = true;
+    define = function(ids, factory) {
+      factory(require, module);
+    };
+  }
+  // <script>
+  else {
+    if(typeof forge === 'undefined') {
+      forge = {};
+    }
+    return initModule(forge);
+  }
+}
+// AMD
+var deps;
+var defineFunc = function(require, module) {
+  module.exports = function(forge) {
+    var mods = deps.map(function(dep) {
+      return require(dep);
+    }).concat(initModule);
+    // handle circular dependencies
+    forge = forge || {};
+    forge.defined = forge.defined || {};
+    if(forge.defined[name]) {
+      return forge[name];
+    }
+    forge.defined[name] = true;
+    for(var i = 0; i < mods.length; ++i) {
+      mods[i](forge);
+    }
+    return forge[name];
+  };
+};
+var tmpDefine = define;
+define = function(ids, factory) {
+  deps = (typeof ids === 'string') ? factory.slice(2) : ids.slice(2);
+  if(nodeJS) {
+    delete define;
+    return tmpDefine.apply(null, Array.prototype.slice.call(arguments, 0));
+  }
+  define = tmpDefine;
+  return define.apply(null, Array.prototype.slice.call(arguments, 0));
+};
+define(['require', 'module', './random', './util'], function() {
+  defineFunc.apply(null, Array.prototype.slice.call(arguments, 0));
+});
 })();

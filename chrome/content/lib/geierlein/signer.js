@@ -58,12 +58,6 @@ geierlein.Signer.prototype = {
         var p12Asn1 = forge.asn1.fromDer(p12Der);
         var p12 = forge.pkcs12.pkcs12FromAsn1(p12Asn1, password);
 
-        if(!p12.verify()) {
-            throw {
-                message: 'PKCS#12 PFX MAC is incorrect.'
-            };
-        }
-
         /* Find the signature key by its friendlyName. */
         var keyBag = p12.getBagsByFriendlyName('signaturekey',
             forge.pki.oids.pkcs8ShroudedKeyBag);

@@ -9,20 +9,10 @@
  * Copyright (c) 2010-2012 Digital Bazaar, Inc.
  */
 (function() {
+/* ########## Begin module implementation ########## */
+function initModule(forge) {
 
-var sha1 = {};
-
-// define forge
-if(typeof(window) !== 'undefined') {
-  var forge = window.forge = window.forge || {};
-}
-// define node.js module
-else if(typeof(module) !== 'undefined' && module.exports) {
-  var forge = {
-    util: require('./util')
-  };
-  module.exports = sha1;
-}
+var sha1 = forge.sha1 = forge.sha1 || {};
 forge.md = forge.md || {};
 forge.md.algorithms = forge.md.algorithms || {};
 forge.md.sha1 = forge.md.algorithms['sha1'] = sha1;
@@ -184,6 +174,8 @@ sha1.create = function() {
 
   /**
    * Starts the digest.
+   *
+   * @return this digest object.
    */
   md.start = function() {
     md.messageLength = 0;
@@ -195,6 +187,7 @@ sha1.create = function() {
       h3: 0x10325476,
       h4: 0xC3D2E1F0
     };
+    return md;
   };
   // start digest automatically for first time
   md.start();
@@ -206,6 +199,8 @@ sha1.create = function() {
    *
    * @param msg the message input to update with.
    * @param encoding the encoding to use (default: 'raw', other: 'utf8').
+   *
+   * @return this digest object.
    */
   md.update = function(msg, encoding) {
     if(encoding === 'utf8') {
@@ -225,6 +220,8 @@ sha1.create = function() {
     if(_input.read > 2048 || _input.length() === 0) {
       _input.compact();
     }
+
+    return md;
   };
 
    /**
@@ -286,4 +283,57 @@ sha1.create = function() {
   return md;
 };
 
+} // end module implementation
+
+/* ########## Begin module wrapper ########## */
+var name = 'sha1';
+if(typeof define !== 'function') {
+  // NodeJS -> AMD
+  if(typeof module === 'object' && module.exports) {
+    var nodeJS = true;
+    define = function(ids, factory) {
+      factory(require, module);
+    };
+  }
+  // <script>
+  else {
+    if(typeof forge === 'undefined') {
+      forge = {};
+    }
+    return initModule(forge);
+  }
+}
+// AMD
+var deps;
+var defineFunc = function(require, module) {
+  module.exports = function(forge) {
+    var mods = deps.map(function(dep) {
+      return require(dep);
+    }).concat(initModule);
+    // handle circular dependencies
+    forge = forge || {};
+    forge.defined = forge.defined || {};
+    if(forge.defined[name]) {
+      return forge[name];
+    }
+    forge.defined[name] = true;
+    for(var i = 0; i < mods.length; ++i) {
+      mods[i](forge);
+    }
+    return forge[name];
+  };
+};
+var tmpDefine = define;
+define = function(ids, factory) {
+  deps = (typeof ids === 'string') ? factory.slice(2) : ids.slice(2);
+  if(nodeJS) {
+    delete define;
+    return tmpDefine.apply(null, Array.prototype.slice.call(arguments, 0));
+  }
+  define = tmpDefine;
+  return define.apply(null, Array.prototype.slice.call(arguments, 0));
+};
+define(['require', 'module', './util'], function() {
+  defineFunc.apply(null, Array.prototype.slice.call(arguments, 0));
+});
 })();

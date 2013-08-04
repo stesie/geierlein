@@ -6,20 +6,41 @@
  * Copyright (c) 2010-2012 Digital Bazaar, Inc.
  */
 (function() {
-
-// define forge
-if(typeof(window) !== 'undefined') {
-  var forge = window.forge = window.forge || {};
-  forge.util = {};
-}
-// define node.js module
-else if(typeof(module) !== 'undefined' && module.exports) {
-  var forge = {};
-  module.exports = forge.util = {};
-}
+/* ########## Begin module implementation ########## */
+function initModule(forge) {
 
 /* Utilities API */
-var util = forge.util;
+var util = forge.util = forge.util || {};
+
+// define setImmediate and nextTick
+if(typeof process === 'undefined' || !process.nextTick) {
+  if(typeof setImmediate === 'function') {
+    util.setImmediate = setImmediate;
+    util.nextTick = function(callback) {
+      return setImmediate(callback);
+    };
+  }
+  else {
+    util.setImmediate = function(callback) {
+      setTimeout(callback, 0);
+    };
+    util.nextTick = util.setImmediate;
+  }
+}
+else {
+  util.nextTick = process.nextTick;
+  if(typeof setImmediate === 'function') {
+    util.setImmediate = setImmediate;
+  }
+  else {
+    util.setImmediate = util.nextTick;
+  }
+}
+
+// define isArray
+util.isArray = Array.isArray || function(x) {
+  return Object.prototype.toString.call(x) === '[object Array]';
+};
 
 /**
  * Constructor for a byte buffer.
@@ -48,16 +69,19 @@ util.ByteBuffer.prototype.length = function() {
  * @return true if this buffer is empty, false if not.
  */
 util.ByteBuffer.prototype.isEmpty = function() {
-  return (this.data.length - this.read) === 0;
+  return this.length() <= 0;
 };
 
 /**
  * Puts a byte in this buffer.
  *
  * @param b the byte to put.
+ *
+ * @return this buffer.
  */
 util.ByteBuffer.prototype.putByte = function(b) {
   this.data += String.fromCharCode(b);
+  return this;
 };
 
 /**
@@ -65,6 +89,8 @@ util.ByteBuffer.prototype.putByte = function(b) {
  *
  * @param b the byte to put.
  * @param n the number of bytes of value b to put.
+ *
+ * @return this buffer.
  */
 util.ByteBuffer.prototype.fillWithByte = function(b, n) {
   b = String.fromCharCode(b);
@@ -79,53 +105,68 @@ util.ByteBuffer.prototype.fillWithByte = function(b, n) {
     }
   }
   this.data = d;
+  return this;
 };
 
 /**
  * Puts bytes in this buffer.
  *
  * @param bytes the bytes (as a UTF-8 encoded string) to put.
+ *
+ * @return this buffer.
  */
 util.ByteBuffer.prototype.putBytes = function(bytes) {
   this.data += bytes;
+  return this;
 };
 
 /**
  * Puts a UTF-16 encoded string into this buffer.
  *
  * @param str the string to put.
+ *
+ * @return this buffer.
  */
 util.ByteBuffer.prototype.putString = function(str) {
   this.data += util.encodeUtf8(str);
+  return this;
 };
 
 /**
  * Puts a 16-bit integer in this buffer in big-endian order.
  *
  * @param i the 16-bit integer.
+ *
+ * @return this buffer.
  */
 util.ByteBuffer.prototype.putInt16 = function(i) {
   this.data +=
     String.fromCharCode(i >> 8 & 0xFF) +
     String.fromCharCode(i & 0xFF);
+  return this;
 };
 
 /**
  * Puts a 24-bit integer in this buffer in big-endian order.
  *
  * @param i the 24-bit integer.
+ *
+ * @return this buffer.
  */
 util.ByteBuffer.prototype.putInt24 = function(i) {
   this.data +=
     String.fromCharCode(i >> 16 & 0xFF) +
     String.fromCharCode(i >> 8 & 0xFF) +
     String.fromCharCode(i & 0xFF);
+  return this;
 };
 
 /**
  * Puts a 32-bit integer in this buffer in big-endian order.
  *
  * @param i the 32-bit integer.
+ *
+ * @return this buffer.
  */
 util.ByteBuffer.prototype.putInt32 = function(i) {
   this.data +=
@@ -133,35 +174,44 @@ util.ByteBuffer.prototype.putInt32 = function(i) {
     String.fromCharCode(i >> 16 & 0xFF) +
     String.fromCharCode(i >> 8 & 0xFF) +
     String.fromCharCode(i & 0xFF);
+  return this;
 };
 
 /**
  * Puts a 16-bit integer in this buffer in little-endian order.
  *
  * @param i the 16-bit integer.
+ *
+ * @return this buffer.
  */
 util.ByteBuffer.prototype.putInt16Le = function(i) {
   this.data +=
     String.fromCharCode(i & 0xFF) +
     String.fromCharCode(i >> 8 & 0xFF);
+  return this;
 };
 
 /**
  * Puts a 24-bit integer in this buffer in little-endian order.
  *
  * @param i the 24-bit integer.
+ *
+ * @return this buffer.
  */
 util.ByteBuffer.prototype.putInt24Le = function(i) {
   this.data +=
     String.fromCharCode(i & 0xFF) +
     String.fromCharCode(i >> 8 & 0xFF) +
     String.fromCharCode(i >> 16 & 0xFF);
+  return this;
 };
 
 /**
  * Puts a 32-bit integer in this buffer in little-endian order.
  *
  * @param i the 32-bit integer.
+ *
+ * @return this buffer.
  */
 util.ByteBuffer.prototype.putInt32Le = function(i) {
   this.data +=
@@ -169,6 +219,7 @@ util.ByteBuffer.prototype.putInt32Le = function(i) {
     String.fromCharCode(i >> 8 & 0xFF) +
     String.fromCharCode(i >> 16 & 0xFF) +
     String.fromCharCode(i >> 24 & 0xFF);
+  return this;
 };
 
 /**
@@ -176,6 +227,8 @@ util.ByteBuffer.prototype.putInt32Le = function(i) {
  *
  * @param i the n-bit integer.
  * @param n the number of bits in the integer.
+ *
+ * @return this buffer.
  */
 util.ByteBuffer.prototype.putInt = function(i, n) {
   do {
@@ -183,15 +236,19 @@ util.ByteBuffer.prototype.putInt = function(i, n) {
     this.data += String.fromCharCode((i >> n) & 0xFF);
   }
   while(n > 0);
+  return this;
 };
 
 /**
  * Puts the given buffer into this buffer.
  *
  * @param buffer the buffer to put into this one.
+ *
+ * @return this buffer.
  */
 util.ByteBuffer.prototype.putBuffer = function(buffer) {
   this.data += buffer.getBytes();
+  return this;
 };
 
 /**
@@ -304,7 +361,7 @@ util.ByteBuffer.prototype.getInt32Le = function() {
 util.ByteBuffer.prototype.getInt = function(n) {
   var rval = 0;
   do {
-    rval = (rval << n) + this.data.charCodeAt(this.read++);
+    rval = (rval << 8) + this.data.charCodeAt(this.read++);
     n -= 8;
   }
   while(n > 0);
@@ -314,7 +371,7 @@ util.ByteBuffer.prototype.getInt = function(n) {
 /**
  * Reads bytes out into a UTF-8 string and clears them from the buffer.
  *
- * @param count the number of bytes to read, undefined, null or 0 for all.
+ * @param count the number of bytes to read, undefined or null for all.
  *
  * @return a UTF-8 string of bytes.
  */
@@ -367,11 +424,14 @@ util.ByteBuffer.prototype.at = function(i) {
  *
  * @param i the byte index.
  * @param b the byte to put.
+ *
+ * @return this buffer.
  */
 util.ByteBuffer.prototype.setAt = function(i, b) {
   this.data = this.data.substr(0, this.read + i) +
     String.fromCharCode(b) +
     this.data.substr(this.read + i + 1);
+  return this;
 };
 
 /**
@@ -396,31 +456,40 @@ util.ByteBuffer.prototype.copy = function() {
 
 /**
  * Compacts this buffer.
+ *
+ * @return this buffer.
  */
 util.ByteBuffer.prototype.compact = function() {
   if(this.read > 0) {
     this.data = this.data.slice(this.read);
     this.read = 0;
   }
+  return this;
 };
 
 /**
  * Clears this buffer.
+ *
+ * @return this buffer.
  */
 util.ByteBuffer.prototype.clear = function() {
   this.data = '';
   this.read = 0;
+  return this;
 };
 
 /**
  * Shortens this buffer by triming bytes off of the end of this buffer.
  *
  * @param count the number of bytes to trim off.
+ *
+ * @return this buffer.
  */
 util.ByteBuffer.prototype.truncate = function(count) {
   var len = Math.max(0, this.length() - count);
   this.data = this.data.substr(this.read, len);
   this.read = 0;
+  return this;
 };
 
 /**
@@ -880,7 +949,7 @@ var _removeItem = function(api, id, key) {
 
     // see if entry has no keys remaining
     var empty = true;
-    for(var prop in tmp) {
+    for(var prop in obj) {
       empty = false;
       break;
     }
@@ -1136,7 +1205,8 @@ util.getQueryVariables = function(query) {
       if(!(key in rval)) {
         rval[key] = [];
       }
-      if(val !== null) {
+      // disallow overriding object prototype keys
+      if(!(key in Object.prototype) && val !== null) {
         rval[key].push(unescape(val));
       }
     }
@@ -1189,11 +1259,11 @@ util.parseFragment = function(fragment) {
   }
   // split path based on '/' and ignore first element if empty
   var path = fp.split('/');
-  if(path.length > 0 && path[0] == '') {
+  if(path.length > 0 && path[0] === '') {
     path.shift();
   }
   // convert query into object
-  var query = (fq == '') ? {} : util.getQueryVariables(fq);
+  var query = (fq === '') ? {} : util.getQueryVariables(fq);
 
   return {
     pathString: fp,
@@ -1506,7 +1576,7 @@ util.formatSize = function(size) {
   else if(size >= 1048576) {
     size = util.formatNumber(size / 1048576, 2, '.', '') + ' MiB';
   }
-  else if (size >= 1024) {
+  else if(size >= 1024) {
     size = util.formatNumber(size / 1024, 0) + ' KiB';
   }
   else {
@@ -1515,4 +1585,57 @@ util.formatSize = function(size) {
   return size;
 };
 
+} // end module implementation
+
+/* ########## Begin module wrapper ########## */
+var name = 'util';
+if(typeof define !== 'function') {
+  // NodeJS -> AMD
+  if(typeof module === 'object' && module.exports) {
+    var nodeJS = true;
+    define = function(ids, factory) {
+      factory(require, module);
+    };
+  }
+  // <script>
+  else {
+    if(typeof forge === 'undefined') {
+      forge = {};
+    }
+    return initModule(forge);
+  }
+}
+// AMD
+var deps;
+var defineFunc = function(require, module) {
+  module.exports = function(forge) {
+    var mods = deps.map(function(dep) {
+      return require(dep);
+    }).concat(initModule);
+    // handle circular dependencies
+    forge = forge || {};
+    forge.defined = forge.defined || {};
+    if(forge.defined[name]) {
+      return forge[name];
+    }
+    forge.defined[name] = true;
+    for(var i = 0; i < mods.length; ++i) {
+      mods[i](forge);
+    }
+    return forge[name];
+  };
+};
+var tmpDefine = define;
+define = function(ids, factory) {
+  deps = (typeof ids === 'string') ? factory.slice(2) : ids.slice(2);
+  if(nodeJS) {
+    delete define;
+    return tmpDefine.apply(null, Array.prototype.slice.call(arguments, 0));
+  }
+  define = tmpDefine;
+  return define.apply(null, Array.prototype.slice.call(arguments, 0));
+};
+define(['require', 'module'], function() {
+  defineFunc.apply(null, Array.prototype.slice.call(arguments, 0));
+});
 })();
