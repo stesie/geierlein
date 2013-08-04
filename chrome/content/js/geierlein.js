@@ -21,11 +21,11 @@
 
 (function($, geierlein) {
     var DEFAULT_ADDRESS_DATA_SELECTOR = '.datenlieferant, #steuernummer, #land';
-    var $svzjahr = $('#ustsvza-jahr');
+    var $svzjahr = $('#SVZ-jahr');
     var $jahr = $('#jahr');
     var $zeitraum = $('#zeitraum');
 
-    var datenlieferant, ustva;
+    var datenlieferant, ustva, ustsvza;
 
     /*
      * private functions
@@ -78,6 +78,10 @@
         var kz = el.id.toLowerCase();
         var $cg = $(el).parents('.control-group');
         var value = el.value;
+
+        if(kz.substr(0, 4) === 'svz-') {
+            kz = kz.substr(4);
+        }
 
         if(el.type === 'checkbox' && !el.checked) {
             value = '';
@@ -367,6 +371,7 @@
 
     datenlieferant = new geierlein.Datenlieferant();
     ustva = new geierlein.UStVA(datenlieferant);
+    ustsvza = new geierlein.UStSvzA(datenlieferant);
 
     /* Bind datenlieferant input fields to the model.  We bind change as
        well as keyup, so we are able to revalidate the form on every keystroke
@@ -379,6 +384,11 @@
        datenlieferant fields we bind to both, change and keyup, events. */
     $('.ustva').on('change keyup', function(ev) {
         return updateModelHandler(this, ustva);
+    });
+
+    /* Likewise for UStSvzA. */
+    $('.ustsvza').on('change keyup', function(ev) {
+        return updateModelHandler(this, ustsvza);
     });
 
     $('#land').on('change keyup', function(ev) {
@@ -521,20 +531,20 @@
         $('#ustsvza').modal();
     });
 
-    $('#ustsvza-rhythmus').change(function(ev) {
-        var elname = '#ustsvza-svz-' + $('#ustsvza-rhythmus').val();
+    $('#SVZ-type').change(function(ev) {
+        var elname = '#ustsvza-svz-' + $('#SVZ-type').val();
         $('.ustsvza-svz').not(elname).hide();
         $(elname).show();
     });
 
-    $('#ustsvza-vjsum').on('change keyup', function(ev) {
-        var vjsum = +$('#ustsvza-vjsum').val();
+    $('#SVZ-vjsum').on('change keyup', function(ev) {
+        var vjsum = +$('#SVZ-vjsum').val();
 
-        if(isNaN(vjsum)) {
-            $('#Kz38').val('');
+        if(isNaN(vjsum) || vjsum === '') {
+            $('#SVZ-Kz38').val('');
         }
         else {
-            $('#Kz38').val(Math.max(0, Math.floor(vjsum / 11)));
+            $('#SVZ-Kz38').val(Math.max(0, Math.floor(vjsum / 11)));
         }
     });
 

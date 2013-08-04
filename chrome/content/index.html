@@ -785,51 +785,67 @@
             <form class="form-horizontal">
                 <fieldset>
                     <div class="control-group">
-                        <label class="control-label span1" for="ustsvza-jahr">Jahr</label>
+                        <label class="control-label span1" for="SVZ-jahr">Jahr</label>
                         <div class="span4">
-                            <select id="ustsvza-jahr" class="span4 ustsvza">
+                            <select id="SVZ-jahr" class="span4 ustsvza">
                             </select>
                         </div>
                     </div>
 
                     <div class="control-group">
-                        <label class="control-label span1" for="ustsvza-rhythmus">Abgaberhythmus</label>
+                        <label class="control-label span1" for="SVZ-type">Abgaberhythmus</label>
                         <div class="span4">
-                            <select id="ustsvza-rhythmus" class="span4 ustsvza">
-                                <option value="0">Quartal</option>
-                                <option value="1">Monat</option>
+                            <select id="SVZ-type" class="span4 ustsvza">
+                                <option value="Dauerfristverlaengerung">Quartal</option>
+                                <option value="Umsatzsteuersondervorauszahlung">Monat</option>
                             </select>
                         </div>
                     </div>
                 </fieldset>
 
-                <div id="ustsvza-svz-1" class="ustsvza-svz hide">
+                <div id="ustsvza-svz-Umsatzsteuersondervorauszahlung" class="ustsvza-svz hide">
                     <fieldset>
                         <h4>Anmeldung der Sondervorauszahlung</h4>
 
                         <div class="control-group">
-                            <label class="control-label span1" for="ustsvza-vjsum">Vorauszahlungen Vorjahr</label>
+                            <label class="control-label span1" for="SVZ-vjsum">Vorauszahlungen Vorjahr</label>
                             <div class="span4">
-                                <input type="text" id="ustsvza-vjsum" class="span4 ustsvza"
+                                <input type="text" id="SVZ-vjsum" class="span4"
                                        title="Summe der verbleibenden Umsatzsteuer-Vorauszahlungen zuzüglich der angerechneten Sondervorauszahlung für das Vorjahr"/>
                             </div>
                         </div>
 
                         <div class="control-group">
-                            <label class="control-label span1" for="Kz38">Sondervorauszahlung</label>
+                            <label class="control-label span1" for="SVZ-Kz38">Sondervorauszahlung</label>
                             <div class="span4 input-prepend">
                                 <span class="kz add-on">38</span>
-                                <input type="text" id="Kz38" class="span4 ustsvza multiply" disabled/>
+                                <input type="text" id="SVZ-Kz38" class="span4 ustsvza multiply" disabled/>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label span1" for="SVZ-Kz29">Verrechnung erwünscht</label>
+                            <div class="span1">
+                                <input type="checkbox" id="SVZ-Kz29" class="ustsvza" value="1"
+                                       title="Verrechnung des Erstattungsbetrags erwünscht / Erstattungsbetrag ist abgetreten"/>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label span1" for="SVZ-Kz26">Widerruf Einzugserm.</label>
+                            <div class="span1">
+                                <input type="checkbox" id="SVZ-Kz26" class="ustsvza" value="1"
+                                       title="Die Einzugsermächtigung wird ausnahmsweise (z.B. wegen Verrechnungswünschen) für diesen Voranmeldungszeitraum widerrufen.  Ein ggf. verbleibender Restbetrag ist gesondert zu entrichten."/>
                             </div>
                         </div>
                     </fieldset>
                 </div>
 
-                <div id="ustsvza-svz-0" class="ustsvza-svz">
+                <div id="ustsvza-svz-Dauerfristverlaengerung" class="ustsvza-svz">
                     <div class="alert alert-info">
                         <p>
                             Der Antrag auf Dauerfristverlängerung ist nicht zu stellen, wenn Dauerfrist-
-                            verlängerung bereits gewährt worden ist. Er ist nicht jährlich zu wiederholen.
+                            verlängerung bereits gewährt worden ist. <em>Er ist nicht jährlich zu wiederholen.</em>
                             Eine Sondervorauszahlung ist nicht zu berechnen und anzumelden.
                         </p>
                     </div>
@@ -856,6 +872,7 @@
     <script src="lib/geierlein/datenlieferant.js"></script>
     <script src="lib/geierlein/steuerfall.js"></script>
     <script src="lib/geierlein/ustva.js"></script>
+    <script src="lib/geierlein/ustsvza.js"></script>
     <script src="lib/forge/js/util.js"></script>
     <script src="lib/forge/js/oids.js"></script>
     <script src="lib/forge/js/asn1.js"></script>
