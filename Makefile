@@ -43,6 +43,7 @@ forge_essentials := \
 	chrome/content/lib/forge/js/pkcs12.js \
 	chrome/content/lib/forge/js/pkcs7.js \
 	chrome/content/lib/forge/js/pkcs7asn1.js \
+	chrome/content/lib/forge/js/pem.js \
 	chrome/content/lib/forge/js/pki.js \
 	chrome/content/lib/forge/js/pss.js \
 	chrome/content/lib/forge/js/rc2.js \
@@ -74,6 +75,7 @@ geierlein_essentials := \
 	chrome/content/lib/geierlein/taxnumber.js \
 	chrome/content/lib/geierlein/transfer.js \
 	chrome/content/lib/geierlein/ustva.js \
+	chrome/content/lib/geierlein/ustsvza.js \
 	chrome/content/lib/geierlein/util.js \
 	chrome/content/lib/geierlein/validation.js \
 	chrome/content/css/bootstrap.min.css \
