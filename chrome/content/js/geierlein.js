@@ -21,10 +21,11 @@
 
 (function($, geierlein) {
     var DEFAULT_ADDRESS_DATA_SELECTOR = '.datenlieferant, #steuernummer, #land';
+    var $svzjahr = $('#SVZ-jahr');
     var $jahr = $('#jahr');
     var $zeitraum = $('#zeitraum');
 
-    var datenlieferant, ustva;
+    var datenlieferant, ustva, ustsvza;
 
     /*
      * private functions
@@ -78,6 +79,10 @@
         var $cg = $(el).parents('.control-group');
         var value = el.value;
 
+        if(kz.substr(0, 4) === 'svz-') {
+            kz = kz.substr(4);
+        }
+
         if(el.type === 'checkbox' && !el.checked) {
             value = '';
         }
@@ -99,7 +104,8 @@
      * Handle send button event in signature control dialog.
      */
     function doSendFinal(ev) {
-        var asTestcase = $('#warn-no-testcase').css('display') === 'none';
+        var asTestcase = $('#prepare-send').data('asTestcase');
+        var formClass = $('#prepare-send').data('formClass');
 
         if($('#sig-enable').prop('checked')) {
             /* send with signature */
@@ -129,14 +135,14 @@
                     $('#wait').modal('hide');
                     return;
                 }
-                geierlein.sendData(asTestcase, signer);
+                geierlein.sendData(asTestcase, signer, formClass);
             };
             reader.readAsBinaryString(pfx[0]);
 
         } else {
             /* transfer without signature */
             $('#prepare-send').modal('hide');
-            geierlein.sendData(asTestcase, undefined);
+            geierlein.sendData(asTestcase, undefined, formClass);
         }
 
         return false;
@@ -151,17 +157,24 @@
      * Prepare submission of tax declaration, display signature control dialog
      *
      * @param asTestcase Whether to set test-marker in the declaration or not.
+     * @param formClass Which form to send (ustva or ustsvza)
      * @return void
      */
-    geierlein.startSendData = function(asTestcase) {
-        if(ustva.validate() !== true) {
+    geierlein.startSendData = function(asTestcase, formClass) {
+        formClass = formClass || ustva;
+
+        if(formClass.validate() !== true) {
             alert('Das Formular enthält noch ungültige Feldwerte, ' +
                 'Übertragung nicht möglich.');
-            return;
+            return false;
         }
 
         $('#warn-no-testcase').toggle(!asTestcase);
-        $('#prepare-send').modal();
+        $('#prepare-send')
+            .data('asTestcase', asTestcase)
+            .data('formClass', formClass)
+            .modal();
+        return true;
     };
 
     /**
@@ -171,10 +184,11 @@
      * @param signer Geierlein signer context (undefined for no signature)
      * @return void
      */
-    geierlein.sendData = function(asTestcase, signer) {
+    geierlein.sendData = function(asTestcase, signer, formClass) {
+        formClass = formClass || ustva;
         $('body').trigger('send-taxcase', asTestcase);
 
-        ustva.toEncryptedXml(asTestcase, signer, function(data, cb) {
+        formClass.toEncryptedXml(asTestcase, signer, function(data, cb) {
             $('#wait').modal();
             geierlein.transfer(data, cb);
         }, function(res) {
@@ -252,7 +266,7 @@
         /* Copy over all field data initially to consider browser's
          * auto-fill data, etc.pp
          */
-        $('.datenlieferant, .ustva').change();
+        $('.datenlieferant, .ustva, .ustsvza').change();
     };
 
     geierlein.serialize = function() {
@@ -370,11 +384,13 @@
         var d = new Date();
         for(var year = d.getFullYear(); year >= 2011; year --) {
             $('<option>').text(year).appendTo($jahr);
+            $('<option>').text(year).appendTo($svzjahr);
         }
     })();
 
     datenlieferant = new geierlein.Datenlieferant();
     ustva = new geierlein.UStVA(datenlieferant);
+    ustsvza = new geierlein.UStSvzA(datenlieferant);
 
     /* Bind datenlieferant input fields to the model.  We bind change as
        well as keyup, so we are able to revalidate the form on every keystroke
@@ -387,6 +403,11 @@
        datenlieferant fields we bind to both, change and keyup, events. */
     $('.ustva').on('change keyup', function(ev) {
         return updateModelHandler(this, ustva);
+    });
+
+    /* Likewise for UStSvzA. */
+    $('.ustsvza').on('change keyup', function(ev) {
+        return updateModelHandler(this, ustsvza);
     });
 
     $('#land').on('change keyup', function(ev) {
@@ -508,7 +529,58 @@
         saveAs(blob, "Geierlein-UStVA-" + ustva.jahr + ("0" + ustva.zeitraum).substr(-2));
     });
 
-    /* Bind store defaults button. */
+
+    /**
+     * Bind store defaults button.
+     */
     $('#store-defaults').click(geierlein.storeDefaultAddressData);
+
+
+    /**
+     * Bind "Dauerfristverlängerung" events.
+     */
+    $('#form-ustsvza').click(function(ev) {
+        ev.preventDefault();
+
+        if(!geierlein.isDatenlieferantValid()) {
+            alert('Zur Abgabe einer Dauerfristverlängerung muss vorab der Bereich "Unternehmer" korrekt ausgefüllt werden.');
+            return;
+        }
+
+        $('#ustsvza').modal();
+    });
+
+    $('#SVZ-type').change(function(ev) {
+        var elname = '#ustsvza-svz-' + $('#SVZ-type').val();
+        $('.ustsvza-svz').not(elname).hide();
+        $(elname).show();
+    });
+
+    $('#SVZ-vjsum').on('change keyup', function(ev) {
+        var vjsum = $('#SVZ-vjsum').val();
+
+        if(vjsum === '' || isNaN(+vjsum)) {
+            $('#SVZ-Kz38').val('').change();
+        }
+        else {
+            $('#SVZ-Kz38').val(Math.max(0, Math.floor(vjsum / 11))).change();
+        }
+    });
+
+    $('#SVZ-send').on('click', function(ev) {
+        if(geierlein.startSendData(false, ustsvza)) {
+            $('#ustsvza').modal('hide');
+        }
+        return false;
+    });
+
+    $('#SVZ-send-testcase').on('click', function(ev) {
+        if(geierlein.startSendData(true, ustsvza)) {
+            $('#ustsvza').modal('hide');
+        }
+        return false;
+    });
+
+
 
 }(jQuery, geierlein));

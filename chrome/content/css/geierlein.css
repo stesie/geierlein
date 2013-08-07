@@ -70,6 +70,16 @@ input.span2 {
     height: 12px;
 }
 
+#ustsvza select.span4,
+#ustsvza input.span4 {
+    margin-left: 22px;
+}
+
+#ustsvza .input-prepend input.span4 {
+    margin-left: 0;
+    border-bottom-left-radius: 3px;
+}
+
 /* Remove padding from accordion inner container, since we put right-aligned
    labels in there, which otherwise don't align with those not wrapped in an
    accordion. */

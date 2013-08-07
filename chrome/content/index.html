@@ -25,6 +25,7 @@
                             <li><a href="#" id="form-export">Export ...</a></li>
                         </ul>
                     </li>
+                    <li><a href="#" id="form-ustsvza">Dauerfristverlängerung</a></li>
                     <li><a data-toggle="modal" href="#about">Info</a></li>
                     <li><a href="http://stesie.github.io/geierlein/" target="_blank">Website</a></li>
                 </ul>
@@ -74,7 +75,7 @@
                                 <div class="control-group">
                                     <label class="control-label span4" for="land">Bundesland</label>
                                     <div class="span4">
-                                        <select id="land" class="span4 ustva">
+                                        <select id="land" class="span4 ustva ustsvza">
                                             <option value="1">Baden-Württemberg</option>
                                             <option value="2">Bayern</option>
                                             <option value="3">Berlin</option>
@@ -112,7 +113,7 @@
                                 <div class="control-group">
                                     <label class="control-label span4" for="steuernummer">Steuernummer</label>
                                     <div class="span4">
-                                        <input type="text" id="steuernummer" class="span4 ustva"/>
+                                        <input type="text" id="steuernummer" class="span4 ustva ustsvza"/>
                                     </div>
                                 </div>
 
@@ -775,6 +776,89 @@
         </div>
     </div>
 
+    <div class="modal hide" id="ustsvza">
+        <div class="modal-header">
+            <a class="close" data-dismiss="modal">×</a>
+            <h3>Antrag auf Dauerfristverlängerung …</h3>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal">
+                <fieldset>
+                    <div class="control-group">
+                        <label class="control-label span1" for="SVZ-jahr">Jahr</label>
+                        <div class="span4">
+                            <select id="SVZ-jahr" class="span4 ustsvza">
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label class="control-label span1" for="SVZ-type">Abgaberhythmus</label>
+                        <div class="span4">
+                            <select id="SVZ-type" class="span4 ustsvza">
+                                <option value="Dauerfristverlaengerung">Quartal</option>
+                                <option value="Umsatzsteuersondervorauszahlung">Monat</option>
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <div id="ustsvza-svz-Umsatzsteuersondervorauszahlung" class="ustsvza-svz hide">
+                    <fieldset>
+                        <h4>Anmeldung der Sondervorauszahlung</h4>
+
+                        <div class="control-group">
+                            <label class="control-label span1" for="SVZ-vjsum">Vorauszahlungen Vorjahr</label>
+                            <div class="span4">
+                                <input type="text" id="SVZ-vjsum" class="span4"
+                                       title="Summe der verbleibenden Umsatzsteuer-Vorauszahlungen zuzüglich der angerechneten Sondervorauszahlung für das Vorjahr"/>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label span1" for="SVZ-Kz38">Sondervorauszahlung</label>
+                            <div class="span4 input-prepend">
+                                <span class="kz add-on">38</span>
+                                <input type="text" id="SVZ-Kz38" class="span4 ustsvza multiply" disabled/>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label span1" for="SVZ-Kz29">Verrechnung erwünscht</label>
+                            <div class="span1">
+                                <input type="checkbox" id="SVZ-Kz29" class="ustsvza" value="1"
+                                       title="Verrechnung des Erstattungsbetrags erwünscht / Erstattungsbetrag ist abgetreten"/>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label class="control-label span1" for="SVZ-Kz26">Widerruf Einzugserm.</label>
+                            <div class="span1">
+                                <input type="checkbox" id="SVZ-Kz26" class="ustsvza" value="1"
+                                       title="Die Einzugsermächtigung wird ausnahmsweise (z.B. wegen Verrechnungswünschen) für diesen Voranmeldungszeitraum widerrufen.  Ein ggf. verbleibender Restbetrag ist gesondert zu entrichten."/>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div id="ustsvza-svz-Dauerfristverlaengerung" class="ustsvza-svz">
+                    <div class="alert alert-info">
+                        <p>
+                            Der Antrag auf Dauerfristverlängerung ist nicht zu stellen, wenn Dauerfrist-
+                            verlängerung bereits gewährt worden ist. <em>Er ist nicht jährlich zu wiederholen.</em>
+                            Eine Sondervorauszahlung ist nicht zu berechnen und anzumelden.
+                        </p>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="btn left" data-dismiss="modal">Abbrechen</a>
+            <a href="#" class="btn" id="SVZ-send-testcase">Senden als Testfall</a>
+            <a href="#" class="btn btn-primary" id="SVZ-send">Daten senden</a>
+        </div>
+    </div>
+
     <form>
         <input type="file" id="file-select" class="hide" />
     </form>
@@ -788,6 +872,7 @@
     <script src="lib/geierlein/datenlieferant.js"></script>
     <script src="lib/geierlein/steuerfall.js"></script>
     <script src="lib/geierlein/ustva.js"></script>
+    <script src="lib/geierlein/ustsvza.js"></script>
     <script src="lib/forge/js/util.js"></script>
     <script src="lib/forge/js/oids.js"></script>
     <script src="lib/forge/js/asn1.js"></script>
