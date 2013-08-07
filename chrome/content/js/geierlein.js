@@ -550,10 +550,10 @@
         var vjsum = +$('#SVZ-vjsum').val();
 
         if(isNaN(vjsum) || vjsum === '') {
-            $('#SVZ-Kz38').val('');
+            $('#SVZ-Kz38').val('').change();
         }
         else {
-            $('#SVZ-Kz38').val(Math.max(0, Math.floor(vjsum / 11)));
+            $('#SVZ-Kz38').val(Math.max(0, Math.floor(vjsum / 11))).change();
         }
     });
 
