@@ -120,6 +120,10 @@ version_files := \
 	application.ini \
 	chrome/content/lib/geierlein/steuerfall.js \
 	package.json \
+	tests/_files/ustsvza_datenteil_echt.xml \
+	tests/_files/ustsvza_datenteil_test.xml \
+	tests/_files/ustsvza_dauerfrist_datenteil_echt.xml \
+	tests/_files/ustsvza_dauerfrist_datenteil_test.xml \
 	tests/_files/ustva_datenteil_echt.xml \
 	tests/_files/ustva_datenteil_test.xml
 
