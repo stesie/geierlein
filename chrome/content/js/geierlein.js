@@ -547,9 +547,9 @@
     });
 
     $('#SVZ-vjsum').on('change keyup', function(ev) {
-        var vjsum = +$('#SVZ-vjsum').val();
+        var vjsum = $('#SVZ-vjsum').val();
 
-        if(isNaN(vjsum) || vjsum === '') {
+        if(vjsum === '' || isNaN(+vjsum)) {
             $('#SVZ-Kz38').val('').change();
         }
         else {
