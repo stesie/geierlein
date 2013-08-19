@@ -19,7 +19,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*global
+  document, location, window, alert,
+  LocalStoragePrefstore, XulPrefstore, Components,
+  jsxml,
+  FileReader, Blob, saveAs
+ */
+
 (function($, geierlein) {
+    "use strict";
     var DEFAULT_ADDRESS_DATA_SELECTOR = '.datenlieferant, #steuernummer, #land';
     var $svzjahr = $('#SVZ-jahr');
     var $jahr = $('#jahr');
@@ -216,13 +224,15 @@
         var id = ustva.steuernummer.replace(/[^0-9]/g, '');
         /* add year & month */
         id += "_" + ustva.jahr + ("0" + ustva.zeitraum).substr(-2);
-        if(ustva.kz10 == 1) {
+        if(ustva.kz10 === 1) {
             id += "_mod";
         }
         return id;
     };
 
     geierlein.resetForm = function() {
+        var importData, message, classes;
+
         $('form')[0].reset();
 
         /* Pre-select previous month and year. */
@@ -237,24 +247,24 @@
         $('body').trigger('reset-form');
 
         if(location.hash === '#importLocalStorage') {
-            var importData = prefstore.getCharPref('import');
-            prefstore.setCharPref('import', '');
+            importData = geierlein.prefstore.getCharPref('import');
+            geierlein.prefstore.setCharPref('import', '');
         }
 
         if(location.hash === '#importWindowName') {
-            var importData = window.name;
+            importData = window.name;
             window.name = '';
         }
 
         if(importData !== undefined && importData !== '') {
             if(geierlein.unserialize(importData)) {
-                var message = '<p><strong>Datenübernahme aus der Drittanwendung erfolgreich.</strong></p>' +
+                message = '<p><strong>Datenübernahme aus der Drittanwendung erfolgreich.</strong></p>' +
                     '<p>Die bereitgestellten Daten wurden in das Formular übernommen.</p>';
-                var classes = 'alert-success';
+                classes = 'alert-success';
             } else {
-                var message = '<p><strong>Datenübernahme aus der Drittanwendung gescheitert.</strong></p>' +
+                message = '<p><strong>Datenübernahme aus der Drittanwendung gescheitert.</strong></p>' +
                     '<p>Die bereitgestellten Daten konnten nicht verarbeitet werden, da diese fehlerhaft aufgebaut sind.</p>';
-                var classes = 'alert-error';
+                classes = 'alert-error';
             }
 
             $('<div class="alert">')
@@ -305,6 +315,8 @@
      * @return <boolean> True if file was loaded successfully, false otherwise.
      */
     geierlein.unserialize = function(data) {
+        var key;
+
         try {
             data = geierlein.util.parseFile(data);
         } catch(e) {
@@ -312,7 +324,7 @@
         }
 
         geierlein.resetForm();
-        for(var key in data) {
+        for(key in data) {
             if(data.hasOwnProperty(key)) {
                 /* The IDs of the input elements in the form start with
                  * an upper-case K.
@@ -339,7 +351,7 @@
     geierlein.loadDefaultAddressData = function() {
         $(DEFAULT_ADDRESS_DATA_SELECTOR).each(function() {
             var $el = $(this);
-            $el.val(prefstore.getCharPref('defaultAddress.' + this.id));
+            $el.val(geierlein.prefstore.getCharPref('defaultAddress.' + this.id));
             $el.change();
         });
     };
@@ -347,7 +359,7 @@
     geierlein.storeDefaultAddressData = function() {
         this.blur();
         $(DEFAULT_ADDRESS_DATA_SELECTOR).each(function() {
-            prefstore.setCharPref('defaultAddress.' + this.id, this.value);
+            geierlein.prefstore.setCharPref('defaultAddress.' + this.id, this.value);
         });
     };
 
@@ -364,14 +376,15 @@
             useLocalStore = true;
         }
     }
-    if(useLocalStore) {
-        prefstore = new LocalStoragePrefstore('geierlein');
 
-        if(prefstore.getCharPref('defaultAddress.land') === undefined) {
-            prefstore.setCharPref('defaultAddress.land', '1');
+    if(useLocalStore) {
+        geierlein.prefstore = new LocalStoragePrefstore('geierlein');
+
+        if(geierlein.prefstore.getCharPref('defaultAddress.land') === undefined) {
+            geierlein.prefstore.setCharPref('defaultAddress.land', '1');
         }
     } else {
-        prefstore = new XulPrefstore('geierlein');
+        geierlein.prefstore = new XulPrefstore('geierlein');
     }
 
 
@@ -382,11 +395,12 @@
     (function() {
         /* Fill year drop-down, supported is 2011 until now. */
         var d = new Date();
-        for(var year = d.getFullYear(); year >= 2011; year --) {
+        var year;
+        for(year = d.getFullYear(); year >= 2011; year --) {
             $('<option>').text(year).appendTo($jahr);
             $('<option>').text(year).appendTo($svzjahr);
         }
-    })();
+    }());
 
     datenlieferant = new geierlein.Datenlieferant();
     ustva = new geierlein.UStVA(datenlieferant);
@@ -475,7 +489,7 @@
      * Trigger send final on return keypress in signature control dialog.
      */
     $('#pincode').on('keypress', function(ev) {
-        if(ev.which == 13) {
+        if(ev.which === 13) {
             doSendFinal();
             return false;
         }

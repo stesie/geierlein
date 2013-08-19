@@ -19,12 +19,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*global
+  document, window, alert,
+  Components, FileUtils, NetUtil
+ */
+
 var xulapp = (function() {
+    "use strict";
+
     Components.utils.import("resource://gre/modules/NetUtil.jsm");
     Components.utils.import("resource://gre/modules/FileUtils.jsm");
-
-    const C = Components.classes;
-    const I = Components.interfaces;
+    var C = Components.classes;
+    var I = Components.interfaces;
 
     var doc = document.getElementById('doc');
     var cW = null;
@@ -45,7 +51,7 @@ var xulapp = (function() {
                 return;
             }
 
-            if(typeof(cb) === 'function') {
+            if(typeof cb === 'function') {
                 cb();
             }
         });
@@ -93,19 +99,19 @@ var xulapp = (function() {
             .addClass('xulapp')
             .on('reset-form', xulapp.autofillTimeRange)
             .on('send-taxcase', function(ev, asTestcase) {
-                if(cW.prefstore.getBoolPref('autosave.geierfile')) {
+                if(cW.geierlein.prefstore.getBoolPref('autosave.geierfile')) {
                     var fp = xulapp.getAutosaveFilepath();
                     var data = cW.geierlein.serialize();
                     storeStringToFile(data, fp);
                 }
 
                 if(!asTestcase) {
-                    cW.prefstore.setIntPref('autofill.time.lastyear', cW.$('#jahr').val());
-                    cW.prefstore.setIntPref('autofill.time.lastmonth', cW.$('#zeitraum').val());
+                    cW.geierlein.prefstore.setIntPref('autofill.time.lastyear', cW.$('#jahr').val());
+                    cW.geierlein.prefstore.setIntPref('autofill.time.lastmonth', cW.$('#zeitraum').val());
                 }
             })
             .on('show-protocol', function(ev, res) {
-                if(cW.prefstore.getBoolPref('autosave.protocol')) {
+                if(cW.geierlein.prefstore.getBoolPref('autosave.protocol')) {
                     var fp = xulapp.getAutosaveFilepath('.proto.xml');
                     storeStringToFile(res, fp);
                 }
@@ -182,7 +188,7 @@ var xulapp = (function() {
         cW.geierlein.transfer = cW.geierlein.transferDirect;
 
         /* Show developer menu if allowed by pref. */
-        if(cW.prefstore.getBoolPref('debug.showDevelMenu')) {
+        if(cW.geierlein.prefstore.getBoolPref('debug.showDevelMenu')) {
             document.getElementsByClassName('hideDevel')[0].className = '';
         }
     }, false);
@@ -195,7 +201,7 @@ var xulapp = (function() {
 
     return {
         autofillTimeRange: function() {
-            switch(cW.prefstore.getIntPref('autofill.time.mode')) {
+            switch(cW.geierlein.prefstore.getIntPref('autofill.time.mode')) {
                 case 1: /* last month */
                     /* do nothing, it's Geierlein's default to preselect
                        the last month. */
@@ -209,8 +215,8 @@ var xulapp = (function() {
                     break;
                 case 3: /* last transmission date */
                     try {
-                        var year = cW.prefstore.getIntPref('autofill.time.lastyear');
-                        var month = cW.prefstore.getIntPref('autofill.time.lastmonth');
+                        var year = cW.geierlein.prefstore.getIntPref('autofill.time.lastyear');
+                        var month = cW.geierlein.prefstore.getIntPref('autofill.time.lastmonth');
                         if(month === 12) {
                             /* Select first month of next year */
                             month = 1;
@@ -225,7 +231,8 @@ var xulapp = (function() {
                         cW.$('#jahr').val(year).change();
                         cW.$('#zeitraum').val(month).change();
                     } catch(e) {}
-            };
+                    break;
+            }
         },
 
         /* Get autosave-dir as nsILocalFile instance.
@@ -237,7 +244,7 @@ var xulapp = (function() {
         getAutosaveDir: function() {
             var fp;
             try {
-                fp = cW.prefstore.prefs.getComplexValue("autosave.dir", I.nsILocalFile);
+                fp = cW.geierlein.prefstore.prefs.getComplexValue("autosave.dir", I.nsILocalFile);
             } catch(e) {
                 var dirService = C["@mozilla.org/file/directory_service;1"].getService(I.nsIProperties);
                 var curProcDir = dirService.get("PrefD", I.nsIFile);
@@ -245,7 +252,7 @@ var xulapp = (function() {
                 fp = curProcDir.clone().QueryInterface(I.nsILocalFile);
                 fp.append('protos');
                 if(!fp.exists()) {
-                    fp.create(I.nsIFile.DIRECTORY_TYPE, 0700);
+                    fp.create(I.nsIFile.DIRECTORY_TYPE, 448 /* octal 0700 */);
                 }
             }
             return fp;
@@ -335,11 +342,11 @@ var xulapp = (function() {
             }
 
             var data = cW.geierlein.serialize();
-            if(storeStringToFile(data, filePath, function() {
+            storeStringToFile(data, filePath, function() {
                 fileChanged = false;
-            }));
+            });
         },
-        
+
         saveFileAs: function() {
             var fp = modalFileSaveAsDialog();
             if(fp === undefined) {  /* action cancelled by user. */
