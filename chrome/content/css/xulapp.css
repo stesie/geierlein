@@ -1,6 +1,6 @@
 @import url(chrome://global/skin/);  
 
-menu.hideDevel {
+.hideDevel {
     display: none;
 }
 

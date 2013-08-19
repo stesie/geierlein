@@ -26,15 +26,17 @@
             </menu>
             <menu label="Bearbeiten">
                 <menupopup>
-                    <menuitem label="Einstellungen" id="menu_preferences" accesskey="e" key="prefs-key" oncommand="xulapp.openPrefWindow();"/>
+                    <menuitem label="Einstellungen ..." id="menu_preferences" accesskey="e" key="prefs-key" oncommand="xulapp.openPrefWindow();"/>
                 </menupopup>
             </menu>
-            <menu label="Werkzeuge" class="hideDevel">
+            <menu label="Werkzeuge">
                 <menupopup>
-                    <menuitem label="Extension Manager" oncommand="window.open('chrome://mozapps/content/extensions/extensions.xul?type=extensions', '', 'chrome');"/>
-                    <menuitem label="DOM Inspector" oncommand="window.open('chrome://inspector/content/inspector.xul', '', 'chrome');"/>
-                    <menuitem label="JavaScript Shell" oncommand="window.open('chrome://extensiondev/content/shell.xul', '', 'chrome');"/>
-                    <menuitem label="about:config" oncommand="window.open('chrome://global/content/config.xul', '', 'chrome');"/>
+                    <menuitem label="Dauerfristverlängerung ..." accesskey="d" oncommand="xulapp.showUStSvzA();"/>
+                    <menuseparator class="hideDevel"/>
+                    <menuitem class="hideDevel" label="Extension Manager" oncommand="window.open('chrome://mozapps/content/extensions/extensions.xul?type=extensions', '', 'chrome');"/>
+                    <menuitem class="hideDevel" label="DOM Inspector" oncommand="window.open('chrome://inspector/content/inspector.xul', '', 'chrome');"/>
+                    <menuitem class="hideDevel" label="JavaScript Shell" oncommand="window.open('chrome://extensiondev/content/shell.xul', '', 'chrome');"/>
+                    <menuitem class="hideDevel" label="about:config" oncommand="window.open('chrome://global/content/config.xul', '', 'chrome');"/>
                 </menupopup>
             </menu>
             <menu label="Hilfe">

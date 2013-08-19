@@ -363,6 +363,15 @@
         });
     };
 
+    geierlein.showUStSvzA = function() {
+        if(!geierlein.isDatenlieferantValid()) {
+            alert('Zur Abgabe einer Dauerfristverlängerung muss vorab der Bereich "Unternehmer" korrekt ausgefüllt werden.');
+            return;
+        }
+
+        $('#ustsvza').modal();
+    };
+
 
     /* Initialize localStorage-based Prefstore, if not running
        in XUL-environment.  Otherwise use XUL-based storage. */
@@ -555,13 +564,7 @@
      */
     $('#form-ustsvza').click(function(ev) {
         ev.preventDefault();
-
-        if(!geierlein.isDatenlieferantValid()) {
-            alert('Zur Abgabe einer Dauerfristverlängerung muss vorab der Bereich "Unternehmer" korrekt ausgefüllt werden.');
-            return;
-        }
-
-        $('#ustsvza').modal();
+        geierlein.showUStSvzA();
     });
 
     $('#SVZ-type').change(function(ev) {

@@ -189,7 +189,11 @@ var xulapp = (function() {
 
         /* Show developer menu if allowed by pref. */
         if(cW.geierlein.prefstore.getBoolPref('debug.showDevelMenu')) {
-            document.getElementsByClassName('hideDevel')[0].className = '';
+            var elements = document.getElementsByClassName('hideDevel');
+
+            while(elements.length) {
+                elements[0].className = '';
+            }
         }
     }, false);
 
@@ -364,6 +368,10 @@ var xulapp = (function() {
 
         showInfo: function() {
             cW.$('#about').modal();
+        },
+
+        showUStSvzA: function() {
+            cW.geierlein.showUStSvzA();
         },
 
         shutdownQuery: function() {
