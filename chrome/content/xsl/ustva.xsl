@@ -4,7 +4,9 @@
 		xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 		xmlns:elster="http://www.elster.de/2002/XMLSchema"
 		exclude-result-prefixes="elster">
-	<xsl:output method="html" indent="yes" encoding="UTF-8" doctype-public="-//W3C//DTD HTML 4.01 Transitional//EN" doctype-system="http://www.w3.org/TR/html4/loose.dtd"/>
+	<xsl:output method="html" indent="yes" encoding="UTF-8"
+		    doctype-public="-//W3C//DTD HTML 4.01 Transitional//EN"
+		    doctype-system="http://www.w3.org/TR/html4/loose.dtd"/>
 
 <!-- Template zur Visualisierung der Steuernummer -->
 <xsl:template name="formatiereSteuernummer">
