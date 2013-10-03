@@ -268,23 +268,16 @@
   <!-- Schreibt die eigentliche *** TESTFALL *** -Zeile -->
   <xsl:template name="Testmerker">
     <div class="clear"></div>
-    <div>
-      <xsl:attribute name="style">
-      width: 33.3%;margin: 0;padding: 0;float: left;font-weight: bold;font-size: 1.2em;text-align: left;
-      </xsl:attribute>
+    <div style="font-weight: bold;font-size: 1.2em;">
+      <div style="width: 33.3%;margin: 0;padding: 0;float: left;text-align: left;">
+	*** TESTFALL ***
+      </div>
+      <div style="width: 33.3%;margin: 0;padding: 0;float: left;text-align: center;">
       *** TESTFALL ***
-    </div>
-    <div>
-      <xsl:attribute name="style">
-      width: 33.3%;margin: 0;padding: 0;float: left;font-weight: bold;font-size: 1.2em;text-align: center;
-      </xsl:attribute>
-      *** TESTFALL ***
-    </div>
-    <div>
-      <xsl:attribute name="style">
-      width: 33.3%;margin: 0;padding: 0;float: left;font-weight: bold;font-size: 1.2em;text-align: right;
-      </xsl:attribute>
-      *** TESTFALL ***
+      </div>
+      <div style="width: 33.3%;margin: 0;padding: 0;float: left;text-align: right;">
+	*** TESTFALL ***
+      </div>
     </div>
     <div class="clear"></div>
   </xsl:template>
