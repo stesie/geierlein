@@ -13,3 +13,6 @@ chromedriver.log
 *.pyc
 .dir-locals.el
 *~
+/Teil3_COALA_AnmSt_*
+*#
+.#*
