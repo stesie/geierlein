@@ -43,7 +43,7 @@ geierlein.taxnumber.rules = [
     { spacer: '/',  groups: [3, 3, 5]},      // Mecklenburg-Vorpommern
     { spacer: '/',  groups: [2, 3, 5]},      // Niedersachsen
     { spacer: '/',  groups: [3, 4, 4]},      // Nordrhein-Westfalen
-    { spacer: '/',  groups: [2, 3, 4, 1]},   // Rheinland-Pfalz
+    { spacer: '/',  groups: [2, 3, 5]},      // Rheinland-Pfalz
     { spacer: '/',  groups: [3, 3, 5]},      // Saarland
     { spacer: '/',  groups: [3, 3, 5]},      // Sachsen
     { spacer: '/',  groups: [3, 3, 5]},      // Sachsen-Anhalt

@@ -11,7 +11,7 @@ var taxNumberSamples = [
     "123/123/12345",	// Mecklenburg-Vorpommern
     "12/123/12345",	// Niedersachsen
     "123/1234/1234",	// NRW
-    "12/123/1234/1",	// Rheinland-Pfalz
+    "12/123/12345",	// Rheinland-Pfalz
     "123/123/12345",	// Saarland
     "123/123/12345",	// Sachsen
     "123/123/12345",	// Sachsen-Anhalt
@@ -29,7 +29,7 @@ var taxNumbersFormatted = [
     { encoded: "4079081508151", plain: "079/815/08151"},	// Mecklenburg-Vorkommern
     { encoded: "2324081508151", plain: "24/815/08151"},		// Niedersachsen
     { encoded: "5133081508159", plain: "133/8150/8159"},	// NRW
-    { encoded: "2722081508154", plain: "22/815/0815/4"},	// Rheinland-Pfalz
+    { encoded: "2799081508152", plain: "99/815/08152"},		// Rheinland-Pfalz
     { encoded: "1010081508182", plain: "010/815/08182"},	// Saarland
     { encoded: "3201012312340", plain: "201/123/12340"},	// Sachsen
     { encoded: "3101081508154", plain: "101/815/08154"},	// Sachsen-Anhalt
