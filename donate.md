@@ -1,6 +1,6 @@
 ---
 layout: default
-title: donate
+title: Deine Spende für Geierlein
 ---
 
 Wer steckt hinter Geierlein?
@@ -19,11 +19,20 @@ kleine Anerkennung sehr freuen.
 Spenden
 ---------
 
-Hinter Geierlein stehe letztlich ich, als Privatperson, alleine.  Es gibt keinen
-gemeinnützigen Verein oder ähnliches, d.h. deine Spende ist als solche nicht
-steuerlich absetzbar.  Sehr wohl können es aber Betriebsausgaben sein; wenn du
+Du kannst deine Wertschätzung & Unterstützung für Geierlein durch eine Spende
+zeigen und so die künftige Entwicklung unterstützen.
+
+Ich finde Geierlein füllt
+als Elster-Client gerade für Linux & Mac eine Lücke, da das ungeliebte Abgeben der
+Voranmeldung mit einer Desktop-Anwendung doch besser von der Hand geht als
+mit der offiziellen Anwendung unter Wine oder Elster Online.
+Wenn du das auch so siehst, würde ich mich über ein Spende von zum Beispiel 10 Euro
+sehr freuen.  Natürlich schätze ich auch jeden anderen Betrag sehr.
+
+Deine Spende ist als solche nicht steuerlich absetzbar.
+Sehr wohl kannst du diese aber als Betriebsausgaben absetzen; wenn du
 für etwas größere Beträge eine Rechnung brauchst, schreib' mich einfach per
-Mail an: stesie -at- brokenpipe -dot- de
+Mail an: stesie@brokenpipe.de
 
 Schnell und einfach geht's per Paypal;
 (Nachteile: Paypal behält einen Teil der Spende; Paypal sammelt deine Daten)
@@ -52,3 +61,8 @@ Gerade wenn du Paypal zur Spende verwendest, werden viele personenbezogene Daten
 Paypal erhoben und zum Teil (insbesondere Name und deine E-Mail-Adresse) mir bekannt gemacht.
 Ich verspreche dir jedoch, dass ich diese Daten nicht sammle, auswerte, an wen auch immer
 verkaufe, etc.pp
+
+Fragen?
+---------
+
+Gerne beantworte ich deine Fragen, vorzugsweise per Mail stesie@brokenpipe.de
