@@ -34,16 +34,17 @@ Sehr wohl kannst du diese aber als Betriebsausgaben absetzen; wenn du
 für etwas größere Beträge eine Rechnung brauchst, schreib' mich einfach per
 Mail an: stesie@brokenpipe.de
 
-Schnell und einfach geht's per Paypal;
-(Nachteile: Paypal behält einen Teil der Spende; Paypal sammelt deine Daten)
+Schnell und einfach geht's per Paypal; <br/>
+(Nachteile: Paypal behält einen Teil der Spende (Provision) und sammelt deine Daten)
 
-{% include donation.html %}
+{% include paypal.html %}
 
 Alternativ, wenn du auf Flattr bist:
 
 <a href="http://flattr.com/thing/1470914/Geierlein" target="_blank"><img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr this" title="Flattr this" border="0" /></a>
 
-Alternativ, falls du Bitcoins verwendest:
+Alternativ, falls du Bitcoins verwendest: <br/>
+(hiermit kannst du auch pseudonym spenden, wenn du das möchtest)
 
 <a href="bitcoin:19mP9FKrXqL46Si58pHdhGKow88SUPy1V8?amount=.025&message=Spende">
    <strong>1GUSYPqzGyPyYd3AZQosPLNVjE8xrq1a96</strong>
