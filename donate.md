@@ -21,8 +21,7 @@ Sehr wohl kannst du diese aber als Betriebsausgaben absetzen; wenn du
 für etwas größere Beträge eine Rechnung brauchst, schreib' mich einfach per
 Mail an: stesie@brokenpipe.de
 
-<strong>Schnell und einfach geht's per Paypal</strong>
-{% include paypal.html %}
+<strong>Schnell und einfach geht's mit Paypal</strong>: {% include paypal.html %}
 
 Paypal behält jedoch einen Teil deiner Spende als Provision ein.
 
