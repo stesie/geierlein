@@ -19,7 +19,7 @@
                     <menuitem label="Speichern unter ..." accesskey="u" key="saveas-key" oncommand="xulapp.saveFileAs();"/>
                     <menuseparator/>
                     <menuitem label="Daten senden ..." accesskey="d" oncommand="xulapp.send(false);"/>
-                    <menuitem label="Als Testfall senden ..." accesskey="t" oncommand="xulapp.send(true);"/>
+                    <menuitem label="Übertragung testen ..." accesskey="t" oncommand="xulapp.send(true);"/>
                     <menuseparator id="menu_FileQuitSeparator"/>
                     <menuitem label="Beenden" id="menu_FileQuitItem" accesskey="e" key="quit-key" oncommand="xulapp.shutdown();"/>
                 </menupopup>
