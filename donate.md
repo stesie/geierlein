@@ -3,19 +3,6 @@ layout: default
 title: Deine Spende für Geierlein
 ---
 
-Wer steckt hinter Geierlein?
-------------------------------
-
-Ich habe das Projekt "Taxbird" Ende 2004 begonnen, da
-ich selbst gelernter Steuerfachangestellter bin und der Thematik daher nahe stehe bzw. stand (ich übe den Beruf inzwischen nicht mehr aus).
-Da ich mich privat viel mit Computern im Allgemeinen und der Softwareentwicklung im Besonderen befasse,
-drängte sich irgendwann die Frage auf, wie das ELSTER-Projekt denn im Detail funktioniert bzw. ich
-bedauerte, dass es keine Lösung für GNU/Linux gab.
-
-Letztlich bin ich bis dato kein Unternehmer, habe die entwickelte Software also selbst noch nie
-verwenden können. Wenn du das Projekt nützlich findest, würde ich mich über eine Spende als
-kleine Anerkennung sehr freuen.
-
 Spenden
 ---------
 
@@ -46,9 +33,23 @@ Alternativ, wenn du auf Flattr bist:
 Alternativ, falls du Bitcoins verwendest: <br/>
 (hiermit kannst du auch pseudonym spenden, wenn du das möchtest)
 
-<a href="bitcoin:19mP9FKrXqL46Si58pHdhGKow88SUPy1V8?amount=.025&message=Spende">
+<a href="bitcoin:1GUSYPqzGyPyYd3AZQosPLNVjE8xrq1a96?amount=.025&message=Spende">
    <strong>1GUSYPqzGyPyYd3AZQosPLNVjE8xrq1a96</strong>
 </a>
+
+Wer steckt hinter Geierlein?
+------------------------------
+
+Ich habe das Projekt "Taxbird" Ende 2004 begonnen, da
+ich selbst gelernter Steuerfachangestellter bin und der Thematik daher nahe stehe bzw. stand (ich übe den Beruf inzwischen nicht mehr aus).
+Da ich mich privat viel mit Computern im Allgemeinen und der Softwareentwicklung im Besonderen befasse,
+drängte sich irgendwann die Frage auf, wie das ELSTER-Projekt denn im Detail funktioniert bzw. ich
+bedauerte, dass es keine Lösung für GNU/Linux gab.
+
+Letztlich bin ich bis dato kein Unternehmer, habe die entwickelte Software also selbst noch nie
+verwenden können. Wenn du das Projekt nützlich findest, würde ich mich über eine Spende als
+kleine Anerkennung sehr freuen.
+
 
 Datenschutz
 -------------
