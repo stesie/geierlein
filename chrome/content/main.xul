@@ -32,6 +32,7 @@
             <menu label="Werkzeuge">
                 <menupopup>
                     <menuitem label="Dauerfristverlängerung ..." accesskey="d" oncommand="xulapp.showUStSvzA();"/>
+                    <menuitem label="Protokoll nachdrucken ..." accesskey="p" oncommand="xulapp.reprintProto();"/>
                     <menuseparator class="hideDevel"/>
                     <menuitem class="hideDevel" label="Extension Manager" oncommand="window.open('chrome://mozapps/content/extensions/extensions.xul?type=extensions', '', 'chrome');"/>
                     <menuitem class="hideDevel" label="DOM Inspector" oncommand="window.open('chrome://inspector/content/inspector.xul', '', 'chrome');"/>

@@ -374,6 +374,35 @@ var xulapp = (function() {
             cW.geierlein.showUStSvzA();
         },
 
+        reprintProto: function() {
+            var nsIFilePicker = I.nsIFilePicker;
+            var fp = C["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+
+            fp.init(window, 'Protokoll nachdrucken', nsIFilePicker.modeOpen);
+            fp.appendFilters(nsIFilePicker.filterText | nsIFilePicker.filterAll);
+
+            var res = fp.show();
+            if (res !== nsIFilePicker.returnOK) {
+                return;
+            }
+
+            var channel = NetUtil.newChannel(fp.file);
+            channel.contentType = 'text/xml';
+            channel.contentCharset = 'UTF-8';
+
+            NetUtil.asyncFetch(channel, function(inStream, status) {
+                if(!Components.isSuccessCode(status)) {
+                    alert('Beim Lesen der Datei ist ein Fehler aufgetreten!');
+                    return;
+                }
+
+                var data = NetUtil.readInputStreamToString(inStream,
+                    inStream.available(), { charset: 'UTF-8' });
+
+		cW.geierlein.showProtocol(data);
+            });
+        },
+
         shutdownQuery: function() {
             return !modalAskSaveChanges();
         },

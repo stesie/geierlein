@@ -58,30 +58,6 @@
         return false;
     }
 
-    /**
-     * Show the modal protocol dialog and display the provided protocol.
-     *
-     * The provided document is run through XSL processor before being
-     * displayed.
-     *
-     * @param res The XML result document as a string.
-     * @return void
-     */
-    function showProtocol(res) {
-        var xslUrl = location.href.replace(/[^\/]+$/, '') + 'xsl/ustva.xsl';
-        $.ajax({
-            url: xslUrl,
-            isLocal: xslUrl.substr(0, 7) === 'chrome:',
-            success: function(xslDom) {
-                var xmlDom = jsxml.fromString(res, false);
-                var xslResult = jsxml.transReady(xmlDom, xslDom);
-                $('body').trigger('show-protocol', res);
-                $('#protocol-frame')[0].src = 'data:text/html;charset=UTF-8,' + encodeURIComponent(xslResult);
-                $('#protocol').modal();
-            }
-        });
-    }
-
     function updateModelHandler(el, model) {
         var kz = el.id.toLowerCase();
         var $cg = $(el).parents('.control-group');
@@ -162,6 +138,30 @@
 
 
     /**
+     * Show the modal protocol dialog and display the provided protocol.
+     *
+     * The provided document is run through XSL processor before being
+     * displayed.
+     *
+     * @param res The XML result document as a string.
+     * @return void
+     */
+    geierlein.showProtocol = function(res) {
+        var xslUrl = location.href.replace(/[^\/]+$/, '') + 'xsl/ustva.xsl';
+        $.ajax({
+            url: xslUrl,
+            isLocal: xslUrl.substr(0, 7) === 'chrome:',
+            success: function(xslDom) {
+                var xmlDom = jsxml.fromString(res, false);
+                var xslResult = jsxml.transReady(xmlDom, xslDom);
+                $('body').trigger('show-protocol', res);
+                $('#protocol-frame')[0].src = 'data:text/html;charset=UTF-8,' + encodeURIComponent(xslResult);
+                $('#protocol').modal();
+            }
+        });
+    };
+
+    /**
      * Prepare submission of tax declaration, display signature control dialog
      *
      * @param asTestcase Whether to set test-marker in the declaration or not.
@@ -208,7 +208,7 @@
 
             var status = res.match(/<Code>(.*?)<\/Code>\s*<Text>(.*?)<\/Text>/);
             if(+status[1] === 0) {
-                showProtocol(res);
+                geierlein.showProtocol(res);
             } else {
                 alert('Die Datenübertragung wurde vom Server abgebrochen:\n' +
                     status[2] + '\nFehlercode: ' + status[1]);
