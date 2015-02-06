@@ -12,23 +12,23 @@
 !define ABOUTURL "http://stesie.github.io/geierlein/" # "Publisher" link
 # This is the size (in kB) of all the files copied into "Program Files"
 !define INSTALLSIZE @INSTSIZE@
- 
+
 InstallDir "$PROGRAMFILES\${COMPANYNAME}\${APPNAME}"
- 
+
 # rtf or txt file - remember if it is txt, it must be in the DOS text format (\r\n)
 LicenseData "COPYING"
 # This will be in the installer/uninstaller's title bar
 Name "${COMPANYNAME} - ${APPNAME}"
 Icon "logo.ico"
 outFile "geierlein-@VERSION@-installer.exe"
- 
+
 !include LogicLib.nsh
- 
+
 # Just three pages - license agreement, install location, and installation
 page license
 page directory
 Page instfiles
- 
+
 function .onInit
 	setShellVarContext all
 
@@ -51,7 +51,7 @@ function .onInit
 
 	DetailPrint "Firefox executable is available as $R9."
 functionEnd
- 
+
 section "install"
 	# Files added here should be removed by the uninstaller (see section "uninstall")
 	@instfiles@
@@ -61,11 +61,11 @@ section "install"
 
 	# Uninstaller - See function un.onInit and section "uninstall" for configuration
 	writeUninstaller "$INSTDIR\uninstall.exe"
- 
+
 	# Start Menu
 	createDirectory "$SMPROGRAMS\${COMPANYNAME}"
 	createShortCut "$SMPROGRAMS\${COMPANYNAME}\${APPNAME}.lnk" "$R9" '-app "$INSTDIR\application.ini"' "$INSTDIR\logo.ico"
- 
+
 	# Registry information for add/remove programs
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}" "DisplayName" "${COMPANYNAME} - ${APPNAME} - ${DESCRIPTION}"
 	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}" "UninstallString" "$\"$INSTDIR\uninstall.exe$\""
@@ -85,25 +85,25 @@ section "install"
 	# Set the INSTALLSIZE constant (!defined at the top of this script) so Add/Remove Programs can accurately report the size
 	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}" "EstimatedSize" ${INSTALLSIZE}
 sectionEnd
- 
+
 # Uninstaller
- 
+
 function un.onInit
 	SetShellVarContext all
- 
+
 	#Verify the uninstaller - last chance to back out
 	MessageBox MB_OKCANCEL "Permanantly remove ${APPNAME}?" IDOK next
 		Abort
 	next:
 functionEnd
- 
+
 section "uninstall"
- 
+
 	# Remove Start Menu launcher
 	delete "$SMPROGRAMS\${COMPANYNAME}\${APPNAME}.lnk"
 	# Try to remove the Start Menu folder - this will only happen if it is empty
 	rmDir "$SMPROGRAMS\${COMPANYNAME}"
- 
+
 	# Remove files
 	#delete $INSTDIR\app.exe
 	#delete $INSTDIR\logo.ico
@@ -129,13 +129,13 @@ section "uninstall"
 	RMDir $INSTDIR\chrome
 	RMDir $INSTDIR\defaults\preferences
 	RMDir $INSTDIR\defaults
- 
+
 	# Always delete uninstaller as the last action
 	Delete $INSTDIR\uninstall.exe
- 
+
 	# Try to remove the install directory - this will only happen if it is empty
 	rmDir $INSTDIR
- 
+
 	# Remove uninstaller information from the registry
 	DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}"
 sectionEnd

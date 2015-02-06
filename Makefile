@@ -228,7 +228,7 @@ bump-version: $(version_files)
 			-e "s/\(VERSIONBUILD :=\) .*/\1 $$3/"; \
 	}; IFS=.; version="$(NEW_VERSION)"; bump_version $$version; unset IFS;)
 	sed -e 's;$(subst .,\.,$(VERSION));$(NEW_VERSION);g' -i~ $^
-	sed -e "s/^BuildID=.*/BuildID=`date +%Y%m%d`/" -i~ application.ini 
+	sed -e "s/^BuildID=.*/BuildID=`date +%Y%m%d`/" -i~ application.ini
 	git commit -m "Bump version to $(NEW_VERSION)" $^
 
 .PHONY: all clean autodist autodist-run dist install test test-forge test-all test-online test-offline uninstall bump-version dist-nsis

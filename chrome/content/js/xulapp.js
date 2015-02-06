@@ -36,7 +36,7 @@ var xulapp = (function() {
     var cW = null;
     var filePath;
     var fileChanged = false;
-    
+
     function storeStringToFile(data, filePath, cb) {
         var converter = C["@mozilla.org/intl/scriptableunicodeconverter"]
             .createInstance(I.nsIScriptableUnicodeConverter);
@@ -151,7 +151,7 @@ var xulapp = (function() {
             cW.geierlein.loadDefaultAddressData();
             xulapp.autofillTimeRange();
         }
-        
+
         if(cW.geierlein.isDatenlieferantValid()) {
             cW.$('#accordion-unternehmer').collapse();
         }
@@ -356,7 +356,7 @@ var xulapp = (function() {
             if(fp === undefined) {  /* action cancelled by user. */
                 return;
             }
-            
+
             /* Store chosen filepath and call the saveFile function (again). */
             filePath = fp.file;
             xulapp.saveFile();
