@@ -77,7 +77,7 @@ else if(typeof(module) !== 'undefined' && module.exports) {
 
     module.exports = function(encData, callback) {
         var http = require('http');
-        var ipaddr = getRandomIpAddress();
+        var ipaddr = getRandomHost();
         var post_options = {
             host: ipaddr,
             port: '80',
