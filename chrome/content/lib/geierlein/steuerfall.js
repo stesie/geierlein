@@ -63,7 +63,7 @@ geierlein.Steuerfall.prototype = {
      * A callback function can be passed to this function, which needs to
      * perform the encryption as required by the specification.  Leave
      * undefined to get an unencrypted representation.
-     * 
+     *
      * @param testcase Whether to declare the taxcase as a testcase.
      * @param signer Optional signer context to put signature on XML,
      *   pass undefined to skip signing.
@@ -80,7 +80,7 @@ geierlein.Steuerfall.prototype = {
                 return data;
             };
         }
-        
+
         var datenteil = encCb(this.getDatenteilXml(testcase, signer));
 
         var xml = new geierlein.util.Xml('ISO-8859-1', '1.0');
@@ -94,7 +94,7 @@ geierlein.Steuerfall.prototype = {
                 xml.writeElementString('DatenArt', this.datenart);
                 xml.writeElementString('Vorgang',
                     signer === undefined ? 'send-NoSig' : 'send-Sig');
-                
+
                 if(testcase) {
                     xml.writeElementString('Testmerker', '700000004');
                     xml.writeElementString('HerstellerID', '74931');
@@ -102,7 +102,7 @@ geierlein.Steuerfall.prototype = {
                     xml.writeElementString('Testmerker', '000000000');
                     xml.writeElementString('HerstellerID', this.herstellerID);
                 }
-                
+
                 xml.writeStartElement('DatenLieferant');
                     xml.writeXml(encCb(xml.escape(this.datenlieferant.toString())));
                 xml.writeEndElement();
@@ -116,16 +116,16 @@ geierlein.Steuerfall.prototype = {
                 xml.writeEndElement();  // Datei
                 xml.writeElementString('VersionClient', '0.7.1');
             xml.writeEndElement();  // TransferHeader
-        
+
             xml.writeStartElement('DatenTeil');
                 xml.writeXml(datenteil);
-    
+
         return xml.flush();
     },
-    
+
     /**
      * Get encrypted representation in Elster-XML format.
-     * 
+     *
      * @param testcase Whether to declare the taxcase as a testcase.
      * @param signer Optional signer context to put signature on XML,
      *   pass undefined to skip signing.
