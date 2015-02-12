@@ -21,16 +21,16 @@
 
 (function() {
 
-var ipAddrs = [
-    '62.157.211.58',
-    '62.157.211.59',
-    '193.109.238.26',
-    '193.109.238.27'
+var hostNames = [
+    'datenannahme1.elster.de',
+    'datenannahme2.elster.de',
+    'datenannahme3.elster.de',
+    'datenannahme4.elster.de'
 ];
 
-function getRandomIpAddress() {
-    var i = Math.floor(Math.random() * ipAddrs.length);
-    return ipAddrs[i];
+function getRandomHost() {
+    var i = Math.floor(Math.random() * hostNames.length);
+    return hostNames[i];
 }
 
 var geierlein = {};
@@ -39,7 +39,7 @@ if(typeof(window) !== 'undefined') {
     geierlein = window.geierlein = window.geierlein || {};
 
     geierlein.transferDirect = function(encData, callback) {
-        var targetUrl = 'http://' + getRandomIpAddress() +
+        var targetUrl = 'http://' + getRandomHost() +
             '/Elster2/EMS/ElsterAnmeldung';
         _doXhr(targetUrl, encData, callback);
     };
