@@ -192,7 +192,7 @@ autodist: dist
 autodist-run:
 	git checkout gh-pages
 	sed -e "s/geierlein\/archive\/V[0-9\.]\+\.zip/geierlein\/archive\/V$(VERSION).zip/" \
-		-e "s/geierlein-[0-9\.]\+-installer.exe/geierlein-$(VERSION)-installer.exe/" \
+		-e "s/V[0-9\.]\+\/geierlein-[0-9\.]\+-installer.exe/V$(VERSION)\/geierlein-$(VERSION)-installer.exe/" \
 		-i~ _layouts/default.html
 	git commit _layouts/default.html -m "Update links to version $(VERSION)"
 	git checkout master
