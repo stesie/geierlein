@@ -190,7 +190,6 @@ autodist: dist
 	git push --tags
 
 autodist-run:
-	scp geierlein-$(VERSION)-installer.exe stesie@gandalf.zerties.org:/srv/www/taxbird.de/downloads/geierlein
 	git checkout gh-pages
 	sed -e "s/geierlein\/archive\/V[0-9\.]\+\.zip/geierlein\/archive\/V$(VERSION).zip/" \
 		-e "s/geierlein-[0-9\.]\+-installer.exe/geierlein-$(VERSION)-installer.exe/" \
