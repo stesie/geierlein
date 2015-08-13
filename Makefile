@@ -15,40 +15,51 @@ PYTHON := python2
 WEBDRIVERS ?= Chrome Firefox
 
 forge_essentials := \
+	chrome/content/lib/forge/js/aesCipherSuites.js \
 	chrome/content/lib/forge/js/aes.js \
+	chrome/content/lib/forge/js/asn1.js \
+	chrome/content/lib/forge/js/cipher.js \
+	chrome/content/lib/forge/js/cipherModes.js \
 	chrome/content/lib/forge/js/debug.js \
 	chrome/content/lib/forge/js/des.js \
+	chrome/content/lib/forge/js/forge.js \
 	chrome/content/lib/forge/js/form.js \
 	chrome/content/lib/forge/js/hmac.js \
 	chrome/content/lib/forge/js/http.js \
 	chrome/content/lib/forge/js/jsbn.js \
+	chrome/content/lib/forge/js/kem.js \
 	chrome/content/lib/forge/js/log.js \
-	chrome/content/lib/forge/js/md.js \
 	chrome/content/lib/forge/js/md5.js \
+	chrome/content/lib/forge/js/md.js \
+	chrome/content/lib/forge/js/mgf1.js \
+	chrome/content/lib/forge/js/mgf.js \
+	chrome/content/lib/forge/js/oids.js \
+	chrome/content/lib/forge/js/pbe.js \
 	chrome/content/lib/forge/js/pbkdf2.js \
+	chrome/content/lib/forge/js/pem.js \
+	chrome/content/lib/forge/js/pkcs12.js \
+	chrome/content/lib/forge/js/pkcs1.js \
+	chrome/content/lib/forge/js/pkcs7asn1.js \
+	chrome/content/lib/forge/js/pkcs7.js \
+	chrome/content/lib/forge/js/pki.js \
+	chrome/content/lib/forge/js/prime.js \
+	chrome/content/lib/forge/js/prime.worker.js \
 	chrome/content/lib/forge/js/prng.js \
+	chrome/content/lib/forge/js/pss.js \
+	chrome/content/lib/forge/js/random.js \
+	chrome/content/lib/forge/js/rc2.js \
+	chrome/content/lib/forge/js/rsa.js \
 	chrome/content/lib/forge/js/sha1.js \
 	chrome/content/lib/forge/js/sha256.js \
+	chrome/content/lib/forge/js/sha512.js \
 	chrome/content/lib/forge/js/socket.js \
+	chrome/content/lib/forge/js/ssh.js \
 	chrome/content/lib/forge/js/task.js \
 	chrome/content/lib/forge/js/tls.js \
 	chrome/content/lib/forge/js/tlssocket.js \
-	chrome/content/lib/forge/js/xhr.js \
-	chrome/content/lib/forge/js/random.js \
-	chrome/content/lib/forge/js/asn1.js \
-	chrome/content/lib/forge/js/forge.js \
-	chrome/content/lib/forge/js/mgf.js \
-	chrome/content/lib/forge/js/mgf1.js \
-	chrome/content/lib/forge/js/oids.js \
-	chrome/content/lib/forge/js/pkcs12.js \
-	chrome/content/lib/forge/js/pkcs7.js \
-	chrome/content/lib/forge/js/pkcs7asn1.js \
-	chrome/content/lib/forge/js/pem.js \
-	chrome/content/lib/forge/js/pki.js \
-	chrome/content/lib/forge/js/pss.js \
-	chrome/content/lib/forge/js/rc2.js \
-	chrome/content/lib/forge/js/rsa.js \
-	chrome/content/lib/forge/js/util.js
+	chrome/content/lib/forge/js/util.js \
+	chrome/content/lib/forge/js/x509.js \
+	chrome/content/lib/forge/js/xhr.js
 
 gzipjs_essentials := \
 	chrome/content/lib/gzip-js/lib/crc32.js \
