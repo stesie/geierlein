@@ -39,6 +39,9 @@ oids['sha384WithRSAEncryption'] = '1.2.840.113549.1.1.12';
 oids['1.2.840.113549.1.1.13'] = 'sha512WithRSAEncryption';
 oids['sha512WithRSAEncryption'] = '1.2.840.113549.1.1.13';
 
+oids['1.3.14.3.2.7'] = 'desCBC';
+oids['desCBC'] = '1.3.14.3.2.7';
+
 oids['1.3.14.3.2.26'] = 'sha1';
 oids['sha1'] = '1.3.14.3.2.26';
 oids['2.16.840.1.101.3.4.2.1'] = 'sha256';
@@ -81,6 +84,8 @@ oids['1.2.840.113549.1.9.7'] = 'challengePassword';
 oids['challengePassword'] = '1.2.840.113549.1.9.7';
 oids['1.2.840.113549.1.9.8'] = 'unstructuredAddress';
 oids['unstructuredAddress'] = '1.2.840.113549.1.9.8';
+oids['1.2.840.113549.1.9.14'] = 'extensionRequest';
+oids['extensionRequest'] = '1.2.840.113549.1.9.14';
 
 oids['1.2.840.113549.1.9.20'] = 'friendlyName';
 oids['friendlyName'] = '1.2.840.113549.1.9.20';
@@ -220,9 +225,8 @@ if(typeof define !== 'function') {
     define = function(ids, factory) {
       factory(require, module);
     };
-  }
-  // <script>
-  else {
+  } else {
+    // <script>
     if(typeof forge === 'undefined') {
       forge = {};
     }

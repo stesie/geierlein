@@ -1,5 +1,5 @@
 /**
- * Advanced Encryption Standard (AES) Cipher-Block Chaining implementation.
+ * Advanced Encryption Standard (AES) implementation.
  *
  * This implementation is based on the public domain library 'jscrypto' which
  * was written by:
@@ -13,11 +13,260 @@
  *
  * @author Dave Longley
  *
- * Copyright (c) 2010-2013 Digital Bazaar, Inc.
+ * Copyright (c) 2010-2014 Digital Bazaar, Inc.
  */
 (function() {
 /* ########## Begin module implementation ########## */
 function initModule(forge) {
+
+/* AES API */
+forge.aes = forge.aes || {};
+
+/**
+ * Deprecated. Instead, use:
+ *
+ * var cipher = forge.cipher.createCipher('AES-<mode>', key);
+ * cipher.start({iv: iv});
+ *
+ * Creates an AES cipher object to encrypt data using the given symmetric key.
+ * The output will be stored in the 'output' member of the returned cipher.
+ *
+ * The key and iv may be given as a string of bytes, an array of bytes,
+ * a byte buffer, or an array of 32-bit words.
+ *
+ * @param key the symmetric key to use.
+ * @param iv the initialization vector to use.
+ * @param output the buffer to write to, null to create one.
+ * @param mode the cipher mode to use (default: 'CBC').
+ *
+ * @return the cipher.
+ */
+forge.aes.startEncrypting = function(key, iv, output, mode) {
+  var cipher = _createCipher({
+    key: key,
+    output: output,
+    decrypt: false,
+    mode: mode
+  });
+  cipher.start(iv);
+  return cipher;
+};
+
+/**
+ * Deprecated. Instead, use:
+ *
+ * var cipher = forge.cipher.createCipher('AES-<mode>', key);
+ *
+ * Creates an AES cipher object to encrypt data using the given symmetric key.
+ *
+ * The key may be given as a string of bytes, an array of bytes, a
+ * byte buffer, or an array of 32-bit words.
+ *
+ * @param key the symmetric key to use.
+ * @param mode the cipher mode to use (default: 'CBC').
+ *
+ * @return the cipher.
+ */
+forge.aes.createEncryptionCipher = function(key, mode) {
+  return _createCipher({
+    key: key,
+    output: null,
+    decrypt: false,
+    mode: mode
+  });
+};
+
+/**
+ * Deprecated. Instead, use:
+ *
+ * var decipher = forge.cipher.createDecipher('AES-<mode>', key);
+ * decipher.start({iv: iv});
+ *
+ * Creates an AES cipher object to decrypt data using the given symmetric key.
+ * The output will be stored in the 'output' member of the returned cipher.
+ *
+ * The key and iv may be given as a string of bytes, an array of bytes,
+ * a byte buffer, or an array of 32-bit words.
+ *
+ * @param key the symmetric key to use.
+ * @param iv the initialization vector to use.
+ * @param output the buffer to write to, null to create one.
+ * @param mode the cipher mode to use (default: 'CBC').
+ *
+ * @return the cipher.
+ */
+forge.aes.startDecrypting = function(key, iv, output, mode) {
+  var cipher = _createCipher({
+    key: key,
+    output: output,
+    decrypt: true,
+    mode: mode
+  });
+  cipher.start(iv);
+  return cipher;
+};
+
+/**
+ * Deprecated. Instead, use:
+ *
+ * var decipher = forge.cipher.createDecipher('AES-<mode>', key);
+ *
+ * Creates an AES cipher object to decrypt data using the given symmetric key.
+ *
+ * The key may be given as a string of bytes, an array of bytes, a
+ * byte buffer, or an array of 32-bit words.
+ *
+ * @param key the symmetric key to use.
+ * @param mode the cipher mode to use (default: 'CBC').
+ *
+ * @return the cipher.
+ */
+forge.aes.createDecryptionCipher = function(key, mode) {
+  return _createCipher({
+    key: key,
+    output: null,
+    decrypt: true,
+    mode: mode
+  });
+};
+
+/**
+ * Creates a new AES cipher algorithm object.
+ *
+ * @param name the name of the algorithm.
+ * @param mode the mode factory function.
+ *
+ * @return the AES algorithm object.
+ */
+forge.aes.Algorithm = function(name, mode) {
+  if(!init) {
+    initialize();
+  }
+  var self = this;
+  self.name = name;
+  self.mode = new mode({
+    blockSize: 16,
+    cipher: {
+      encrypt: function(inBlock, outBlock) {
+        return _updateBlock(self._w, inBlock, outBlock, false);
+      },
+      decrypt: function(inBlock, outBlock) {
+        return _updateBlock(self._w, inBlock, outBlock, true);
+      }
+    }
+  });
+  self._init = false;
+};
+
+/**
+ * Initializes this AES algorithm by expanding its key.
+ *
+ * @param options the options to use.
+ *          key the key to use with this algorithm.
+ *          decrypt true if the algorithm should be initialized for decryption,
+ *            false for encryption.
+ */
+forge.aes.Algorithm.prototype.initialize = function(options) {
+  if(this._init) {
+    return;
+  }
+
+  var key = options.key;
+  var tmp;
+
+  /* Note: The key may be a string of bytes, an array of bytes, a byte
+    buffer, or an array of 32-bit integers. If the key is in bytes, then
+    it must be 16, 24, or 32 bytes in length. If it is in 32-bit
+    integers, it must be 4, 6, or 8 integers long. */
+
+  if(typeof key === 'string' &&
+    (key.length === 16 || key.length === 24 || key.length === 32)) {
+    // convert key string into byte buffer
+    key = forge.util.createBuffer(key);
+  } else if(forge.util.isArray(key) &&
+    (key.length === 16 || key.length === 24 || key.length === 32)) {
+    // convert key integer array into byte buffer
+    tmp = key;
+    key = forge.util.createBuffer();
+    for(var i = 0; i < tmp.length; ++i) {
+      key.putByte(tmp[i]);
+    }
+  }
+
+  // convert key byte buffer into 32-bit integer array
+  if(!forge.util.isArray(key)) {
+    tmp = key;
+    key = [];
+
+    // key lengths of 16, 24, 32 bytes allowed
+    var len = tmp.length();
+    if(len === 16 || len === 24 || len === 32) {
+      len = len >>> 2;
+      for(var i = 0; i < len; ++i) {
+        key.push(tmp.getInt32());
+      }
+    }
+  }
+
+  // key must be an array of 32-bit integers by now
+  if(!forge.util.isArray(key) ||
+    !(key.length === 4 || key.length === 6 || key.length === 8)) {
+    throw new Error('Invalid key parameter.');
+  }
+
+  // encryption operation is always used for these modes
+  var mode = this.mode.name;
+  var encryptOp = (['CFB', 'OFB', 'CTR', 'GCM'].indexOf(mode) !== -1);
+
+  // do key expansion
+  this._w = _expandKey(key, options.decrypt && !encryptOp);
+  this._init = true;
+};
+
+/**
+ * Expands a key. Typically only used for testing.
+ *
+ * @param key the symmetric key to expand, as an array of 32-bit words.
+ * @param decrypt true to expand for decryption, false for encryption.
+ *
+ * @return the expanded key.
+ */
+forge.aes._expandKey = function(key, decrypt) {
+  if(!init) {
+    initialize();
+  }
+  return _expandKey(key, decrypt);
+};
+
+/**
+ * Updates a single block. Typically only used for testing.
+ *
+ * @param w the expanded key to use.
+ * @param input an array of block-size 32-bit words.
+ * @param output an array of block-size 32-bit words.
+ * @param decrypt true to decrypt, false to encrypt.
+ */
+forge.aes._updateBlock = _updateBlock;
+
+
+/** Register AES algorithms **/
+
+registerAlgorithm('AES-ECB', forge.cipher.modes.ecb);
+registerAlgorithm('AES-CBC', forge.cipher.modes.cbc);
+registerAlgorithm('AES-CFB', forge.cipher.modes.cfb);
+registerAlgorithm('AES-OFB', forge.cipher.modes.ofb);
+registerAlgorithm('AES-CTR', forge.cipher.modes.ctr);
+registerAlgorithm('AES-GCM', forge.cipher.modes.gcm);
+
+function registerAlgorithm(name, mode) {
+  var factory = function() {
+    return new forge.aes.Algorithm(name, mode);
+  };
+  forge.cipher.registerAlgorithm(name, factory);
+}
+
+
+/** AES implementation **/
 
 var init = false; // not yet initialized
 var Nb = 4;       // number of words comprising the state (AES = 4)
@@ -190,7 +439,7 @@ var imix;         // inverse mix-columns table
  * = 0x57 ^ 0xae ^ 0x07
  * = 0xfe.
  */
-var initialize = function() {
+function initialize() {
   init = true;
 
   /* Populate the Rcon table. These are the values given by
@@ -383,15 +632,14 @@ var initialize = function() {
     if(e === 0) {
       // 1 is the inverse of 1
       e = ei = 1;
-    }
-    else {
+    } else {
       // e = 2e + 2*2*2*(10e)) = multiply e by 82 (chosen generator)
       // ei = ei + 2*2*ei = multiply ei by 5 (inverse generator)
       e = e2 ^ xtime[xtime[xtime[e2 ^ e8]]];
       ei ^= xtime[xtime[ei]];
     }
   }
-};
+}
 
 /**
  * Generates a key schedule using the AES key expansion algorithm.
@@ -417,7 +665,7 @@ var initialize = function() {
  *
  * @return the generated key schedule.
  */
-var expandKey = function(key, decrypt) {
+function _expandKey(key, decrypt) {
   // copy the key's words to initialize the key schedule
   var w = key.slice(0);
 
@@ -446,8 +694,7 @@ var expandKey = function(key, decrypt) {
         sbox[temp & 255] << 8 ^
         sbox[temp >>> 24] ^ (rcon[iNk] << 24);
       iNk++;
-    }
-    else if(Nk > 6 && (i % Nk === 4)) {
+    } else if(Nk > 6 && (i % Nk === 4)) {
       // temp = SubWord(temp)
       temp =
         sbox[temp >>> 24] << 24 ^
@@ -512,7 +759,7 @@ var expandKey = function(key, decrypt) {
     var m2 = imix[2];
     var m3 = imix[3];
     var wnew = w.slice(0);
-    var end = w.length;
+    end = w.length;
     for(var i = 0, wi = end - Nb; i < end; i += Nb, wi -= Nb) {
       // do not sub the first or last round key (round keys are Nb
       // words) as no column mixing is performed before they are added,
@@ -522,8 +769,7 @@ var expandKey = function(key, decrypt) {
         wnew[i + 1] = w[wi + 3];
         wnew[i + 2] = w[wi + 2];
         wnew[i + 3] = w[wi + 1];
-      }
-      else {
+      } else {
         // substitute each round key byte because the inverse-mix
         // table will inverse-substitute it (effectively cancel the
         // substitution because round key bytes aren't sub'd in
@@ -542,7 +788,7 @@ var expandKey = function(key, decrypt) {
   }
 
   return w;
-};
+}
 
 /**
  * Updates a single block (16 bytes) using AES. The update will either
@@ -553,7 +799,7 @@ var expandKey = function(key, decrypt) {
  * @param output the updated output block.
  * @param decrypt true to decrypt the block, false to encrypt it.
  */
-var _updateBlock = function(w, input, output, decrypt) {
+function _updateBlock(w, input, output, decrypt) {
   /*
   Cipher(byte in[4*Nb], byte out[4*Nb], word w[Nb*(Nr+1)])
   begin
@@ -600,8 +846,7 @@ var _updateBlock = function(w, input, output, decrypt) {
     m2 = imix[2];
     m3 = imix[3];
     sub = isbox;
-  }
-  else {
+  } else {
     m0 = mix[0];
     m1 = mix[1];
     m2 = mix[2];
@@ -794,456 +1039,57 @@ var _updateBlock = function(w, input, output, decrypt) {
     (sub[a >>> 16 & 255] << 16) ^
     (sub[b >>> 8 & 255] << 8) ^
     (sub[c & 255]) ^ w[++i];
-};
+}
 
 /**
- * Creates an AES cipher object. CBC (cipher-block-chaining) mode will be
- * used by default, the other supported modes are: CFB.
+ * Deprecated. Instead, use:
+ *
+ * forge.cipher.createCipher('AES-<mode>', key);
+ * forge.cipher.createDecipher('AES-<mode>', key);
+ *
+ * Creates a deprecated AES cipher object. This object's mode will default to
+ * CBC (cipher-block-chaining).
  *
  * The key and iv may be given as a string of bytes, an array of bytes, a
- * byte buffer, or an array of 32-bit words. If an iv is provided, then
- * encryption/decryption will be started, otherwise start() must be called
- * with an iv.
+ * byte buffer, or an array of 32-bit words.
  *
- * @param key the symmetric key to use.
- * @param iv the initialization vector to start with, null not to start.
- * @param output the buffer to write to.
- * @param decrypt true for decryption, false for encryption.
- * @param mode the cipher mode to use (default: 'CBC').
+ * @param options the options to use.
+ *          key the symmetric key to use.
+ *          output the buffer to write to.
+ *          decrypt true for decryption, false for encryption.
+ *          mode the cipher mode to use (default: 'CBC').
  *
  * @return the cipher.
  */
-var _createCipher = function(key, iv, output, decrypt, mode) {
-  var cipher = null;
+function _createCipher(options) {
+  options = options || {};
+  var mode = (options.mode || 'CBC').toUpperCase();
+  var algorithm = 'AES-' + mode;
 
-  if(!init) {
-    initialize();
+  var cipher;
+  if(options.decrypt) {
+    cipher = forge.cipher.createDecipher(algorithm, options.key);
+  } else {
+    cipher = forge.cipher.createCipher(algorithm, options.key);
   }
 
-  // default to CBC mode
-  mode = (mode || 'CBC').toUpperCase();
-
-  /* Note: The key may be a string of bytes, an array of bytes, a byte
-    buffer, or an array of 32-bit integers. If the key is in bytes, then
-    it must be 16, 24, or 32 bytes in length. If it is in 32-bit
-    integers, it must be 4, 6, or 8 integers long. */
-
-  // convert key string into byte buffer
-  if(typeof key === 'string' &&
-    (key.length === 16 || key.length === 24 || key.length === 32)) {
-    key = forge.util.createBuffer(key);
-  }
-  // convert key integer array into byte buffer
-  else if(forge.util.isArray(key) &&
-    (key.length === 16 || key.length === 24 || key.length === 32)) {
-    var tmp = key;
-    var key = forge.util.createBuffer();
-    for(var i = 0; i < tmp.length; ++i) {
-      key.putByte(tmp[i]);
+  // backwards compatible start API
+  var start = cipher.start;
+  cipher.start = function(iv, options) {
+    // backwards compatibility: support second arg as output buffer
+    var output = null;
+    if(options instanceof forge.util.ByteBuffer) {
+      output = options;
+      options = {};
     }
-  }
-
-  // convert key byte buffer into 32-bit integer array
-  if(!forge.util.isArray(key)) {
-    var tmp = key;
-    key = [];
-
-    // key lengths of 16, 24, 32 bytes allowed
-    var len = tmp.length();
-    if(len === 16 || len === 24 || len === 32) {
-      len = len >>> 2;
-      for(var i = 0; i < len; ++i) {
-        key.push(tmp.getInt32());
-      }
-    }
-  }
-
-  // key must be an array of 32-bit integers by now
-  if(!forge.util.isArray(key) ||
-    !(key.length === 4 || key.length === 6 || key.length === 8)) {
-    return cipher;
-  }
-
-  // (CFB/OFB/CTR always uses encryption)
-  var alwaysEncrypt = (['CFB', 'OFB', 'CTR'].indexOf(mode) !== -1);
-
-  // CBC mode requires padding
-  var requirePadding = (mode === 'CBC');
-
-  // private vars for state
-  var _w = expandKey(key, decrypt && !alwaysEncrypt);
-  var _blockSize = Nb << 2;
-  var _input;
-  var _output;
-  var _inBlock;
-  var _outBlock;
-  var _prev;
-  var _finish;
-  var _op;
-  cipher = {
-    // output from AES (either encrypted or decrypted bytes)
-    output: null
+    options = options || {};
+    options.output = output;
+    options.iv = iv;
+    start.call(cipher, options);
   };
 
-  if(mode === 'CBC') {
-    _op = cbcOp;
-  }
-  else if(mode === 'CFB') {
-    _op = cfbOp;
-  }
-  else if(mode === 'OFB') {
-    _op = ofbOp;
-  }
-  else if(mode === 'CTR') {
-    _op = ctrOp;
-  }
-  else {
-    throw {
-      message: 'Unsupported block cipher mode of operation: "' + mode + '"'
-    }
-  }
-
-  /**
-   * Updates the next block according to the cipher mode.
-   *
-   * @param input the buffer to read from.
-   */
-  cipher.update = function(input) {
-    if(!_finish) {
-      // not finishing, so fill the input buffer with more input
-      _input.putBuffer(input);
-    }
-
-    // do cipher operation while input contains full blocks or if finishing
-    while(_input.length() >= _blockSize || (_input.length() > 0 && _finish)) {
-      _op();
-    }
-  };
-
-  /**
-   * Finishes encrypting or decrypting.
-   *
-   * @param pad a padding function to use in CBC mode, null for default,
-   *          signature(blockSize, buffer, decrypt).
-   *
-   * @return true if successful, false on error.
-   */
-  cipher.finish = function(pad) {
-    var rval = true;
-
-    // get # of bytes that won't fill a block
-    var overflow = _input.length() % _blockSize;
-
-    if(!decrypt) {
-      if(pad) {
-        rval = pad(_blockSize, _input, decrypt);
-      }
-      else if(requirePadding) {
-        // add PKCS#7 padding to block (each pad byte is the
-        // value of the number of pad bytes)
-        var padding = (_input.length() === _blockSize) ?
-          _blockSize : (_blockSize - _input.length());
-        _input.fillWithByte(padding, padding);
-      }
-    }
-
-    if(rval) {
-      // do final update
-      _finish = true;
-      cipher.update();
-    }
-
-    if(decrypt) {
-      if(requirePadding) {
-        // check for error: input data not a multiple of blockSize
-        rval = (overflow === 0);
-      }
-      if(rval) {
-        if(pad) {
-          rval = pad(_blockSize, _output, decrypt);
-        }
-        else if(requirePadding) {
-          // ensure padding byte count is valid
-          var len = _output.length();
-          var count = _output.at(len - 1);
-          if(count > (Nb << 2)) {
-            rval = false;
-          }
-          else {
-            // trim off padding bytes
-            _output.truncate(count);
-          }
-        }
-      }
-    }
-
-    // handle stream mode truncation if padding not set
-    if(!requirePadding && !pad && overflow > 0) {
-      _output.truncate(_blockSize - overflow);
-    }
-
-    return rval;
-  };
-
-  /**
-   * Starts or restarts the encryption or decryption process, whichever
-   * was previously configured.
-   *
-   * The iv may be given as a string of bytes, an array of bytes, a
-   * byte buffer, or an array of 32-bit words.
-   *
-   * @param iv the initialization vector to use, null to reuse the
-   *          last ciphered block from a previous update().
-   * @param output the output the buffer to write to, null to create one.
-   */
-  cipher.start = function(iv, output) {
-    // if IV is null, reuse block from previous encryption/decryption
-    if(iv === null) {
-      iv = _prev.slice(0);
-    }
-
-    /* Note: The IV may be a string of bytes, an array of bytes, a
-      byte buffer, or an array of 32-bit integers. If the IV is in
-      bytes, then it must be Nb (16) bytes in length. If it is in
-      32-bit integers, then it must be 4 integers long. */
-
-    // convert iv string into byte buffer
-    if(typeof iv === 'string' && iv.length === 16) {
-      iv = forge.util.createBuffer(iv);
-    }
-    // convert iv byte array into byte buffer
-    else if(forge.util.isArray(iv) && iv.length === 16) {
-      var tmp = iv;
-      var iv = forge.util.createBuffer();
-      for(var i = 0; i < 16; ++i) {
-        iv.putByte(tmp[i]);
-      }
-    }
-
-    // convert iv byte buffer into 32-bit integer array
-    if(!forge.util.isArray(iv)) {
-      var tmp = iv;
-      iv = new Array(4);
-      iv[0] = tmp.getInt32();
-      iv[1] = tmp.getInt32();
-      iv[2] = tmp.getInt32();
-      iv[3] = tmp.getInt32();
-    }
-
-    // set private vars
-    _input = forge.util.createBuffer();
-    _output = output || forge.util.createBuffer();
-    _prev = iv.slice(0);
-    _inBlock = new Array(Nb);
-    _outBlock = new Array(Nb);
-    _finish = false;
-    cipher.output = _output;
-
-    // CFB/OFB/CTR uses IV as first input
-    if(['CFB', 'OFB', 'CTR'].indexOf(mode) !== -1) {
-      for(var i = 0; i < Nb; ++i) {
-        _inBlock[i] = _prev[i];
-      }
-      _prev = null;
-    }
-  };
-  if(iv !== null) {
-    cipher.start(iv, output);
-  }
   return cipher;
-
-  // block cipher mode operations:
-
-  function cbcOp() {
-    // get next block
-    if(decrypt) {
-      for(var i = 0; i < Nb; ++i) {
-        _inBlock[i] = _input.getInt32();
-      }
-    }
-    else {
-      // CBC XOR's IV (or previous block) with plaintext
-      for(var i = 0; i < Nb; ++i) {
-        _inBlock[i] = _prev[i] ^ _input.getInt32();
-      }
-    }
-
-    // update block
-    _updateBlock(_w, _inBlock, _outBlock, decrypt);
-
-    // write output, save previous ciphered block
-    if(decrypt) {
-      // CBC XOR's IV (or previous block) with ciphertext
-      for(var i = 0; i < Nb; ++i) {
-        _output.putInt32(_prev[i] ^ _outBlock[i]);
-      }
-      _prev = _inBlock.slice(0);
-    }
-    else {
-      for(var i = 0; i < Nb; ++i) {
-        _output.putInt32(_outBlock[i]);
-      }
-      _prev = _outBlock;
-    }
-  }
-
-  function cfbOp() {
-    // update block (CFB always uses encryption mode)
-    _updateBlock(_w, _inBlock, _outBlock, false);
-
-    // get next input
-    for(var i = 0; i < Nb; ++i) {
-      _inBlock[i] = _input.getInt32();
-    }
-
-    // XOR input with output
-    for(var i = 0; i < Nb; ++i) {
-      var result = _inBlock[i] ^ _outBlock[i];
-      if(!decrypt) {
-        // update next input block when encrypting
-        _inBlock[i] = result;
-      }
-      _output.putInt32(result);
-    }
-  }
-
-  function ofbOp() {
-    // update block (OFB always uses encryption mode)
-    _updateBlock(_w, _inBlock, _outBlock, false);
-
-    // get next input
-    for(var i = 0; i < Nb; ++i) {
-      _inBlock[i] = _input.getInt32();
-    }
-
-    // XOR input with output and update next input
-    for(var i = 0; i < Nb; ++i) {
-      _output.putInt32(_inBlock[i] ^ _outBlock[i]);
-      _inBlock[i] = _outBlock[i];
-    }
-  }
-
-  function ctrOp() {
-    // update block (CTR always uses encryption mode)
-    _updateBlock(_w, _inBlock, _outBlock, false);
-
-    // increment counter (input block)
-    for(var i = Nb - 1; i >= 0; --i) {
-      if(_inBlock[i] === 0xFFFFFFFF) {
-        _inBlock[i] = 0;
-      }
-      else {
-        ++_inBlock[i];
-        break;
-      }
-    }
-
-    // XOR input with output
-    for(var i = 0; i < Nb; ++i) {
-      _output.putInt32(_input.getInt32() ^ _outBlock[i]);
-    }
-  }
-};
-
-/* AES API */
-forge.aes = forge.aes || {};
-
-/**
- * Creates an AES cipher object to encrypt data using the given symmetric key.
- * The output will be stored in the 'output' member of the returned cipher.
- *
- * The key and iv may be given as a string of bytes, an array of bytes,
- * a byte buffer, or an array of 32-bit words.
- *
- * @param key the symmetric key to use.
- * @param iv the initialization vector to use.
- * @param output the buffer to write to, null to create one.
- * @param mode the cipher mode to use (default: 'CBC').
- *
- * @return the cipher.
- */
-forge.aes.startEncrypting = function(key, iv, output, mode) {
-  return _createCipher(key, iv, output, false, mode);
-};
-
-/**
- * Creates an AES cipher object to encrypt data using the given symmetric key.
- *
- * The key may be given as a string of bytes, an array of bytes, a
- * byte buffer, or an array of 32-bit words.
- *
- * To start encrypting call start() on the cipher with an iv and optional
- * output buffer.
- *
- * @param key the symmetric key to use.
- * @param mode the cipher mode to use (default: 'CBC').
- *
- * @return the cipher.
- */
-forge.aes.createEncryptionCipher = function(key, mode) {
-  return _createCipher(key, null, null, false, mode);
-};
-
-/**
- * Creates an AES cipher object to decrypt data using the given symmetric key.
- * The output will be stored in the 'output' member of the returned cipher.
- *
- * The key and iv may be given as a string of bytes, an array of bytes,
- * a byte buffer, or an array of 32-bit words.
- *
- * @param key the symmetric key to use.
- * @param iv the initialization vector to use.
- * @param output the buffer to write to, null to create one.
- * @param mode the cipher mode to use (default: 'CBC').
- *
- * @return the cipher.
- */
-forge.aes.startDecrypting = function(key, iv, output, mode) {
-  return _createCipher(key, iv, output, true, mode);
-};
-
-/**
- * Creates an AES cipher object to decrypt data using the given symmetric key.
- *
- * The key may be given as a string of bytes, an array of bytes, a
- * byte buffer, or an array of 32-bit words.
- *
- * To start decrypting call start() on the cipher with an iv and
- * optional output buffer.
- *
- * @param key the symmetric key to use.
- * @param mode the cipher mode to use (default: 'CBC').
- *
- * @return the cipher.
- */
-forge.aes.createDecryptionCipher = function(key, mode) {
-  return _createCipher(key, null, null, true, mode);
-};
-
-/**
- * Expands a key. Typically only used for testing.
- *
- * @param key the symmetric key to expand, as an array of 32-bit words.
- * @param decrypt true to expand for decryption, false for encryption.
- *
- * @return the expanded key.
- */
-forge.aes._expandKey = function(key, decrypt) {
-  if(!init) {
-    initialize();
-  }
-  return expandKey(key, decrypt);
-};
-
-/**
- * Updates a single block. Typically only used for testing.
- *
- * @param w the expanded key to use.
- * @param input an array of block-size 32-bit words.
- * @param output an array of block-size 32-bit words.
- * @param decrypt true to decrypt, false to encrypt.
- */
-forge.aes._updateBlock = _updateBlock;
+}
 
 } // end module implementation
 
@@ -1256,9 +1102,8 @@ if(typeof define !== 'function') {
     define = function(ids, factory) {
       factory(require, module);
     };
-  }
-  // <script>
-  else {
+  } else {
+    // <script>
     if(typeof forge === 'undefined') {
       forge = {};
     }
@@ -1295,7 +1140,8 @@ define = function(ids, factory) {
   define = tmpDefine;
   return define.apply(null, Array.prototype.slice.call(arguments, 0));
 };
-define(['require', 'module', './util'], function() {
+define(
+  ['require', 'module', './cipher', './cipherModes', './util'], function() {
   defineFunc.apply(null, Array.prototype.slice.call(arguments, 0));
 });
 })();

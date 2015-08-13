@@ -3,7 +3,7 @@ var grunt = require('grunt');
 
 describe('browser', function() {
   it('should run tests', function(done) {
-    this.timeout(60 * 1000);
+    this.timeout(60 * 1000 * 5);
 
     return server.main(function(err, info) {
       if(err) {
@@ -32,9 +32,9 @@ describe('browser', function() {
         if(err) {
           return done(err);
         }
-        return info.server.close(function() {
-          return done(null);
-        });
+        // finish immediately
+        done(null);
+        return info.server.close();
       });
     });
   });

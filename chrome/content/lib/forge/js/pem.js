@@ -5,7 +5,7 @@
  *
  * @author Dave Longley
  *
- * Copyright (c) 2013 Digital Bazaar, Inc.
+ * Copyright (c) 2013-2014 Digital Bazaar, Inc.
  *
  * A Forge PEM object has the following fields:
  *
@@ -96,8 +96,8 @@ pem.encode = function(msg, options) {
 pem.decode = function(str) {
   var rval = [];
 
-  // split string into PEM messages
-  var rMessage = /\s*-----BEGIN ([A-Z0-9- ]+)-----\r?\n([\x21-\x7e\s]+?(?:\r?\n\r?\n))?([:A-Za-z0-9+\/=\s]+?)-----END \1-----/g;
+  // split string into PEM messages (be lenient w/EOF on BEGIN line)
+  var rMessage = /\s*-----BEGIN ([A-Z0-9- ]+)-----\r?\n?([\x21-\x7e\s]+?(?:\r?\n\r?\n))?([:A-Za-z0-9+\/=\s]+?)-----END \1-----/g;
   var rHeader = /([\x21-\x7e]+):\s*([\x21-\x7e\s^:]+)/;
   var rCRLF = /\r?\n/;
   var match;
@@ -151,34 +151,24 @@ pem.decode = function(str) {
         // Proc-Type must be the first header
         if(!msg.procType) {
           if(header.name !== 'Proc-Type') {
-            throw {
-              message: 'Invalid PEM formatted message. The first ' +
-                'encapsulated header must be "Proc-Type".'
-            };
-          }
-          else if(header.values.length !== 2) {
-            throw {
-              message: 'Invalid PEM formatted message. The "Proc-Type" ' +
-                'header must have two subfields.'
-            };
+            throw new Error('Invalid PEM formatted message. The first ' +
+              'encapsulated header must be "Proc-Type".');
+          } else if(header.values.length !== 2) {
+            throw new Error('Invalid PEM formatted message. The "Proc-Type" ' +
+              'header must have two subfields.');
           }
           msg.procType = {version: values[0], type: values[1]};
-        }
-        // special-case Content-Domain
-        else if(!msg.contentDomain && header.name === 'Content-Domain') {
+        } else if(!msg.contentDomain && header.name === 'Content-Domain') {
+          // special-case Content-Domain
           msg.contentDomain = values[0] || '';
-        }
-        // special-case DEK-Info
-        else if(!msg.dekInfo && header.name === 'DEK-Info') {
+        } else if(!msg.dekInfo && header.name === 'DEK-Info') {
+          // special-case DEK-Info
           if(header.values.length === 0) {
-            throw {
-              message: 'Invalid PEM formatted message. The "DEK-Info" ' +
-                'header must have at least one subfield.'
-            };
+            throw new Error('Invalid PEM formatted message. The "DEK-Info" ' +
+              'header must have at least one subfield.');
           }
           msg.dekInfo = {algorithm: values[0], parameters: values[1] || null};
-        }
-        else {
+        } else {
           msg.headers.push(header);
         }
       }
@@ -187,17 +177,13 @@ pem.decode = function(str) {
     }
 
     if(msg.procType === 'ENCRYPTED' && !msg.dekInfo) {
-      throw {
-        message: 'Invalid PEM formatted message. The "DEK-Info" ' +
-          'header must be present if "Proc-Type" is "ENCRYPTED".'
-      };
+      throw new Error('Invalid PEM formatted message. The "DEK-Info" ' +
+        'header must be present if "Proc-Type" is "ENCRYPTED".');
     }
   }
 
   if(rval.length === 0) {
-    throw {
-      message: 'Invalid PEM formatted message.'
-    };
+    throw new Error('Invalid PEM formatted message.');
   }
 
   return rval;
@@ -208,10 +194,11 @@ function foldHeader(header) {
 
   // ensure values with CRLF are folded
   var values = [];
+  var insertSpace = function(match, $1) {
+    return ' ' + $1;
+  };
   for(var i = 0; i < header.values.length; ++i) {
-    values.push(header.values[i].replace(/^(\S+\r\n)/, function(match, $1) {
-      return ' ' + $1;
-    }));
+    values.push(header.values[i].replace(/^(\S+\r\n)/, insertSpace));
   }
   rval += values.join(',') + '\r\n';
 
@@ -224,16 +211,14 @@ function foldHeader(header) {
       if(insert === ',') {
         ++candidate;
         rval = rval.substr(0, candidate) + '\r\n ' + rval.substr(candidate);
-      }
-      else {
+      } else {
         rval = rval.substr(0, candidate) +
           '\r\n' + insert + rval.substr(candidate + 1);
       }
       length = (i - candidate - 1);
       candidate = -1;
       ++i;
-    }
-    else if(rval[i] === ' ' || rval[i] === '\t' || rval[i] === ',') {
+    } else if(rval[i] === ' ' || rval[i] === '\t' || rval[i] === ',') {
       candidate = i;
     }
   }
@@ -256,9 +241,8 @@ if(typeof define !== 'function') {
     define = function(ids, factory) {
       factory(require, module);
     };
-  }
-  // <script>
-  else {
+  } else {
+    // <script>
     if(typeof forge === 'undefined') {
       forge = {};
     }

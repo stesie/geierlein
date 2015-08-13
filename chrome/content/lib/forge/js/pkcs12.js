@@ -4,7 +4,7 @@
  * @author Dave Longley
  * @author Stefan Siegl <stesie@brokenpipe.de>
  *
- * Copyright (c) 2010-2013 Digital Bazaar, Inc.
+ * Copyright (c) 2010-2014 Digital Bazaar, Inc.
  * Copyright (c) 2012 Stefan Siegl <stesie@brokenpipe.de>
  *
  * The ASN.1 representation of PKCS#12 is as follows
@@ -281,7 +281,11 @@ function _getBagsByAttribute(safeContents, attrName, attrValue, bagType) {
       if(bagType !== undefined && bag.type !== bagType) {
         continue;
       }
-
+      // only filter by bag type, no attribute specified
+      if(attrName === null) {
+        result.push(bag);
+        continue;
+      }
       if(bag.attributes[attrName] !== undefined &&
         bag.attributes[attrName].indexOf(attrValue) >= 0) {
         result.push(bag);
@@ -306,8 +310,7 @@ p12.pkcs12FromAsn1 = function(obj, strict, password) {
   if(typeof strict === 'string') {
     password = strict;
     strict = true;
-  }
-  else if(strict === undefined) {
+  } else if(strict === undefined) {
     strict = true;
   }
 
@@ -315,11 +318,10 @@ p12.pkcs12FromAsn1 = function(obj, strict, password) {
   var capture = {};
   var errors = [];
   if(!asn1.validate(obj, pfxValidator, capture, errors)) {
-    throw {
-      message: 'Cannot read PKCS#12 PFX. ' +
-        'ASN.1 object is not an PKCS#12 PFX.',
-      errors: errors
-    };
+    var error = new Error('Cannot read PKCS#12 PFX. ' +
+      'ASN.1 object is not an PKCS#12 PFX.');
+    error.errors = error;
+    throw error;
   }
 
   var pfx = {
@@ -335,7 +337,9 @@ p12.pkcs12FromAsn1 = function(obj, strict, password) {
      *          [friendlyName] the friendly name to search for.
      *          [bagType] bag type to narrow each attribute search by.
      *
-     * @return a map of attribute type to an array of matching bags.
+     * @return a map of attribute type to an array of matching bags or, if no
+     *           attribute was given but a bag type, the map key will be the
+     *           bag type.
      */
     getBags: function(filter) {
       var rval = {};
@@ -343,9 +347,15 @@ p12.pkcs12FromAsn1 = function(obj, strict, password) {
       var localKeyId;
       if('localKeyId' in filter) {
         localKeyId = filter.localKeyId;
-      }
-      else if('localKeyIdHex' in filter) {
+      } else if('localKeyIdHex' in filter) {
         localKeyId = forge.util.hexToBytes(filter.localKeyIdHex);
+      }
+
+      // filter on bagType only
+      if(localKeyId === undefined && !('friendlyName' in filter) &&
+        'bagType' in filter) {
+        rval[filter.bagType] = _getBagsByAttribute(
+          pfx.safeContents, null, null, filter.bagType);
       }
 
       if(localKeyId !== undefined) {
@@ -394,26 +404,23 @@ p12.pkcs12FromAsn1 = function(obj, strict, password) {
   };
 
   if(capture.version.charCodeAt(0) !== 3) {
-    throw {
-      message: 'PKCS#12 PFX of version other than 3 not supported.',
-      version: capture.version.charCodeAt(0)
-    };
+    var error = new Error('PKCS#12 PFX of version other than 3 not supported.');
+    error.version = capture.version.charCodeAt(0);
+    throw error;
   }
 
   if(asn1.derToOid(capture.contentType) !== pki.oids.data) {
-    throw {
-      message: 'Only PKCS#12 PFX in password integrity mode supported.',
-      oid: asn1.derToOid(capture.contentType)
-    };
+    var error = new Error('Only PKCS#12 PFX in password integrity mode supported.');
+    error.oid = asn1.derToOid(capture.contentType);
+    throw error;
   }
 
   var data = capture.content.value[0];
   if(data.tagClass !== asn1.Class.UNIVERSAL ||
      data.type !== asn1.Type.OCTETSTRING) {
-    throw {
-      message: 'PKCS#12 authSafe content data is not an OCTET STRING.'
-    };
+    throw new Error('PKCS#12 authSafe content data is not an OCTET STRING.');
   }
+  data = _decodePkcs7Data(data);
 
   // check for MAC
   if(capture.mac) {
@@ -421,31 +428,29 @@ p12.pkcs12FromAsn1 = function(obj, strict, password) {
     var macKeyBytes = 0;
     var macAlgorithm = asn1.derToOid(capture.macAlgorithm);
     switch(macAlgorithm) {
-    case pki.oids['sha1']:
+    case pki.oids.sha1:
       md = forge.md.sha1.create();
       macKeyBytes = 20;
       break;
-    case pki.oids['sha256']:
+    case pki.oids.sha256:
       md = forge.md.sha256.create();
       macKeyBytes = 32;
       break;
-    case pki.oids['sha384']:
+    case pki.oids.sha384:
       md = forge.md.sha384.create();
       macKeyBytes = 48;
       break;
-    case pki.oids['sha512']:
+    case pki.oids.sha512:
       md = forge.md.sha512.create();
       macKeyBytes = 64;
       break;
-    case pki.oids['md5']:
+    case pki.oids.md5:
       md = forge.md.md5.create();
       macKeyBytes = 16;
       break;
     }
     if(md === null) {
-      throw {
-        message: 'PKCS#12 uses unsupported MAC algorithm: ' + macAlgorithm
-      };
+      throw new Error('PKCS#12 uses unsupported MAC algorithm: ' + macAlgorithm);
     }
 
     // verify MAC (iterations default to 1)
@@ -453,21 +458,45 @@ p12.pkcs12FromAsn1 = function(obj, strict, password) {
     var macIterations = (('macIterations' in capture) ?
       parseInt(forge.util.bytesToHex(capture.macIterations), 16) : 1);
     var macKey = p12.generateKey(
-      password || '', macSalt, 3, macIterations, macKeyBytes, md);
+      password, macSalt, 3, macIterations, macKeyBytes, md);
     var mac = forge.hmac.create();
     mac.start(md, macKey);
     mac.update(data.value);
     var macValue = mac.getMac();
     if(macValue.getBytes() !== capture.macDigest) {
-      throw {
-        message: 'PKCS#12 MAC could not be verified. Invalid password?'
-      };
+      throw new Error('PKCS#12 MAC could not be verified. Invalid password?');
     }
   }
 
   _decodeAuthenticatedSafe(pfx, data.value, strict, password);
   return pfx;
 };
+
+/**
+ * Decodes PKCS#7 Data. PKCS#7 (RFC 2315) defines "Data" as an OCTET STRING,
+ * but it is sometimes an OCTET STRING that is composed/constructed of chunks,
+ * each its own OCTET STRING. This is BER-encoding vs. DER-encoding. This
+ * function transforms this corner-case into the usual simple,
+ * non-composed/constructed OCTET STRING.
+ *
+ * This function may be moved to ASN.1 at some point to better deal with
+ * more BER-encoding issues, should they arise.
+ *
+ * @param data the ASN.1 Data object to transform.
+ */
+function _decodePkcs7Data(data) {
+  // handle special case of "chunked" data content: an octet string composed
+  // of other octet strings
+  if(data.composed || data.constructed) {
+    var value = forge.util.createBuffer();
+    for(var i = 0; i < data.value.length; ++i) {
+      value.putBytes(data.value[i].value);
+    }
+    data.composed = data.constructed = false;
+    data.value = value.getBytes();
+  }
+  return data;
+}
 
 /**
  * Decode PKCS#12 AuthenticatedSafe (BER encoded) into PFX object.
@@ -485,10 +514,8 @@ function _decodeAuthenticatedSafe(pfx, authSafe, strict, password) {
   if(authSafe.tagClass !== asn1.Class.UNIVERSAL ||
      authSafe.type !== asn1.Type.SEQUENCE ||
      authSafe.constructed !== true) {
-    throw {
-      message: 'PKCS#12 AuthenticatedSafe expected to be a ' +
-        'SEQUENCE OF ContentInfo'
-    };
+    throw new Error('PKCS#12 AuthenticatedSafe expected to be a ' +
+      'SEQUENCE OF ContentInfo');
   }
 
   for(var i = 0; i < authSafe.value.length; i ++) {
@@ -498,10 +525,9 @@ function _decodeAuthenticatedSafe(pfx, authSafe, strict, password) {
     var capture = {};
     var errors = [];
     if(!asn1.validate(contentInfo, contentInfoValidator, capture, errors)) {
-      throw {
-        message: 'Cannot read ContentInfo.',
-        errors: errors
-      };
+      var error = new Error('Cannot read ContentInfo.');
+      error.errors = errors;
+      throw error;
     }
 
     var obj = {
@@ -510,32 +536,21 @@ function _decodeAuthenticatedSafe(pfx, authSafe, strict, password) {
     var safeContents = null;
     var data = capture.content.value[0];
     switch(asn1.derToOid(capture.contentType)) {
-      case pki.oids.data:
-        if(data.tagClass !== asn1.Class.UNIVERSAL ||
-           data.type !== asn1.Type.OCTETSTRING) {
-          throw {
-            message: 'PKCS#12 SafeContents Data is not an OCTET STRING.'
-          };
-        }
-        safeContents = data.value;
-        break;
-
-      case pki.oids.encryptedData:
-        if(password === undefined) {
-          throw {
-            message: 'Found PKCS#12 Encrypted SafeContents Data but ' +
-              'no password available.'
-          };
-        }
-        safeContents = _decryptSafeContents(data, password);
-        obj.encrypted = true;
-        break;
-
-      default:
-        throw {
-          message: 'Unsupported PKCS#12 contentType.',
-          contentType: asn1.derToOid(capture.contentType)
-        };
+    case pki.oids.data:
+      if(data.tagClass !== asn1.Class.UNIVERSAL ||
+         data.type !== asn1.Type.OCTETSTRING) {
+        throw new Error('PKCS#12 SafeContents Data is not an OCTET STRING.');
+      }
+      safeContents = _decodePkcs7Data(data).value;
+      break;
+    case pki.oids.encryptedData:
+      safeContents = _decryptSafeContents(data, password);
+      obj.encrypted = true;
+      break;
+    default:
+      var error = new Error('Unsupported PKCS#12 contentType.');
+      error.contentType = asn1.derToOid(capture.contentType);
+      throw error;
     }
 
     obj.safeBags = _decodeSafeContents(safeContents, strict, password);
@@ -544,28 +559,29 @@ function _decodeAuthenticatedSafe(pfx, authSafe, strict, password) {
 }
 
 /**
- * Decrypt PKCS#7 EncryptedData structure
+ * Decrypt PKCS#7 EncryptedData structure.
  *
- * @param data ASN.1 encoded EncryptedContentInfo object
- * @param password The user-provided password
- * @return The decrypted SafeContents (ASN.1 object)
+ * @param data ASN.1 encoded EncryptedContentInfo object.
+ * @param password The user-provided password.
+ *
+ * @return The decrypted SafeContents (ASN.1 object).
  */
 function _decryptSafeContents(data, password) {
   var capture = {};
   var errors = [];
-  if(!asn1.validate(data, forge.pkcs7.asn1.encryptedDataValidator, capture, errors)) {
-    throw {
-      message: 'Cannot read EncryptedContentInfo. ',
-      errors: errors
-    };
+  if(!asn1.validate(
+    data, forge.pkcs7.asn1.encryptedDataValidator, capture, errors)) {
+    var error = new Error('Cannot read EncryptedContentInfo.');
+    error.errors = errors;
+    throw error;
   }
 
   var oid = asn1.derToOid(capture.contentType);
   if(oid !== pki.oids.data) {
-    throw {
-      message: 'PKCS#12 EncryptedContentInfo ContentType is not Data.',
-      oid: oid
-    };
+    var error = new Error(
+      'PKCS#12 EncryptedContentInfo ContentType is not Data.');
+    error.oid = oid;
+    throw error;
   }
 
   // get cipher
@@ -573,13 +589,12 @@ function _decryptSafeContents(data, password) {
   var cipher = pki.pbe.getCipher(oid, capture.encParameter, password);
 
   // get encrypted data
-  var encrypted = forge.util.createBuffer(capture.encContent);
+  var encryptedContentAsn1 = _decodePkcs7Data(capture.encryptedContentAsn1);
+  var encrypted = forge.util.createBuffer(encryptedContentAsn1.value);
 
   cipher.update(encrypted);
   if(!cipher.finish()) {
-    throw {
-      message: 'Failed to decrypt PKCS#12 SafeContents.'
-    };
+    throw new Error('Failed to decrypt PKCS#12 SafeContents.');
   }
 
   return cipher.output.getBytes();
@@ -588,7 +603,7 @@ function _decryptSafeContents(data, password) {
 /**
  * Decode PKCS#12 SafeContents (BER-encoded) into array of Bag objects.
  *
- * The safeContents is a BER-encoded SEQUENCE OF SafeBag
+ * The safeContents is a BER-encoded SEQUENCE OF SafeBag.
  *
  * @param {String} safeContents BER-encoded safeContents.
  * @param strict true to use strict DER decoding, false not to.
@@ -597,16 +612,19 @@ function _decryptSafeContents(data, password) {
  * @return {Array} Array of Bag objects.
  */
 function _decodeSafeContents(safeContents, strict, password) {
+  // if strict and no safe contents, return empty safes
+  if(!strict && safeContents.length === 0) {
+    return [];
+  }
+
   // actually it's BER-encoded
   safeContents = asn1.fromDer(safeContents, strict);
 
   if(safeContents.tagClass !== asn1.Class.UNIVERSAL ||
     safeContents.type !== asn1.Type.SEQUENCE ||
     safeContents.constructed !== true) {
-    throw {
-      message: 'PKCS#12 SafeContents expected to be a ' +
-        'SEQUENCE OF SafeBag'
-    };
+    throw new Error(
+      'PKCS#12 SafeContents expected to be a SEQUENCE OF SafeBag.');
   }
 
   var res = [];
@@ -617,10 +635,9 @@ function _decodeSafeContents(safeContents, strict, password) {
     var capture = {};
     var errors = [];
     if(!asn1.validate(safeBag, safeBagValidator, capture, errors)) {
-      throw {
-        message: 'Cannot read SafeBag.',
-        errors: errors
-      };
+      var error = new Error('Cannot read SafeBag.');
+      error.errors = errors;
+      throw error;
     }
 
     /* Create bag object and push to result array. */
@@ -637,17 +654,10 @@ function _decodeSafeContents(safeContents, strict, password) {
         /* bagAsn1 has a EncryptedPrivateKeyInfo, which we need to decrypt.
            Afterwards we can handle it like a keyBag,
            which is a PrivateKeyInfo. */
-        if(password === undefined) {
-          throw {
-            message: 'Found PKCS#8 ShroudedKeyBag but no password available.'
-          };
-        }
-
         bagAsn1 = pki.decryptPrivateKeyInfo(bagAsn1, password);
         if(bagAsn1 === null) {
-          throw {
-            message: 'Unable to decrypt PKCS#8 ShroudedKeyBag, wrong password?'
-          };
+          throw new Error(
+            'Unable to decrypt PKCS#8 ShroudedKeyBag, wrong password?');
         }
 
         /* fall through */
@@ -655,7 +665,13 @@ function _decodeSafeContents(safeContents, strict, password) {
         /* A PKCS#12 keyBag is a simple PrivateKeyInfo as understood by our
            PKI module, hence we don't have to do validation/capturing here,
            just pass what we already got. */
-        bag.key = pki.privateKeyFromAsn1(bagAsn1);
+        try {
+          bag.key = pki.privateKeyFromAsn1(bagAsn1);
+        } catch(e) {
+          // ignore unknown key type, pass asn1 value
+          bag.key = null;
+          bag.asn1 = bagAsn1;
+        }
         continue;  /* Nothing more to do. */
 
       case pki.oids.certBag:
@@ -665,32 +681,36 @@ function _decodeSafeContents(safeContents, strict, password) {
         validator = certBagValidator;
         decoder = function() {
           if(asn1.derToOid(capture.certId) !== pki.oids.x509Certificate) {
-            throw {
-              message: 'Unsupported certificate type, only X.509 supported.',
-              oid: asn1.derToOid(capture.certId)
-            };
+            var error = new Error(
+              'Unsupported certificate type, only X.509 supported.');
+            error.oid = asn1.derToOid(capture.certId);
+            throw error;
           }
 
           // true=produce cert hash
-          bag.cert = pki.certificateFromAsn1(
-            asn1.fromDer(capture.cert, strict), true);
+          var certAsn1 = asn1.fromDer(capture.cert, strict);
+          try {
+            bag.cert = pki.certificateFromAsn1(certAsn1, true);
+          } catch(e) {
+            // ignore unknown cert type, pass asn1 value
+            bag.cert = null;
+            bag.asn1 = certAsn1;
+          }
         };
         break;
 
       default:
-        throw {
-          message: 'Unsupported PKCS#12 SafeBag type.',
-          oid: bag.type
-        };
+        var error = new Error('Unsupported PKCS#12 SafeBag type.');
+        error.oid = bag.type;
+        throw error;
     }
 
     /* Validate SafeBag value (i.e. CertBag, etc.) and capture data if needed. */
     if(validator !== undefined &&
        !asn1.validate(bagAsn1, validator, capture, errors)) {
-      throw {
-        message: 'Cannot read PKCS#12 ' + validator.name,
-        errors: errors
-      };
+      var error = new Error('Cannot read PKCS#12 ' + validator.name);
+      error.errors = errors;
+      throw error;
     }
 
     /* Call decoder function from above to store the results. */
@@ -715,10 +735,9 @@ function _decodeBagAttributes(attributes) {
       var capture = {};
       var errors = [];
       if(!asn1.validate(attributes[i], attributeValidator, capture, errors)) {
-        throw {
-          message: 'Cannot read PKCS#12 BagAttribute.',
-          errors: errors
-        };
+        var error = new Error('Cannot read PKCS#12 BagAttribute.');
+        error.errors = errors;
+        throw error;
       }
 
       var oid = asn1.derToOid(capture.oid);
@@ -726,7 +745,7 @@ function _decodeBagAttributes(attributes) {
         // unsupported attribute type, ignore.
         continue;
       }
-      
+
       decodedAttrs[pki.oids[oid]] = [];
       for(var j = 0; j < capture.values.length; ++j) {
         decodedAttrs[pki.oids[oid]].push(capture.values[j].value);
@@ -752,7 +771,7 @@ function _decodeBagAttributes(attributes) {
  * @param key the private key.
  * @param cert the certificate (may be an array of certificates in order
  *          to specify a certificate chain).
- * @param password the password to use.
+ * @param password the password to use, null for none.
  * @param options:
  *          algorithm the encryption algorithm to use
  *            ('aes128', 'aes192', 'aes256', '3des'), defaults to 'aes128'.
@@ -783,11 +802,10 @@ p12.toPkcs12Asn1 = function(key, cert, password, options) {
   }
 
   var localKeyId = options.localKeyId;
-  var bagAttrs = undefined;
+  var bagAttrs;
   if(localKeyId !== null) {
     localKeyId = forge.util.hexToBytes(localKeyId);
-  }
-  else if(options.generateLocalKeyId) {
+  } else if(options.generateLocalKeyId) {
     // use SHA-1 of paired cert, if available
     if(cert) {
       var pairedCert = forge.util.isArray(cert) ? cert[0] : cert;
@@ -797,11 +815,10 @@ p12.toPkcs12Asn1 = function(key, cert, password, options) {
       var sha1 = forge.md.sha1.create();
       sha1.update(asn1.toDer(pki.certificateToAsn1(pairedCert)).getBytes());
       localKeyId = sha1.digest().getBytes();
-    }
-    // FIXME: consider using SHA-1 of public key (which can be generated
-    // from private key components)
-    // generate random bytes
-    else {
+    } else {
+      // FIXME: consider using SHA-1 of public key (which can be generated
+      // from private key components), see: cert.generateSubjectKeyIdentifier
+      // generate random bytes
       localKeyId = forge.random.getBytes(20);
     }
   }
@@ -813,7 +830,7 @@ p12.toPkcs12Asn1 = function(key, cert, password, options) {
       asn1.create(asn1.Class.UNIVERSAL, asn1.Type.SEQUENCE, true, [
         // attrId
         asn1.create(asn1.Class.UNIVERSAL, asn1.Type.OID, false,
-          asn1.oidToDer(pki.oids['localKeyId']).getBytes()),
+          asn1.oidToDer(pki.oids.localKeyId).getBytes()),
         // attrValues
         asn1.create(asn1.Class.UNIVERSAL, asn1.Type.SET, true, [
           asn1.create(asn1.Class.UNIVERSAL, asn1.Type.OCTETSTRING, false,
@@ -827,7 +844,7 @@ p12.toPkcs12Asn1 = function(key, cert, password, options) {
       asn1.create(asn1.Class.UNIVERSAL, asn1.Type.SEQUENCE, true, [
         // attrId
         asn1.create(asn1.Class.UNIVERSAL, asn1.Type.OID, false,
-          asn1.oidToDer(pki.oids['friendlyName']).getBytes()),
+          asn1.oidToDer(pki.oids.friendlyName).getBytes()),
         // attrValues
         asn1.create(asn1.Class.UNIVERSAL, asn1.Type.SET, true, [
           asn1.create(asn1.Class.UNIVERSAL, asn1.Type.BMPSTRING, false,
@@ -848,8 +865,7 @@ p12.toPkcs12Asn1 = function(key, cert, password, options) {
   if(cert !== null) {
     if(forge.util.isArray(cert)) {
       chain = cert;
-    }
-    else {
+    } else {
       chain = [cert];
     }
   }
@@ -869,14 +885,14 @@ p12.toPkcs12Asn1 = function(key, cert, password, options) {
       asn1.create(asn1.Class.UNIVERSAL, asn1.Type.SEQUENCE, true, [
         // bagId
         asn1.create(asn1.Class.UNIVERSAL, asn1.Type.OID, false,
-          asn1.oidToDer(pki.oids['certBag']).getBytes()),
+          asn1.oidToDer(pki.oids.certBag).getBytes()),
         // bagValue
         asn1.create(asn1.Class.CONTEXT_SPECIFIC, 0, true, [
           // CertBag
           asn1.create(asn1.Class.UNIVERSAL, asn1.Type.SEQUENCE, true, [
             // certId
             asn1.create(asn1.Class.UNIVERSAL, asn1.Type.OID, false,
-              asn1.oidToDer(pki.oids['x509Certificate']).getBytes()),
+              asn1.oidToDer(pki.oids.x509Certificate).getBytes()),
             // certValue (x509Certificate)
             asn1.create(asn1.Class.CONTEXT_SPECIFIC, 0, true, [
               asn1.create(
@@ -901,7 +917,7 @@ p12.toPkcs12Asn1 = function(key, cert, password, options) {
         // contentType
         asn1.create(asn1.Class.UNIVERSAL, asn1.Type.OID, false,
           // OID for the content type is 'data'
-          asn1.oidToDer(pki.oids['data']).getBytes()),
+          asn1.oidToDer(pki.oids.data).getBytes()),
         // content
         asn1.create(asn1.Class.CONTEXT_SPECIFIC, 0, true, [
           asn1.create(
@@ -922,7 +938,7 @@ p12.toPkcs12Asn1 = function(key, cert, password, options) {
       keyBag = asn1.create(asn1.Class.UNIVERSAL, asn1.Type.SEQUENCE, true, [
         // bagId
         asn1.create(asn1.Class.UNIVERSAL, asn1.Type.OID, false,
-          asn1.oidToDer(pki.oids['keyBag']).getBytes()),
+          asn1.oidToDer(pki.oids.keyBag).getBytes()),
         // bagValue
         asn1.create(asn1.Class.CONTEXT_SPECIFIC, 0, true, [
           // PrivateKeyInfo
@@ -931,13 +947,12 @@ p12.toPkcs12Asn1 = function(key, cert, password, options) {
         // bagAttributes (OPTIONAL)
         bagAttrs
       ]);
-    }
-    else {
+    } else {
       // encrypted PrivateKeyInfo
       keyBag = asn1.create(asn1.Class.UNIVERSAL, asn1.Type.SEQUENCE, true, [
         // bagId
         asn1.create(asn1.Class.UNIVERSAL, asn1.Type.OID, false,
-          asn1.oidToDer(pki.oids['pkcs8ShroudedKeyBag']).getBytes()),
+          asn1.oidToDer(pki.oids.pkcs8ShroudedKeyBag).getBytes()),
         // bagValue
         asn1.create(asn1.Class.CONTEXT_SPECIFIC, 0, true, [
           // EncryptedPrivateKeyInfo
@@ -959,7 +974,7 @@ p12.toPkcs12Asn1 = function(key, cert, password, options) {
         // contentType
         asn1.create(asn1.Class.UNIVERSAL, asn1.Type.OID, false,
           // OID for the content type is 'data'
-          asn1.oidToDer(pki.oids['data']).getBytes()),
+          asn1.oidToDer(pki.oids.data).getBytes()),
         // content
         asn1.create(asn1.Class.CONTEXT_SPECIFIC, 0, true, [
           asn1.create(
@@ -974,7 +989,7 @@ p12.toPkcs12Asn1 = function(key, cert, password, options) {
   var safe = asn1.create(
     asn1.Class.UNIVERSAL, asn1.Type.SEQUENCE, true, contents);
 
-  var macData = undefined;
+  var macData;
   if(options.useMac) {
     // MacData
     var sha1 = forge.md.sha1.create();
@@ -982,7 +997,7 @@ p12.toPkcs12Asn1 = function(key, cert, password, options) {
       forge.random.getBytes(options.saltSize));
     var count = options.count;
     // 160-bit key
-    var key = p12.generateKey(password || '', macSalt, 3, count, 20);
+    var key = p12.generateKey(password, macSalt, 3, count, 20);
     var mac = forge.hmac.create();
     mac.start(sha1, key);
     mac.update(asn1.toDer(safe).getBytes());
@@ -994,7 +1009,7 @@ p12.toPkcs12Asn1 = function(key, cert, password, options) {
         asn1.create(asn1.Class.UNIVERSAL, asn1.Type.SEQUENCE, true, [
           // algorithm = SHA-1
           asn1.create(asn1.Class.UNIVERSAL, asn1.Type.OID, false,
-            asn1.oidToDer(pki.oids['sha1']).getBytes()),
+            asn1.oidToDer(pki.oids.sha1).getBytes()),
           // parameters = Null
           asn1.create(asn1.Class.UNIVERSAL, asn1.Type.NULL, false, '')
         ]),
@@ -1008,7 +1023,7 @@ p12.toPkcs12Asn1 = function(key, cert, password, options) {
         asn1.Class.UNIVERSAL, asn1.Type.OCTETSTRING, false, macSalt.getBytes()),
       // iterations INTEGER (XXX: Only support count < 65536)
       asn1.create(asn1.Class.UNIVERSAL, asn1.Type.INTEGER, false,
-        forge.util.hexToBytes(count.toString(16))
+        asn1.integerToDer(count).getBytes()
       )
     ]);
   }
@@ -1017,13 +1032,13 @@ p12.toPkcs12Asn1 = function(key, cert, password, options) {
   return asn1.create(asn1.Class.UNIVERSAL, asn1.Type.SEQUENCE, true, [
     // version (3)
     asn1.create(asn1.Class.UNIVERSAL, asn1.Type.INTEGER, false,
-      String.fromCharCode(0x03)),
+      asn1.integerToDer(3).getBytes()),
     // PKCS#7 ContentInfo
     asn1.create(asn1.Class.UNIVERSAL, asn1.Type.SEQUENCE, true, [
       // contentType
       asn1.create(asn1.Class.UNIVERSAL, asn1.Type.OID, false,
         // OID for the content type is 'data'
-        asn1.oidToDer(pki.oids['data']).getBytes()),
+        asn1.oidToDer(pki.oids.data).getBytes()),
       // content
       asn1.create(asn1.Class.CONTEXT_SPECIFIC, 0, true, [
         asn1.create(
@@ -1038,112 +1053,17 @@ p12.toPkcs12Asn1 = function(key, cert, password, options) {
 /**
  * Derives a PKCS#12 key.
  *
- * @param {String} password the password to derive the key material from.
- * @param {ByteBuffer} salt the salt to use.
- * @param {int} id the PKCS#12 ID byte (1 = key material, 2 = IV, 3 = MAC).
- * @param {int} iter the iteration count.
- * @param {int} n the number of bytes to derive from the password.
+ * @param password the password to derive the key material from, null or
+ *          undefined for none.
+ * @param salt the salt, as a ByteBuffer, to use.
+ * @param id the PKCS#12 ID byte (1 = key material, 2 = IV, 3 = MAC).
+ * @param iter the iteration count.
+ * @param n the number of bytes to derive from the password.
  * @param md the message digest to use, defaults to SHA-1.
  *
- * @return {ByteBuffer} The bytes derived from the password.
+ * @return a ByteBuffer with the bytes derived from the password.
  */
-p12.generateKey = function(password, salt, id, iter, n, md) {
-  var j, l;
-
-  if(typeof md === 'undefined' || md === null) {
-    md = forge.md.sha1.create();
-  }
-
-  var u = md.digestLength;
-  var v = md.blockLength;
-  var result = new forge.util.ByteBuffer();
-
-  /* Convert password to Unicode byte buffer + trailing 0-byte. */
-  var passBuf = new forge.util.ByteBuffer();
-  for(l = 0; l < password.length; l++) {
-    passBuf.putInt16(password.charCodeAt(l));
-  }
-  passBuf.putInt16(0);
-
-  /* Length of salt and password in BYTES. */
-  var p = passBuf.length();
-  var s = salt.length();
-
-  /* 1. Construct a string, D (the "diversifier"), by concatenating
-        v copies of ID. */
-  var D = new forge.util.ByteBuffer();
-  D.fillWithByte(id, v);
-
-  /* 2. Concatenate copies of the salt together to create a string S of length
-        v * ceil(s / v) bytes (the final copy of the salt may be trunacted
-        to create S).
-        Note that if the salt is the empty string, then so is S. */
-  var Slen = v * Math.ceil(s / v);
-  var S = new forge.util.ByteBuffer();
-  for(l = 0; l < Slen; l ++) {
-    S.putByte(salt.at(l % s));
-  }
-
-  /* 3. Concatenate copies of the password together to create a string P of
-        length v * ceil(p / v) bytes (the final copy of the password may be
-        truncated to create P).
-        Note that if the password is the empty string, then so is P. */
-  var Plen = v * Math.ceil(p / v);
-  var P = new forge.util.ByteBuffer();
-  for(l = 0; l < Plen; l ++) {
-    P.putByte(passBuf.at(l % p));
-  }
-
-  /* 4. Set I=S||P to be the concatenation of S and P. */
-  var I = S;
-  I.putBuffer(P);
-
-  /* 5. Set c=ceil(n / u). */
-  var c = Math.ceil(n / u);
-
-  /* 6. For i=1, 2, ..., c, do the following: */
-  for(var i = 1; i <= c; i ++) {
-    /* a) Set Ai=H^r(D||I). (l.e. the rth hash of D||I, H(H(H(...H(D||I)))) */
-    var buf = new forge.util.ByteBuffer();
-    buf.putBytes(D.bytes());
-    buf.putBytes(I.bytes());
-    for(var round = 0; round < iter; round ++) {
-      md.start();
-      md.update(buf.getBytes());
-      buf = md.digest();
-    }
-
-    /* b) Concatenate copies of Ai to create a string B of length v bytes (the
-          final copy of Ai may be truncated to create B). */
-    var B = new forge.util.ByteBuffer();
-    for(l = 0; l < v; l ++) {
-      B.putByte(buf.at(l % u));
-    }
-
-    /* c) Treating I as a concatenation I0, I1, ..., Ik-1 of v-byte blocks,
-          where k=ceil(s / v) + ceil(p / v), modify I by setting
-          Ij=(Ij+B+1) mod 2v for each j.  */
-    var k = Math.ceil(s / v) + Math.ceil(p / v);
-    var Inew = new forge.util.ByteBuffer();
-    for(j = 0; j < k; j ++) {
-      var chunk = new forge.util.ByteBuffer(I.getBytes(v));
-      var x = 0x1ff;
-      for(l = B.length() - 1; l >= 0; l --) {
-        x = x >> 8;
-        x += B.at(l) + chunk.at(l);
-        chunk.setAt(l, x & 0xff);
-      }
-      Inew.putBuffer(chunk);
-    }
-    I = Inew;
-
-    /* Add Ai to A. */
-    result.putBuffer(buf);
-  }
-
-  result.truncate(result.length() - n);
-  return result;
-};
+p12.generateKey = forge.pbe.generatePkcs12Key;
 
 } // end module implementation
 
@@ -1156,9 +1076,8 @@ if(typeof define !== 'function') {
     define = function(ids, factory) {
       factory(require, module);
     };
-  }
-  // <script>
-  else {
+  } else {
+    // <script>
     if(typeof forge === 'undefined') {
       forge = {};
     }
@@ -1199,12 +1118,15 @@ define([
   'require',
   'module',
   './asn1',
-  './sha1',
+  './hmac',
+  './oids',
   './pkcs7asn1',
-  './pki',
-  './util',
+  './pbe',
   './random',
-  './hmac'
+  './rsa',
+  './sha1',
+  './util',
+  './x509'
 ], function() {
   defineFunc.apply(null, Array.prototype.slice.call(arguments, 0));
 });

@@ -81,8 +81,7 @@ net.createSocketPool = function(options) {
         setTimeout(function(){sp.sockets[e.id][f](e);}, 0);
       }
     };
-  }
-  else {
+  } else {
     sp.handler = function(e) {
       if(e.id in sp.sockets) {
         // get handler function
@@ -299,9 +298,8 @@ if(typeof define !== 'function') {
     define = function(ids, factory) {
       factory(require, module);
     };
-  }
-  // <script>
-  else {
+  } else {
+    // <script>
     if(typeof forge === 'undefined') {
       forge = {};
     }

@@ -202,11 +202,10 @@ xhrApi.setCookie = function(cookie) {
         client.setCookie(cookie);
       }
     }
-  }
-  // use the default domain
-  // FIXME: should a null domain cookie be added to all clients? should
-  // this be an option?
-  else {
+  } else {
+    // use the default domain
+    // FIXME: should a null domain cookie be added to all clients? should
+    // this be an option?
     _client.setCookie(cookie);
   }
 };
@@ -234,18 +233,15 @@ xhrApi.getCookie = function(name, path, domain) {
         if(cookie !== null) {
           if(rval === null) {
             rval = cookie;
-          }
-          else if(!forge.util.isArray(rval)) {
+          } else if(!forge.util.isArray(rval)) {
             rval = [rval, cookie];
-          }
-          else {
+          } else {
             rval.push(cookie);
           }
         }
       }
     }
-  }
-  else {
+  } else {
     // get cookie from default domain
     rval = _client.getCookie(name, path);
   }
@@ -277,8 +273,7 @@ xhrApi.removeCookie = function(name, path, domain) {
         }
       }
     }
-  }
-  else {
+  } else {
     // remove cookie from default domain
     rval = _client.removeCookie(name, path);
   }
@@ -384,15 +379,12 @@ xhrApi.create = function(options) {
   if(options.url === null) {
     // use default
     _state.client = _client;
-  }
-  else {
+  } else {
     var url = http.parseUrl(options.url);
     if(!url) {
-      throw {
-        message: 'Invalid url.',
-        details: {
-          url: options.url
-        }
+      var error = new Error('Invalid url.');
+      error.details = {
+        url: options.url
       };
     }
 
@@ -400,8 +392,7 @@ xhrApi.create = function(options) {
     if(url.full in _clients) {
       // client found
       _state.client = _clients[url.full];
-    }
-    else {
+    } else {
       // create client
       _state.client = http.createClient({
         url: options.url,
@@ -445,6 +436,7 @@ xhrApi.create = function(options) {
     case 'GET':
     case 'HEAD':
     case 'OPTIONS':
+    case 'PATCH':
     case 'POST':
     case 'PUT':
       // valid method
@@ -452,12 +444,9 @@ xhrApi.create = function(options) {
     case 'CONNECT':
     case 'TRACE':
     case 'TRACK':
-      // FIXME: handle exceptions
-      throw SECURITY_ERR;
+      throw new Error('CONNECT, TRACE and TRACK methods are disallowed');
     default:
-      // FIXME: handle exceptions
-      //throw new SyntaxError('Invalid method: ' + method);
-      throw SYNTAX_ERR;
+      throw new Error('Invalid method: ' + method);;
     }
 
     // TODO: other validation steps in algorithm are not implemented
@@ -501,8 +490,7 @@ xhrApi.create = function(options) {
   xhr.setRequestHeader = function(header, value) {
     // 1. if state is not OPENED or send flag is true, raise exception
     if(xhr.readyState != OPENED || _state.sendFlag) {
-      // FIXME: handle exceptions properly
-      throw INVALID_STATE_ERR;
+      throw new Error('XHR not open or sending');
     }
 
     // TODO: other validation steps in spec aren't implemented
@@ -520,8 +508,7 @@ xhrApi.create = function(options) {
     // 1. if state is not OPENED or 2. send flag is true, raise
     // an invalid state exception
     if(xhr.readyState != OPENED || _state.sendFlag) {
-       // FIXME: handle exceptions properly
-       throw INVALID_STATE_ERR;
+      throw new Error('XHR not open or sending');
     }
 
     // 3. ignore data if method is GET or HEAD
@@ -533,17 +520,14 @@ xhrApi.create = function(options) {
         if(data instanceof Document) {
           var xs = new XMLSerializer();
           _state.request.body = xs.serializeToString(data);
-        }
-        else {
+        } else {
           _state.request.body = data;
         }
-      }
-      // poorly implemented IE case
-      else {
+      } else {
+        // poorly implemented IE case
         if(typeof(data.xml) !== 'undefined') {
-          _state.request.body = xml;
-        }
-        else {
+          _state.request.body = data.xml;
+        } else {
           _state.request.body = data;
         }
       }
@@ -604,8 +588,7 @@ xhrApi.create = function(options) {
             doc.async = false;
             doc.loadXML(e.response.body);
             xhr.responseXML = doc;
-          }
-          catch(ex) {
+          } catch(ex) {
             var parser = new DOMParser();
             xhr.responseXML = parser.parseFromString(ex.body, 'text/xml');
           }
@@ -631,8 +614,7 @@ xhrApi.create = function(options) {
           _log.warning : _log.verbose;
         lFunc(cat, output,
           e, e.response.body ? '\n' + e.response.body : '\nNo content');
-      }
-      else {
+      } else {
         lFunc = (xhr.status >= 400 && options.logWarningOnError) ?
           _log.warning : _log.debug;
         lFunc(cat, output);
@@ -693,8 +675,7 @@ xhrApi.create = function(options) {
      (xhr.readyState === OPENED && !_state.sendFlag)) {
       // 7. set ready state to unsent
       xhr.readyState = UNSENT;
-    }
-    else {
+    } else {
       // 6.1 set state to DONE
       xhr.readyState = DONE;
 

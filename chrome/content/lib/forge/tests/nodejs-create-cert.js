@@ -34,7 +34,8 @@ cert.setSubject(attrs);
 cert.setIssuer(attrs);
 cert.setExtensions([{
   name: 'basicConstraints',
-  cA: true
+  cA: true/*,
+  pathLenConstraint: 4*/
 }, {
   name: 'keyUsage',
   keyCertSign: true,
@@ -63,6 +64,9 @@ cert.setExtensions([{
   altNames: [{
     type: 6, // URI
     value: 'http://example.org/webid#me'
+  }, {
+    type: 7, // IP
+    ip: '127.0.0.1'
   }]
 }, {
   name: 'subjectKeyIdentifier'
@@ -100,8 +104,7 @@ try {
       }
       return true;
   });
-}
-catch(ex) {
+} catch(ex) {
   console.log('Certificate verification failure: ' +
     JSON.stringify(ex, null, 2));
 }

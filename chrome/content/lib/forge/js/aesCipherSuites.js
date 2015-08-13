@@ -3,7 +3,7 @@
  *
  * @author Dave Longley
  *
- * Copyright (c) 2009-2013 Digital Bazaar, Inc.
+ * Copyright (c) 2009-2015 Digital Bazaar, Inc.
  *
  */
 (function() {
@@ -54,13 +54,13 @@ function initConnectionState(state, c, sp) {
   // cipher setup
   state.read.cipherState = {
     init: false,
-    cipher: forge.aes.createDecryptionCipher(client ?
+    cipher: forge.cipher.createDecipher('AES-CBC', client ?
       sp.keys.server_write_key : sp.keys.client_write_key),
     iv: client ? sp.keys.server_write_IV : sp.keys.client_write_IV
   };
   state.write.cipherState = {
     init: false,
-    cipher: forge.aes.createEncryptionCipher(client ?
+    cipher: forge.cipher.createCipher('AES-CBC', client ?
       sp.keys.client_write_key : sp.keys.server_write_key),
     iv: client ? sp.keys.client_write_IV : sp.keys.server_write_IV
   };
@@ -70,7 +70,7 @@ function initConnectionState(state, c, sp) {
   // MAC setup
   state.read.macLength = state.write.macLength = sp.mac_length;
   state.read.macFunction = state.write.macFunction = tls.hmac_sha1;
-};
+}
 
 /**
  * Encrypts the TLSCompressed record into a TLSCipherText record using AES
@@ -89,25 +89,24 @@ function encrypt_aes_cbc_sha1(record, s) {
   record.fragment.putBytes(mac);
   s.updateSequenceNumber();
 
-  // TLS 1.1 & 1.2 use an explicit IV every time to protect against
-  // CBC attacks
+  // TLS 1.1+ use an explicit IV every time to protect against CBC attacks
   var iv;
-  if(record.version.minor > 1) {
-    iv = forge.random.getBytes(16);
-  }
-  else {
+  if(record.version.minor === tls.Versions.TLS_1_0.minor) {
     // use the pre-generated IV when initializing for TLS 1.0, otherwise use
     // the residue from the previous encryption
     iv = s.cipherState.init ? null : s.cipherState.iv;
+  } else {
+    iv = forge.random.getBytesSync(16);
   }
+
   s.cipherState.init = true;
 
   // start cipher
   var cipher = s.cipherState.cipher;
-  cipher.start(iv);
+  cipher.start({iv: iv});
 
-  // TLS 1.1 & 1.2 write IV into output
-  if(record.version.minor > 1) {
+  // TLS 1.1+ write IV into output
+  if(record.version.minor >= tls.Versions.TLS_1_1.minor) {
     cipher.output.putBytes(iv);
   }
 
@@ -200,21 +199,27 @@ function decrypt_aes_cbc_sha1_padding(blockSize, output, decrypt) {
  *
  * @return true on success, false on failure.
  */
+var count = 0;
 function decrypt_aes_cbc_sha1(record, s) {
   var rval = false;
+  ++count;
 
-  // TODO: TLS 1.1 & 1.2 use an explicit IV every time to protect against
-  // CBC attacks
-  //var iv = record.fragment.getBytes(16);
+  var iv;
+  if(record.version.minor === tls.Versions.TLS_1_0.minor) {
+    // use pre-generated IV when initializing for TLS 1.0, otherwise use the
+    // residue from the previous decryption
+    iv = s.cipherState.init ? null : s.cipherState.iv;
+  } else {
+    // TLS 1.1+ use an explicit IV every time to protect against CBC attacks
+    // that is appended to the record fragment
+    iv = record.fragment.getBytes(16);
+  }
 
-  // use pre-generated IV when initializing for TLS 1.0, otherwise use the
-  // residue from the previous decryption
-  var iv = s.cipherState.init ? null : s.cipherState.iv;
   s.cipherState.init = true;
 
   // start cipher
   var cipher = s.cipherState.cipher;
-  cipher.start(iv);
+  cipher.start({iv: iv});
 
   // do decryption
   cipher.update(record.fragment);
@@ -227,20 +232,17 @@ function decrypt_aes_cbc_sha1(record, s) {
   // last 20 bytes          = MAC
   var macLen = s.macLength;
 
-  // create a zero'd out mac
-  var mac = '';
-  for(var i = 0; i < macLen; ++i) {
-    mac += String.fromCharCode(0);
-  }
+  // create a random MAC to check against should the mac length check fail
+  // Note: do this regardless of the failure to keep timing consistent
+  var mac = forge.random.getBytesSync(macLen);
 
   // get fragment and mac
   var len = cipher.output.length();
   if(len >= macLen) {
     record.fragment = cipher.output.getBytes(len - macLen);
     mac = cipher.output.getBytes(macLen);
-  }
-  // bad data, but get bytes anyway to try to keep timing consistent
-  else {
+  } else {
+    // bad data, but get bytes anyway to try to keep timing consistent
     record.fragment = cipher.output.getBytes();
   }
   record.fragment = forge.util.createBuffer(record.fragment);
@@ -249,8 +251,36 @@ function decrypt_aes_cbc_sha1(record, s) {
   // see if data integrity checks out, update sequence number
   var mac2 = s.macFunction(s.macKey, s.sequenceNumber, record);
   s.updateSequenceNumber();
-  rval = (mac2 === mac) && rval;
+  rval = compareMacs(s.macKey, mac, mac2) && rval;
   return rval;
+}
+
+/**
+ * Safely compare two MACs. This function will compare two MACs in a way
+ * that protects against timing attacks.
+ *
+ * TODO: Expose elsewhere as a utility API.
+ *
+ * See: https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2011/february/double-hmac-verification/
+ *
+ * @param key the MAC key to use.
+ * @param mac1 as a binary-encoded string of bytes.
+ * @param mac2 as a binary-encoded string of bytes.
+ *
+ * @return true if the MACs are the same, false if not.
+ */
+function compareMacs(key, mac1, mac2) {
+  var hmac = forge.hmac.create();
+
+  hmac.start('SHA1', key);
+  hmac.update(mac1);
+  mac1 = hmac.digest().getBytes();
+
+  hmac.start(null, null);
+  hmac.update(mac2);
+  mac2 = hmac.digest().getBytes();
+
+  return mac1 === mac2;
 }
 
 } // end module implementation
@@ -264,9 +294,8 @@ if(typeof define !== 'function') {
     define = function(ids, factory) {
       factory(require, module);
     };
-  }
-  // <script>
-  else {
+  } else {
+    // <script>
     if(typeof forge === 'undefined') {
       forge = {};
     }

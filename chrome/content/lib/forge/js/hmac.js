@@ -50,12 +50,10 @@ hmac.create = function() {
         md = md.toLowerCase();
         if(md in forge.md.algorithms) {
           _md = forge.md.algorithms[md].create();
+        } else {
+          throw new Error('Unknown hash algorithm "' + md + '"');
         }
-        else {
-          throw 'Unknown hash algorithm "' + md + '"';
-        }
-      }
-      else {
+      } else {
         // store message digest
         _md = md;
       }
@@ -64,14 +62,12 @@ hmac.create = function() {
     if(key === null) {
       // reuse previous key
       key = _key;
-    }
-    else {
-      // convert string into byte buffer
+    } else {
       if(typeof key === 'string') {
+        // convert string into byte buffer
         key = forge.util.createBuffer(key);
-      }
-      // convert byte array into byte buffer
-      else if(forge.util.isArray(key)) {
+      } else if(forge.util.isArray(key)) {
+        // convert byte array into byte buffer
         var tmp = key;
         key = forge.util.createBuffer();
         for(var i = 0; i < tmp.length; ++i) {
@@ -160,9 +156,8 @@ if(typeof define !== 'function') {
     define = function(ids, factory) {
       factory(require, module);
     };
-  }
-  // <script>
-  else {
+  } else {
+    // <script>
     if(typeof forge === 'undefined') {
       forge = {};
     }

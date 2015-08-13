@@ -3,7 +3,7 @@
  *
  * @author Dave Longley
  *
- * Copyright (c) 2010-2012 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2010-2014 Digital Bazaar, Inc. All rights reserved.
  */
 (function() {
 
@@ -53,8 +53,7 @@ var _loadCookies = function(client) {
         client.socketPool.flashApi,
         _getStorageId(client), 'cookies');
       client.cookies = cookies || {};
-    }
-    catch(ex) {
+    } catch(ex) {
       // no flash storage available, just silently fail
       // TODO: i assume we want this logged somewhere or
       // should it actually generate an error
@@ -74,8 +73,7 @@ var _saveCookies = function(client) {
       forge.util.setItem(
         client.socketPool.flashApi,
         _getStorageId(client), 'cookies', client.cookies);
-    }
-    catch(ex) {
+    } catch(ex) {
       // no flash storage available, just silently fail
       // TODO: i assume we want this logged somewhere or
       // should it actually generate an error
@@ -99,8 +97,7 @@ var _clearCookies = function(client) {
       forge.util.clearItems(
         client.socketPool.flashApi,
         _getStorageId(client));
-    }
-    catch(ex) {
+    } catch(ex) {
       // no flash storage available, just silently fail
       // TODO: i assume we want this logged somewhere or
       // should it actually generate an error
@@ -123,8 +120,7 @@ var _doRequest = function(client, socket) {
       type: 'connect',
       id: socket.id
     });
-  }
-  else {
+  } else {
     // connect
     socket.options.request.connectTime = +new Date();
     socket.connect({
@@ -161,10 +157,8 @@ var _handleNextRequest = function(client, socket) {
       socket.options = null;
     }
     client.idle.push(socket);
-  }
-  // handle pending request
-  else {
-    // allow 1 retry
+  } else {
+    // handle pending request, allow 1 retry
     socket.retries = 1;
     socket.options = pending;
     _doRequest(client, socket);
@@ -187,21 +181,18 @@ var _initSocket = function(client, socket, tlsOptions) {
     // socket primed by caching TLS session, handle next request
     if(socket.options === null) {
       _handleNextRequest(client, socket);
-    }
-    // socket in use
-    else {
+    } else {
+      // socket in use
       var request = socket.options.request;
       request.connectTime = +new Date() - request.connectTime;
       e.socket = socket;
       socket.options.connected(e);
       if(request.aborted) {
         socket.close();
-      }
-      else {
+      } else {
         var out = request.toString();
-        if(request.body)
-        {
-           out += request.body;
+        if(request.body) {
+          out += request.body;
         }
         request.time = +new Date();
         socket.send(out);
@@ -217,8 +208,7 @@ var _initSocket = function(client, socket, tlsOptions) {
       if(socket.retries > 0) {
         --socket.retries;
         _doRequest(client, socket);
-      }
-      else {
+      } else {
         // error, closed during send
         socket.error({
           id: socket.id,
@@ -227,8 +217,7 @@ var _initSocket = function(client, socket, tlsOptions) {
           bytesAvailable: 0
         });
       }
-    }
-    else {
+    } else {
       // handle unspecified content-length transfer
       var response = socket.options.response;
       if(response.readBodyUntilClose) {
@@ -249,8 +238,7 @@ var _initSocket = function(client, socket, tlsOptions) {
     var request = socket.options.request;
     if(request.aborted) {
       socket.close();
-    }
-    else {
+    } else {
       // receive all bytes available
       var response = socket.options.response;
       var bytes = socket.receive(e.bytesAvailable);
@@ -282,8 +270,7 @@ var _initSocket = function(client, socket, tlsOptions) {
             (response.version === 'HTTP/1.0' &&
             response.getField('Keep-Alive') === null)) {
             socket.close();
-          }
-          else {
+          } else {
             _handleNextRequest(client, socket);
           }
         }
@@ -331,13 +318,11 @@ var _initSocket = function(client, socket, tlsOptions) {
         policyPort: client.policyPort,
         policyUrl: client.policyUrl
       });
-    }
-    else {
+    } else {
       // do not prime socket, just add as idle
       client.idle.push(socket);
     }
-  }
-  else {
+  } else {
     // no need to prime non-TLS sockets
     socket.buffer = forge.util.createBuffer();
     client.sockets.push(socket);
@@ -386,9 +371,8 @@ var _writeCookies = function(client, request) {
       if(_hasCookieExpired(cookie)) {
         // store for clean up
         expired.push(cookie);
-      }
-      // path or path's ancestor must match cookie.path
-      else if(request.path.indexOf(cookie.path) === 0) {
+      } else if(request.path.indexOf(cookie.path) === 0) {
+        // path or path's ancestor must match cookie.path
         request.addCookie(cookie);
       }
     }
@@ -412,8 +396,7 @@ var _readCookies = function(client, response) {
   for(var i = 0; i < cookies.length; ++i) {
     try {
       client.setCookie(cookies[i]);
-    }
-    catch(ex) {
+    } catch(ex) {
       // ignore failure to add other-domain, etc. cookies
     }
   }
@@ -463,10 +446,9 @@ http.createClient = function(options) {
     window.location.protocol + '//' + window.location.host);
   var url = http.parseUrl(options.url);
   if(!url) {
-    throw {
-      message: 'Invalid url.',
-      details: {url: options.url}
-    };
+    var error = new Error('Invalid url.');
+    error.details = {url: options.url};
+    throw error;
   }
 
   // default to 1 connection
@@ -619,18 +601,15 @@ http.createClient = function(options) {
     // queue request options if there are no idle sockets
     if(client.idle.length === 0) {
       client.requests.push(opts);
-    }
-    // use an idle socket
-    else {
-      // prefer an idle *connected* socket first
+    } else {
+      // use an idle socket, prefer an idle *connected* socket first
       var socket = null;
       var len = client.idle.length;
       for(var i = 0; socket === null && i < len; ++i) {
         socket = client.idle[i];
         if(socket.isConnected()) {
           client.idle.splice(i, 1);
-        }
-        else {
+        } else {
           socket = null;
         }
       }
@@ -681,13 +660,13 @@ http.createClient = function(options) {
    *   created: creation time, in UTC seconds, of the cookie.
    */
   client.setCookie = function(cookie) {
+    var rval;
     if(typeof(cookie.name) !== 'undefined') {
       if(cookie.value === null || typeof(cookie.value) === 'undefined' ||
         cookie.value === '') {
         // remove cookie
         rval = client.removeCookie(cookie.name, cookie.path);
-      }
-      else {
+      } else {
         // set cookie defaults
         cookie.comment = cookie.comment || '';
         cookie.maxAge = cookie.maxAge || 0;
@@ -701,21 +680,19 @@ http.createClient = function(options) {
 
         // do secure check
         if(cookie.secure !== client.secure) {
-          throw {
-            message: 'Http client url scheme is incompatible ' +
-              'with cookie secure flag.',
-            url: client.url,
-            cookie: cookie
-          };
+          var error = new Error('Http client url scheme is incompatible ' +
+            'with cookie secure flag.');
+          error.url = client.url;
+          error.cookie = cookie;
+          throw error;
         }
         // make sure url host is within cookie.domain
         if(!http.withinCookieDomain(client.url, cookie)) {
-          throw {
-            message: 'Http client url host is incompatible with ' +
-              'cookie domain.',
-            url: client.url,
-            cookie: cookie
-          };
+          var error = new Error('Http client url scheme is incompatible ' +
+            'with cookie secure flag.');
+          error.url = client.url;
+          error.cookie = cookie;
+          throw error;
         }
 
         // add new cookie
@@ -752,9 +729,8 @@ http.createClient = function(options) {
         if(path in paths) {
           rval = paths[path];
         }
-      }
-      // get first cookie
-      else {
+      } else {
+        // get first cookie
         for(var p in paths) {
           rval = paths[p];
           break;
@@ -792,9 +768,8 @@ http.createClient = function(options) {
             delete client.cookies[name];
           }
         }
-      }
-      // delete all cookies with the given name
-      else {
+      } else {
+        // delete all cookies with the given name
         rval = true;
         delete client.cookies[name];
       }
@@ -974,8 +949,7 @@ http.createRequest = function(options) {
       request.bodyDeflated = true;
       request.setField('Content-Encoding', 'deflate');
       request.setField('Content-Length', request.body.length);
-    }
-    else if(request.body !== null) {
+    } else if(request.body !== null) {
       // set content length for body
       request.setField('Content-Length', request.body.length);
     }
@@ -1073,22 +1047,16 @@ http.createResponse = function() {
             response.version = tmp[0];
             response.code = parseInt(tmp[1], 10);
             response.message = tmp.slice(2).join(' ');
-          }
-          else {
+          } else {
             // invalid header
-            throw {
-              message: 'Invalid http response header.',
-              details: {'line': line}
-            };
+            var error = new Error('Invalid http response header.');
+            error.details = {'line': line};
+            throw error;
           }
-        }
-        // handle final line
-        else if(line.length === 0) {
-          // end of header
+        } else if(line.length === 0) {
+          // handle final line, end of header
           response.headerReceived = true;
-        }
-        // parse header
-        else {
+        } else {
           _parseHeader(line);
         }
       }
@@ -1156,20 +1124,16 @@ http.createResponse = function() {
         response.body += b.getBytes(_chunkSize);
         b.getBytes(2);
         _chunkSize = 0;
-      }
-      // if chunks not finished, read the next chunk size
-      else if(!_chunksFinished) {
-        // read chunk-size line
+      } else if(!_chunksFinished) {
+        // more chunks, read next chunk-size line
         line = _readCrlf(b);
         if(line !== null) {
           // parse chunk-size (ignore any chunk extension)
           _chunkSize = parseInt(line.split(';', 1)[0], 16);
           _chunksFinished = (_chunkSize === 0);
         }
-      }
-      // chunks finished, read trailers
-      else {
-        // read next trailer
+      } else {
+        // chunks finished, read next trailer
         line = _readCrlf(b);
         while(line !== null) {
           if(line.length > 0) {
@@ -1177,8 +1141,7 @@ http.createResponse = function() {
             _parseHeader(line);
             // read next trailer
             line = _readCrlf(b);
-          }
-          else {
+          } else {
             // body received
             response.bodyReceived = true;
             line = null;
@@ -1200,35 +1163,33 @@ http.createResponse = function() {
   response.readBody = function(b) {
     var contentLength = response.getField('Content-Length');
     var transferEncoding = response.getField('Transfer-Encoding');
+    if(contentLength !== null) {
+      contentLength = parseInt(contentLength);
+    }
 
     // read specified length
     if(contentLength !== null && contentLength >= 0) {
       response.body = response.body || '';
       response.body += b.getBytes(contentLength);
       response.bodyReceived = (response.body.length === contentLength);
-    }
-    // read chunked encoding
-    else if(transferEncoding !== null) {
+    } else if(transferEncoding !== null) {
+      // read chunked encoding
       if(transferEncoding.indexOf('chunked') != -1) {
         response.body = response.body || '';
         _readChunkedBody(b);
+      } else {
+        var error = new Error('Unknown Transfer-Encoding.');
+        error.details = {'transferEncoding': transferEncoding};
+        throw error;
       }
-      else {
-        throw {
-          message: 'Unknown Transfer-Encoding.',
-          details: {'transferEncoding' : transferEncoding}
-        };
-      }
-    }
-    // read all data in the buffer
-    else if((contentLength !== null && contentLength < 0) ||
+    } else if((contentLength !== null && contentLength < 0) ||
       (contentLength === null &&
       response.getField('Content-Type') !== null)) {
+      // read all data in the buffer
       response.body = response.body || '';
       response.body += b.getBytes();
       response.readBodyUntilClose = true;
-    }
-    else {
+    } else {
       // no body
       response.body = null;
       response.bodyReceived = true;
@@ -1287,9 +1248,8 @@ http.createResponse = function() {
                cookie.name = name;
                cookie.value = value;
                first = false;
-             }
-             // property_name=value
-             else {
+             } else {
+               // property_name=value
                name = name.toLowerCase();
                switch(name) {
                case 'expires':
@@ -1314,8 +1274,7 @@ http.createResponse = function() {
                }
              }
            }
-         }
-         while(m !== null && m[0] !== '');
+         } while(m !== null && m[0] !== '');
          rval.push(cookie);
        }
      }
@@ -1381,9 +1340,8 @@ http.withinCookieDomain = function(url, cookie) {
   // any domain will do
   if(domain === null) {
     rval = true;
-  }
-  // ensure domain starts with a '.'
-  else if(domain.charAt(0) === '.') {
+  } else if(domain.charAt(0) === '.') {
+    // ensure domain starts with a '.'
     // parse URL as necessary
     if(typeof url === 'string') {
       url = http.parseUrl(url);

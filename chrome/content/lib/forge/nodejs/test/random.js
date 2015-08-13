@@ -19,7 +19,7 @@ function Tests(ASSERT, RANDOM, UTIL) {
         return UTIL.fillString('a', needed);
       };
       var b = rand.getBytes(10);
-      ASSERT.equal(UTIL.bytesToHex(b), 'a44857544b3df0fcac84');
+      ASSERT.equal(UTIL.bytesToHex(b), '80a7901a239c3e606319');
     });
 
     it('should use an asynchronous seed file', function(done) {
@@ -29,7 +29,7 @@ function Tests(ASSERT, RANDOM, UTIL) {
       };
       rand.getBytes(10, function(err, b) {
         ASSERT.equal(err, null);
-        ASSERT.equal(UTIL.bytesToHex(b), 'a44857544b3df0fcac84');
+        ASSERT.equal(UTIL.bytesToHex(b), '80a7901a239c3e606319');
         done();
       });
     });
@@ -41,7 +41,7 @@ function Tests(ASSERT, RANDOM, UTIL) {
       };
       rand.collect('bbb');
       var b = rand.getBytes(10);
-      ASSERT.equal(UTIL.bytesToHex(b), '8274fa6e0a192d670ddb');
+      ASSERT.equal(UTIL.bytesToHex(b), 'ff8d213516047c94ca46');
     });
   });
 }
@@ -59,9 +59,8 @@ if(typeof define === 'function') {
       UTIL()
     );
   });
-}
-// assume NodeJS
-else if(typeof module === 'object' && module.exports) {
+} else if(typeof module === 'object' && module.exports) {
+  // assume NodeJS
   Tests(
     require('assert'),
     require('../../js/random'),

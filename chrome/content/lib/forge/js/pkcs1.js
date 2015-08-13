@@ -41,7 +41,7 @@
  * @author Evan Jones (http://evanjones.ca/)
  * @author Dave Longley
  *
- * Copyright (c) 2013 Digital Bazaar, Inc.
+ * Copyright (c) 2013-2014 Digital Bazaar, Inc.
  */
 (function() {
 /* ########## Begin module implementation ########## */
@@ -63,43 +63,51 @@ var pkcs1 = forge.pkcs1 = forge.pkcs1 || {};
  *          label an optional label to use.
  *          seed the seed to use.
  *          md the message digest object to use, undefined for SHA-1.
+ *          mgf1 optional mgf1 parameters:
+ *            md the message digest object to use for MGF1.
  *
  * @return the encoded message bytes.
  */
 pkcs1.encode_rsa_oaep = function(key, message, options) {
   // parse arguments
-  var label = undefined;
-  var seed = undefined;
-  var md = undefined;
+  var label;
+  var seed;
+  var md;
+  var mgf1Md;
   // legacy args (label, seed, md)
   if(typeof options === 'string') {
     label = options;
     seed = arguments[3] || undefined;
     md = arguments[4] || undefined;
-  }
-  else if(options) {
+  } else if(options) {
     label = options.label || undefined;
     seed = options.seed || undefined;
     md = options.md || undefined;
+    if(options.mgf1 && options.mgf1.md) {
+      mgf1Md = options.mgf1.md;
+    }
   }
 
-  // default to SHA-1 message digest
+  // default OAEP to SHA-1 message digest
   if(!md) {
     md = forge.md.sha1.create();
-  }
-  else {
+  } else {
     md.start();
+  }
+
+  // default MGF-1 to same as OAEP
+  if(!mgf1Md) {
+    mgf1Md = md;
   }
 
   // compute length in bytes and check output
   var keyLength = Math.ceil(key.n.bitLength() / 8);
   var maxLength = keyLength - 2 * md.digestLength - 2;
   if(message.length > maxLength) {
-    throw {
-      message: 'RSAES-OAEP input message length is too long.',
-      length: message.length,
-      maxLength: maxLength
-    };
+    var error = new Error('RSAES-OAEP input message length is too long.');
+    error.length = message.length;
+    error.maxLength = maxLength;
+    throw error;
   }
 
   if(!label) {
@@ -118,20 +126,18 @@ pkcs1.encode_rsa_oaep = function(key, message, options) {
 
   if(!seed) {
     seed = forge.random.getBytes(md.digestLength);
-  }
-  else if(seed.length !== md.digestLength) {
-    throw {
-      message: 'Invalid RSAES-OAEP seed. The seed length must match the ' +
-        'digest length.',
-      seedLength: seed.length,
-      digestLength: md.digestLength
-    };
+  } else if(seed.length !== md.digestLength) {
+    var error = new Error('Invalid RSAES-OAEP seed. The seed length must ' +
+      'match the digest length.')
+    error.seedLength = seed.length;
+    error.digestLength = md.digestLength;
+    throw error;
   }
 
-  var dbMask = rsa_mgf1(seed, keyLength - md.digestLength - 1, md);
+  var dbMask = rsa_mgf1(seed, keyLength - md.digestLength - 1, mgf1Md);
   var maskedDB = forge.util.xorBytes(DB, dbMask, DB.length);
 
-  var seedMask = rsa_mgf1(maskedDB, md.digestLength, md);
+  var seedMask = rsa_mgf1(maskedDB, md.digestLength, mgf1Md);
   var maskedSeed = forge.util.xorBytes(seed, seedMask, seed.length);
 
   // return encoded message
@@ -147,48 +153,55 @@ pkcs1.encode_rsa_oaep = function(key, message, options) {
  *
  * @param key the RSA key to use.
  * @param em the encoded message to decode.
- * @param label an optional label to use.
- * @param md the message digest object to use, undefined for SHA-1.
+ * @param options the options to use:
+ *          label an optional label to use.
+ *          md the message digest object to use for OAEP, undefined for SHA-1.
+ *          mgf1 optional mgf1 parameters:
+ *            md the message digest object to use for MGF1.
  *
  * @return the decoded message bytes.
  */
 pkcs1.decode_rsa_oaep = function(key, em, options) {
   // parse args
-  var label = undefined;
-  var md = undefined;
+  var label;
+  var md;
+  var mgf1Md;
   // legacy args
   if(typeof options === 'string') {
     label = options;
     md = arguments[3] || undefined;
-  }
-  else if(options) {
+  } else if(options) {
     label = options.label || undefined;
     md = options.md || undefined;
+    if(options.mgf1 && options.mgf1.md) {
+      mgf1Md = options.mgf1.md;
+    }
   }
 
   // compute length in bytes
   var keyLength = Math.ceil(key.n.bitLength() / 8);
 
   if(em.length !== keyLength) {
-    throw {
-      message: 'RSAES-OAEP encoded message length is invalid.',
-      length: em.length,
-      expectedLength: keyLength
-    };
+    var error = new Error('RSAES-OAEP encoded message length is invalid.');
+    error.length = em.length;
+    error.expectedLength = keyLength;
+    throw error;
   }
 
-  // default to SHA-1 message digest
+  // default OAEP to SHA-1 message digest
   if(md === undefined) {
     md = forge.md.sha1.create();
-  }
-  else {
+  } else {
     md.start();
   }
 
+  // default MGF-1 to same as OAEP
+  if(!mgf1Md) {
+    mgf1Md = md;
+  }
+
   if(keyLength < 2 * md.digestLength + 2) {
-    throw {
-      message: 'RSAES-OAEP key is too short for the hash function.'
-    };
+    throw new Error('RSAES-OAEP key is too short for the hash function.');
   }
 
   if(!label) {
@@ -202,10 +215,10 @@ pkcs1.decode_rsa_oaep = function(key, em, options) {
   var maskedSeed = em.substring(1, md.digestLength + 1);
   var maskedDB = em.substring(1 + md.digestLength);
 
-  var seedMask = rsa_mgf1(maskedDB, md.digestLength, md);
+  var seedMask = rsa_mgf1(maskedDB, md.digestLength, mgf1Md);
   var seed = forge.util.xorBytes(maskedSeed, seedMask, maskedSeed.length);
 
-  var dbMask = rsa_mgf1(seed, keyLength - md.digestLength - 1, md);
+  var dbMask = rsa_mgf1(seed, keyLength - md.digestLength - 1, mgf1Md);
   var db = forge.util.xorBytes(maskedDB, dbMask, maskedDB.length);
 
   var lHashPrime = db.substring(0, md.digestLength);
@@ -238,15 +251,17 @@ pkcs1.decode_rsa_oaep = function(key, em, options) {
   }
 
   if(error || db.charCodeAt(index) !== 0x1) {
-    throw {
-      message: 'Invalid RSAES-OAEP padding.'
-    };
+    throw new Error('Invalid RSAES-OAEP padding.');
   }
 
   return db.substring(index + 1);
 };
 
 function rsa_mgf1(seed, maskLength, hash) {
+  // default to SHA-1 message digest
+  if(!hash) {
+    hash = forge.md.sha1.create();
+  }
   var t = '';
   var count = Math.ceil(maskLength / hash.digestLength);
   for(var i = 0; i < count; ++i) {
@@ -270,9 +285,8 @@ if(typeof define !== 'function') {
     define = function(ids, factory) {
       factory(require, module);
     };
-  }
-  // <script>
-  else {
+  } else {
+    // <script>
     if(typeof forge === 'undefined') {
       forge = {};
     }

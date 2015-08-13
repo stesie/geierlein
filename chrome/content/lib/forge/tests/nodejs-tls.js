@@ -98,6 +98,7 @@ end.client = forge.tls.createConnection({
 
     // send message to server
     setTimeout(function() {
+      c.prepareHeartbeatRequest('heartbeat');
       c.prepare('Hello Server');
     }, 1);
   },
@@ -118,12 +119,14 @@ end.client = forge.tls.createConnection({
     success = (response === 'Hello Client');
     c.close();
   },
+  heartbeatReceived: function(c, payload) {
+    console.log('Client received heartbeat: ' + payload.getBytes());
+  },
   closed: function(c) {
     console.log('Client disconnected.');
     if(success) {
       console.log('PASS');
-    }
-    else {
+    } else {
       console.log('FAIL');
     }
   },
@@ -143,6 +146,7 @@ end.server = forge.tls.createConnection({
     forge.tls.CipherSuites.TLS_RSA_WITH_AES_256_CBC_SHA],
   connected: function(c) {
     console.log('Server connected');
+    c.prepareHeartbeatRequest('heartbeat');
   },
   verifyClient: true,
   verify: function(c, verified, depth, certs) {
@@ -169,6 +173,9 @@ end.server = forge.tls.createConnection({
     // send response
     c.prepare('Hello Client');
     c.close();
+  },
+  heartbeatReceived: function(c, payload) {
+    console.log('Server received heartbeat: ' + payload.getBytes());
   },
   closed: function(c) {
     console.log('Server disconnected.');

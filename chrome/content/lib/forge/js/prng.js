@@ -1,11 +1,13 @@
 /**
  * A javascript implementation of a cryptographically-secure
- * Pseudo Random Number Generator (PRNG). The Fortuna algorithm is mostly
- * followed here. SHA-1 is used instead of SHA-256.
+ * Pseudo Random Number Generator (PRNG). The Fortuna algorithm is followed
+ * here though the use of SHA-256 is not enforced; when generating an
+ * a PRNG context, the hashing algorithm and block cipher used for
+ * the generator are specified via a plugin.
  *
  * @author Dave Longley
  *
- * Copyright (c) 2010-2013 Digital Bazaar, Inc.
+ * Copyright (c) 2010-2014 Digital Bazaar, Inc.
  */
 (function() {
 /* ########## Begin module implementation ########## */
@@ -13,9 +15,9 @@ function initModule(forge) {
 
 var _nodejs = (
   typeof process !== 'undefined' && process.versions && process.versions.node);
-var crypto = null;
-if(!forge.disableNativeCode && _nodejs) {
-  crypto = require('crypto');
+var _crypto = null;
+if(!forge.disableNativeCode && _nodejs && !process.versions['node-webkit']) {
+  _crypto = require('crypto');
 }
 
 /* PRNG API */
@@ -32,7 +34,7 @@ var prng = forge.prng = forge.prng || {};
  *   integers (or similar) should be performed.
  * 2. The cryptographic function used by the generator. It takes a key and
  *   a seed.
- * 3. A seed increment function. It takes the seed and return seed + 1.
+ * 3. A seed increment function. It takes the seed and returns seed + 1.
  * 4. An api to create a message digest.
  *
  * For an example, see random.js.
@@ -85,6 +87,9 @@ prng.create = function(plugin) {
     var formatSeed = ctx.plugin.formatSeed;
     var b = forge.util.createBuffer();
 
+    // reset key for every request
+    ctx.key = null;
+
     generate();
 
     function generate(err) {
@@ -98,16 +103,15 @@ prng.create = function(plugin) {
       }
 
       // if amount of data generated is greater than 1 MiB, trigger reseed
-      if(ctx.generated >= 1048576) {
-        // only do reseed at most every 100 ms
-        var now = +new Date();
-        if(ctx.time === null || (now - ctx.time > 100)) {
-          ctx.key = null;
-        }
+      if(ctx.generated > 0xfffff) {
+        ctx.key = null;
       }
 
       if(ctx.key === null) {
-        return _reseed(generate);
+        // prevent stack overflow
+        return forge.util.nextTick(function() {
+          _reseed(generate);
+        });
       }
 
       // generate the random bytes
@@ -136,15 +140,15 @@ prng.create = function(plugin) {
     var increment = ctx.plugin.increment;
     var formatKey = ctx.plugin.formatKey;
     var formatSeed = ctx.plugin.formatSeed;
+
+    // reset key for every request
+    ctx.key = null;
+
     var b = forge.util.createBuffer();
     while(b.length() < count) {
       // if amount of data generated is greater than 1 MiB, trigger reseed
-      if(ctx.generated >= 1048576) {
-        // only do reseed at most every 100 ms
-        var now = +new Date();
-        if(ctx.time === null || (now - ctx.time > 100)) {
-          ctx.key = null;
-        }
+      if(ctx.generated > 0xfffff) {
+        ctx.key = null;
       }
 
       if(ctx.key === null) {
@@ -203,8 +207,8 @@ prng.create = function(plugin) {
    * Private function that seeds a generator once enough bytes are available.
    */
   function _seed() {
-    // create a SHA-1 message digest
-    var md = forge.md.sha1.create();
+    // create a plugin-based message digest
+    var md = ctx.plugin.md.create();
 
     // digest pool 0's entropy and restart it
     md.update(ctx.pools[0].digest().getBytes());
@@ -231,9 +235,8 @@ prng.create = function(plugin) {
     // update
     ctx.key = ctx.plugin.formatKey(keyBytes);
     ctx.seed = ctx.plugin.formatSeed(seedBytes);
-    ++ctx.reseeds;
+    ctx.reseeds = (ctx.reseeds === 0xffffffff) ? 0 : ctx.reseeds + 1;
     ctx.generated = 0;
-    ctx.time = +new Date();
   }
 
   /**
@@ -245,24 +248,36 @@ prng.create = function(plugin) {
    * @return the random bytes.
    */
   function defaultSeedFile(needed) {
-    // use window.crypto.getRandomValues strong source of entropy if
-    // available
-    var b = forge.util.createBuffer();
-    if(typeof window !== 'undefined' &&
-      window.crypto && window.crypto.getRandomValues) {
-      var entropy = new Uint32Array(needed / 4);
-      try {
-        window.crypto.getRandomValues(entropy);
-        for(var i = 0; i < entropy.length; ++i) {
-          b.putInt32(entropy[i]);
-        }
+    // use window.crypto.getRandomValues strong source of entropy if available
+    var getRandomValues = null;
+    if(typeof window !== 'undefined') {
+      var _crypto = window.crypto || window.msCrypto;
+      if(_crypto && _crypto.getRandomValues) {
+        getRandomValues = function(arr) {
+          return _crypto.getRandomValues(arr);
+        };
       }
-      catch(e) {
-        /* Mozilla claims getRandomValues can throw QuotaExceededError, so
-         ignore errors. In this case, weak entropy will be added, but
-         hopefully this never happens.
-         https://developer.mozilla.org/en-US/docs/DOM/window.crypto.getRandomValues
-         However I've never observed this exception --@evanj */
+    }
+
+    var b = forge.util.createBuffer();
+    if(getRandomValues) {
+      while(b.length() < needed) {
+        // max byte length is 65536 before QuotaExceededError is thrown
+        // http://www.w3.org/TR/WebCryptoAPI/#RandomSource-method-getRandomValues
+        var count = Math.max(1, Math.min(needed - b.length(), 65536) / 4);
+        var entropy = new Uint32Array(Math.floor(count));
+        try {
+          getRandomValues(entropy);
+          for(var i = 0; i < entropy.length; ++i) {
+            b.putInt32(entropy[i]);
+          }
+        } catch(e) {
+          /* only ignore QuotaExceededError */
+          if(!(typeof QuotaExceededError !== 'undefined' &&
+            e instanceof QuotaExceededError)) {
+            throw e;
+          }
+        }
       }
     }
 
@@ -272,7 +287,7 @@ prng.create = function(plugin) {
       implemented with David G. Carta's optimization: with 32 bit math
       and without division (Public Domain). */
       var hi, lo, next;
-      var seed = Math.floor(Math.random() * 0xFFFF);
+      var seed = Math.floor(Math.random() * 0x010000);
       while(b.length() < needed) {
         lo = 16807 * (seed & 0xFFFF);
         hi = 16807 * (seed >> 16);
@@ -285,19 +300,19 @@ prng.create = function(plugin) {
         for(var i = 0; i < 3; ++i) {
           // throw in more pseudo random
           next = seed >>> (i << 3);
-          next ^= Math.floor(Math.random() * 0xFF);
+          next ^= Math.floor(Math.random() * 0x0100);
           b.putByte(String.fromCharCode(next & 0xFF));
         }
       }
     }
 
-    return b.getBytes();
+    return b.getBytes(needed);
   }
   // initialize seed file APIs
-  if(crypto) {
+  if(_crypto) {
     // use nodejs async API
     ctx.seedFile = function(needed, callback) {
-      crypto.randomBytes(needed, function(err, bytes) {
+      _crypto.randomBytes(needed, function(err, bytes) {
         if(err) {
           return callback(err);
         }
@@ -306,15 +321,13 @@ prng.create = function(plugin) {
     };
     // use nodejs sync API
     ctx.seedFileSync = function(needed) {
-      return crypto.randomBytes(needed).toString();
+      return _crypto.randomBytes(needed).toString();
     };
-  }
-  else {
+  } else {
     ctx.seedFile = function(needed, callback) {
       try {
         callback(null, defaultSeedFile(needed));
-      }
-      catch(e) {
+      } catch(e) {
         callback(e);
       }
     };
@@ -371,17 +384,16 @@ prng.create = function(plugin) {
         self.addEventListener('message', listener);
         self.postMessage({forge: {prng: {needed: needed}}});
       };
-    }
-    // main thread sends random bytes upon request
-    else {
-      function listener(e) {
+    } else {
+      // main thread sends random bytes upon request
+      var listener = function(e) {
         var data = e.data;
         if(data.forge && data.forge.prng) {
           ctx.seedFile(data.forge.prng.needed, function(err, bytes) {
             worker.postMessage({forge: {prng: {err: err, bytes: bytes}}});
           });
         }
-      }
+      };
       // TODO: do we need to remove the event listener when the worker dies?
       worker.addEventListener('message', listener);
     }
@@ -401,9 +413,8 @@ if(typeof define !== 'function') {
     define = function(ids, factory) {
       factory(require, module);
     };
-  }
-  // <script>
-  else {
+  } else {
+    // <script>
     if(typeof forge === 'undefined') {
       forge = {};
     }

@@ -165,7 +165,7 @@ function Tests(ASSERT, forge) {
           cert: forge.pki.certificateToPem(cert),
           privateKey: forge.pki.privateKeyToPem(keys.privateKey)
         };
-      };
+      }
     });
   });
 }
@@ -181,9 +181,8 @@ if(typeof define === 'function') {
       forge
     );
   });
-}
-// assume NodeJS
-else if(typeof module === 'object' && module.exports) {
+} else if(typeof module === 'object' && module.exports) {
+  // assume NodeJS
   Tests(
     require('assert'),
     require('../../js/forge'));

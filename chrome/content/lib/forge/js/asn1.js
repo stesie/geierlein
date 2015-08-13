@@ -3,7 +3,7 @@
  *
  * @author Dave Longley
  *
- * Copyright (c) 2010-2013 Digital Bazaar, Inc.
+ * Copyright (c) 2010-2015 Digital Bazaar, Inc.
  *
  * An API for storing data using the Abstract Syntax Notation Number One
  * format using DER (Distinguished Encoding Rules) encoding. This encoding is
@@ -216,15 +216,18 @@ asn1.create = function(tagClass, type, constructed, value) {
 };
 
 /**
- * Gets the length of an ASN.1 value.
+ * Gets the length of a BER-encoded ASN.1 value.
  *
  * In case the length is not specified, undefined is returned.
  *
- * @param b the ASN.1 byte buffer.
+ * @param b the BER-encoded ASN.1 byte buffer, starting with the first
+ *          length byte.
  *
- * @return the length of the ASN.1 value.
+ * @return the length of the BER-encoded ASN.1 value or undefined.
  */
-var _getValueLength = function(b) {
+var _getValueLength = asn1.getBerValueLength = function(b) {
+  // TODO: move this function and related DER/BER functions to a der.js
+  // file; better abstract ASN.1 away from der/ber.
   var b2 = b.getByte();
   if(b2 === 0x80) {
     return undefined;
@@ -236,8 +239,7 @@ var _getValueLength = function(b) {
   if(!longForm) {
     // length is just the first byte
     length = b2;
-  }
-  else {
+  } else {
     // the number of bytes the length is specified in bits 7 through 1
     // and each length byte is in big-endian base-256
     length = b.getInt((b2 & 0x7F) << 3);
@@ -265,11 +267,10 @@ asn1.fromDer = function(bytes, strict) {
   }
 
   // minimum length for ASN.1 DER structure is 2
-  if(bytes.length() < 2)    {
-    throw {
-      message: 'Too few bytes to parse DER.',
-      bytes: bytes.length()
-    };
+  if(bytes.length() < 2) {
+    var error = new Error('Too few bytes to parse DER.');
+    error.bytes = bytes.length();
+    throw error;
   }
 
   // get the first byte
@@ -287,10 +288,9 @@ asn1.fromDer = function(bytes, strict) {
   // ensure there are enough bytes to get the value
   if(bytes.length() < length) {
     if(strict) {
-      throw {
-        message: 'Too few bytes to read ASN.1 value.',
-        detail: bytes.length() + ' < ' + length
-      };
+      var error = new Error('Too few bytes to read ASN.1 value.');
+      error.detail = bytes.length() + ' < ' + length;
+      throw error;
     }
     // Note: be lenient with truncated values
     length = bytes.length();
@@ -330,8 +330,7 @@ asn1.fromDer = function(bytes, strict) {
             ++read;
             --length;
           }
-        }
-        catch(ex) {}
+        } catch(ex) {}
       }
     }
     // restore read pointer
@@ -350,8 +349,7 @@ asn1.fromDer = function(bytes, strict) {
         }
         value.push(asn1.fromDer(bytes, strict));
       }
-    }
-    else {
+    } else {
       // parsing asn1 object of definite length
       var start = bytes.length();
       while(length > 0) {
@@ -360,15 +358,16 @@ asn1.fromDer = function(bytes, strict) {
         start = bytes.length();
       }
     }
-  }
-  // asn1 not composed, get raw value
-  else {
+  } else {
+    // asn1 not composed, get raw value
     // TODO: do DER to OID conversion and vice-versa in .toDer?
 
     if(length === undefined) {
-      throw {
-        message: 'Non-constructed ASN.1 object of indefinite length.'
-      };
+      if(strict) {
+        throw new Error('Non-constructed ASN.1 object of indefinite length.');
+      }
+      // be lenient and use remaining bytes
+      length = bytes.length();
     }
 
     if(type === asn1.Type.BMPSTRING) {
@@ -376,8 +375,7 @@ asn1.fromDer = function(bytes, strict) {
       for(var i = 0; i < length; i += 2) {
         value += String.fromCharCode(bytes.getInt16());
       }
-    }
-    else {
+    } else {
       value = bytes.getBytes(length);
     }
   }
@@ -408,9 +406,8 @@ asn1.toDer = function(obj) {
     // from other asn1 objects
     if(obj.constructed) {
       b1 |= 0x20;
-    }
-    // if type is a bit string, add unused bits of 0x00
-    else {
+    } else {
+      // type is a bit string, add unused bits of 0x00
       value.putByte(0x00);
     }
 
@@ -420,15 +417,13 @@ asn1.toDer = function(obj) {
         value.putBuffer(asn1.toDer(obj.value[i]));
       }
     }
-  }
-  // use asn1.value directly
-  else {
+  } else {
+    // use asn1.value directly
     if(obj.type === asn1.Type.BMPSTRING) {
       for(var i = 0; i < obj.value.length; ++i) {
         value.putInt16(obj.value.charCodeAt(i));
       }
-    }
-    else {
+    } else {
       value.putBytes(obj.value);
     }
   }
@@ -441,9 +436,8 @@ asn1.toDer = function(obj) {
     // one byte describes the length
     // bit 8 = 0 and bits 7-1 = length
     bytes.putByte(value.length() & 0x7F);
-  }
-  // use "long form" encoding
-  else {
+  } else {
+    // use "long form" encoding
     // 2 to 127 bytes describe the length
     // first byte: bit 8 = 1 and bits 7-1 = # of additional bytes
     // other bytes: length in base 256, big-endian
@@ -452,8 +446,7 @@ asn1.toDer = function(obj) {
     do {
       lenBytes += String.fromCharCode(len & 0xFF);
       len = len >>> 8;
-    }
-    while(len > 0);
+    } while(len > 0);
 
     // set first byte to # bytes used to store the length and turn on
     // bit 8 to indicate long-form length is used
@@ -504,8 +497,7 @@ asn1.oidToDer = function(oid) {
       }
       valueBytes.push(b);
       last = false;
-    }
-    while(value > 0);
+    } while(value > 0);
 
     // add value bytes in reverse (needs to be in big endian)
     for(var n = valueBytes.length - 1; n >= 0; --n) {
@@ -546,9 +538,8 @@ asn1.derToOid = function(bytes) {
     // not the last byte for the value
     if(b & 0x80) {
       value += b & 0x7F;
-    }
-    // last byte
-    else {
+    } else {
+      // last byte
       oid += '.' + (value + b);
       value = 0;
     }
@@ -633,8 +624,7 @@ asn1.utcTimeToDate = function(utc) {
       // apply offset
       if(c === '+') {
         date.setTime(+date - offset);
-      }
-      else {
+      } else {
         date.setTime(+date + offset);
       }
     }
@@ -720,15 +710,13 @@ asn1.generalizedTimeToDate = function(gentime) {
 
     // apply offset
     date.setTime(+date + offset);
-  }
-  else {
+  } else {
     date.setFullYear(YYYY, MM, DD);
     date.setHours(hh, mm, ss, fff);
   }
 
   return date;
 };
-
 
 /**
  * Converts a date to a UTCTime value.
@@ -742,6 +730,11 @@ asn1.generalizedTimeToDate = function(gentime) {
  * @return the UTCTime value.
  */
 asn1.dateToUtcTime = function(date) {
+  // TODO: validate; currently assumes proper format
+  if(typeof date === 'string') {
+    return date;
+  }
+
   var rval = '';
 
   // create format YYMMDDhhmmssZ
@@ -763,6 +756,90 @@ asn1.dateToUtcTime = function(date) {
   rval += 'Z';
 
   return rval;
+};
+
+/**
+ * Converts a date to a GeneralizedTime value.
+ *
+ * @param date the date to convert.
+ *
+ * @return the GeneralizedTime value as a string.
+ */
+asn1.dateToGeneralizedTime = function(date) {
+  // TODO: validate; currently assumes proper format
+  if(typeof date === 'string') {
+    return date;
+  }
+
+  var rval = '';
+
+  // create format YYYYMMDDHHMMSSZ
+  var format = [];
+  format.push('' + date.getUTCFullYear());
+  format.push('' + (date.getUTCMonth() + 1));
+  format.push('' + date.getUTCDate());
+  format.push('' + date.getUTCHours());
+  format.push('' + date.getUTCMinutes());
+  format.push('' + date.getUTCSeconds());
+
+  // ensure 2 digits are used for each format entry
+  for(var i = 0; i < format.length; ++i) {
+    if(format[i].length < 2) {
+      rval += '0';
+    }
+    rval += format[i];
+  }
+  rval += 'Z';
+
+  return rval;
+};
+
+/**
+ * Converts a javascript integer to a DER-encoded byte buffer to be used
+ * as the value for an INTEGER type.
+ *
+ * @param x the integer.
+ *
+ * @return the byte buffer.
+ */
+asn1.integerToDer = function(x) {
+  var rval = forge.util.createBuffer();
+  if(x >= -0x80 && x < 0x80) {
+    return rval.putSignedInt(x, 8);
+  }
+  if(x >= -0x8000 && x < 0x8000) {
+    return rval.putSignedInt(x, 16);
+  }
+  if(x >= -0x800000 && x < 0x800000) {
+    return rval.putSignedInt(x, 24);
+  }
+  if(x >= -0x80000000 && x < 0x80000000) {
+    return rval.putSignedInt(x, 32);
+  }
+  var error = new Error('Integer too large; max is 32-bits.');
+  error.integer = x;
+  throw error;
+};
+
+/**
+ * Converts a DER-encoded byte buffer to a javascript integer. This is
+ * typically used to decode the value of an INTEGER type.
+ *
+ * @param bytes the byte buffer.
+ *
+ * @return the integer.
+ */
+asn1.derToInteger = function(bytes) {
+  // wrap in buffer if needed
+  if(typeof bytes === 'string') {
+    bytes = forge.util.createBuffer(bytes);
+  }
+
+  var n = bytes.length() * 8;
+  if(n > 32) {
+    throw new Error('Integer too large; max is 32-bits.');
+  }
+  return bytes.getSignedInt(n);
 };
 
 /**
@@ -805,8 +882,7 @@ asn1.validate = function(obj, v, capture, errors) {
             rval = asn1.validate(obj.value[j], v.value[i], capture, errors);
             if(rval) {
               ++j;
-            }
-            else if(v.value[i].optional) {
+            } else if(v.value[i].optional) {
               rval = true;
             }
           }
@@ -829,15 +905,13 @@ asn1.validate = function(obj, v, capture, errors) {
           capture[v.captureAsn1] = obj;
         }
       }
-    }
-    else if(errors) {
+    } else if(errors) {
       errors.push(
         '[' + v.name + '] ' +
         'Expected constructed "' + v.constructed + '", got "' +
         obj.constructed + '"');
     }
-  }
-  else if(errors) {
+  } else if(errors) {
     if(obj.tagClass !== v.tagClass) {
       errors.push(
         '[' + v.name + '] ' +
@@ -969,8 +1043,7 @@ asn1.prettyPrint = function(obj, level, indentation) {
       rval += ' (BMP String)';
       break;
     }
-  }
-  else {
+  } else {
     rval += obj.type;
   }
 
@@ -990,26 +1063,38 @@ asn1.prettyPrint = function(obj, level, indentation) {
       }
     }
     rval += indent + 'Sub values: ' + subvalues + sub;
-  }
-  else {
+  } else {
     rval += indent + 'Value: ';
     if(obj.type === asn1.Type.OID) {
       var oid = asn1.derToOid(obj.value);
       rval += oid;
       if(forge.pki && forge.pki.oids) {
         if(oid in forge.pki.oids) {
-          rval += ' (' + forge.pki.oids[oid] + ')';
+          rval += ' (' + forge.pki.oids[oid] + ') ';
         }
       }
     }
-    // FIXME: choose output (hex vs. printable) based on asn1.Type
-    else if(_nonLatinRegex.test(obj.value)) {
-      rval += '0x' + forge.util.createBuffer(obj.value, 'utf8').toHex();
-    }
-    else if(obj.value.length === 0) {
+    if(obj.type === asn1.Type.INTEGER) {
+      try {
+        rval += asn1.derToInteger(obj.value);
+      } catch(ex) {
+        rval += '0x' + forge.util.bytesToHex(obj.value);
+      }
+    } else if(obj.type === asn1.Type.OCTETSTRING) {
+      if(!_nonLatinRegex.test(obj.value)) {
+        rval += '(' + obj.value + ') ';
+      }
+      rval += '0x' + forge.util.bytesToHex(obj.value);
+    } else if(obj.type === asn1.Type.UTF8) {
+      rval += forge.util.decodeUtf8(obj.value);
+    } else if(obj.type === asn1.Type.PRINTABLESTRING ||
+      obj.type === asn1.Type.IA5String) {
+      rval += obj.value;
+    } else if(_nonLatinRegex.test(obj.value)) {
+      rval += '0x' + forge.util.bytesToHex(obj.value);
+    } else if(obj.value.length === 0) {
       rval += '[null]';
-    }
-    else {
+    } else {
       rval += obj.value;
     }
   }
@@ -1028,9 +1113,8 @@ if(typeof define !== 'function') {
     define = function(ids, factory) {
       factory(require, module);
     };
-  }
-  // <script>
-  else {
+  } else {
+    // <script>
     if(typeof forge === 'undefined') {
       forge = {};
     }

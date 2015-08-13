@@ -11,7 +11,7 @@
  *
  * @author Dave Longley
  *
- * Copyright (c) 2009-2013 Digital Bazaar, Inc.
+ * Copyright (c) 2009-2014 Digital Bazaar, Inc.
  */
 (function() {
 /* ########## Begin module implementation ########## */
@@ -63,18 +63,64 @@ prng_aes.increment = function(seed) {
   ++seed[3];
   return seed;
 };
-prng_aes.md = forge.md.sha1;
+prng_aes.md = forge.md.sha256;
+
+/**
+ * Creates a new PRNG.
+ */
+function spawnPrng() {
+  var ctx = forge.prng.create(prng_aes);
+
+  /**
+   * Gets random bytes. If a native secure crypto API is unavailable, this
+   * method tries to make the bytes more unpredictable by drawing from data that
+   * can be collected from the user of the browser, eg: mouse movement.
+   *
+   * If a callback is given, this method will be called asynchronously.
+   *
+   * @param count the number of random bytes to get.
+   * @param [callback(err, bytes)] called once the operation completes.
+   *
+   * @return the random bytes in a string.
+   */
+  ctx.getBytes = function(count, callback) {
+    return ctx.generate(count, callback);
+  };
+
+  /**
+   * Gets random bytes asynchronously. If a native secure crypto API is
+   * unavailable, this method tries to make the bytes more unpredictable by
+   * drawing from data that can be collected from the user of the browser,
+   * eg: mouse movement.
+   *
+   * @param count the number of random bytes to get.
+   *
+   * @return the random bytes in a string.
+   */
+  ctx.getBytesSync = function(count) {
+    return ctx.generate(count);
+  };
+
+  return ctx;
+}
 
 // create default prng context
-var _ctx = forge.prng.create(prng_aes);
+var _ctx = spawnPrng();
 
 // add other sources of entropy only if window.crypto.getRandomValues is not
 // available -- otherwise this source will be automatically used by the prng
 var _nodejs = (
   typeof process !== 'undefined' && process.versions && process.versions.node);
-if(forge.disableNativeCode || (!_nodejs && !(typeof window !== 'undefined' &&
-  window.crypto && window.crypto.getRandomValues))) {
-
+var getRandomValues = null;
+if(typeof window !== 'undefined') {
+  var _crypto = window.crypto || window.msCrypto;
+  if(_crypto && _crypto.getRandomValues) {
+    getRandomValues = function(arr) {
+      return _crypto.getRandomValues(arr);
+    };
+  }
+}
+if(forge.disableNativeCode || (!_nodejs && !getRandomValues)) {
   // if this is a web worker, do not use weak entropy, instead register to
   // receive strong entropy asynchronously from the main thread
   if(typeof window === 'undefined' || window.document === undefined) {
@@ -92,8 +138,7 @@ if(forge.disableNativeCode || (!_nodejs && !(typeof window !== 'undefined' &&
         if(typeof(navigator[key]) == 'string') {
           _navBytes += navigator[key];
         }
-      }
-      catch(e) {
+      } catch(e) {
         /* Some navigator keys might not be accessible, e.g. the geolocation
           attribute throws an exception if touched in Mozilla chrome://
           context.
@@ -125,43 +170,15 @@ if(forge.disableNativeCode || (!_nodejs && !(typeof window !== 'undefined' &&
 /* Random API */
 if(!forge.random) {
   forge.random = _ctx;
-}
-else {
+} else {
   // extend forge.random with _ctx
   for(var key in _ctx) {
     forge.random[key] = _ctx[key];
   }
 }
 
-/**
- * Gets random bytes. If a native secure crypto API is unavailable, this
- * method tries to make the bytes more unpredictable by drawing from data that
- * can be collected from the user of the browser, eg: mouse movement.
- *
- * If a callback is given, this method will be called asynchronously.
- *
- * @param count the number of random bytes to get.
- * @param [callback(err, bytes)] called once the operation completes.
- *
- * @return the random bytes in a string.
- */
-forge.random.getBytes = function(count, callback) {
-  return forge.random.generate(count, callback);
-};
-
-/**
- * Gets random bytes asynchronously. If a native secure crypto API is
- * unavailable, this method tries to make the bytes more unpredictable by
- * drawing from data that can be collected from the user of the browser,
- * eg: mouse movement.
- *
- * @param count the number of random bytes to get.
- *
- * @return the random bytes in a string.
- */
-forge.random.getBytesSync = function(count) {
-  return forge.random.generate(count);
-};
+// expose spawn PRNG
+forge.random.createInstance = spawnPrng;
 
 })(typeof(jQuery) !== 'undefined' ? jQuery : null);
 
@@ -176,9 +193,8 @@ if(typeof define !== 'function') {
     define = function(ids, factory) {
       factory(require, module);
     };
-  }
-  // <script>
-  else {
+  } else {
+    // <script>
     if(typeof forge === 'undefined') {
       forge = {};
     }

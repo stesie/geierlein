@@ -27,6 +27,8 @@ self.postMessage({found: false});
 var GCD_30_DELTA = [6, 4, 2, 4, 2, 4, 6, 2];
 
 function findPrime(data) {
+  // TODO: abstract based on data.algorithm (PRIMEINC vs. others)
+
   // create BigInteger from given random bytes
   var num = new BigInteger(data.hex, 16);
 
@@ -38,18 +40,11 @@ function findPrime(data) {
 
   // find nearest prime
   var workLoad = data.workLoad;
-  var e = new BigInteger(null);
-  e.fromInt(data.e);
   for(var i = 0; i < workLoad; ++i) {
     // do primality test
-    if(isProbablePrime(num, 1)) {
-      // ensure number is coprime with e
-      if(num.subtract(BigInteger.ONE).gcd(e).compareTo(BigInteger.ONE) === 0 &&
-        isProbablePrime(num, 10)) {
-        return {found: true, prime: num.toString(16)};
-      }
+    if(isProbablePrime(num)) {
+      return {found: true, prime: num.toString(16)};
     }
-
     // get next potential prime
     num.dAddOffset(GCD_30_DELTA[deltaIdx++ % 8], 0);
   }
@@ -57,7 +52,7 @@ function findPrime(data) {
   return {found: false};
 }
 
-function isProbablePrime(n, k) {
+function isProbablePrime(n) {
   // divide by low primes, ignore even checks, etc (n alread aligned properly)
   var i = 1;
   while(i < LOW_PRIMES.length) {
@@ -68,16 +63,16 @@ function isProbablePrime(n, k) {
     }
     m = n.modInt(m);
     while(i < j) {
-      if(m % LOW_PRIMES[i++] == 0) {
+      if(m % LOW_PRIMES[i++] === 0) {
         return false;
       }
     }
   }
-  return runMillerRabin(n, k);
+  return runMillerRabin(n);
 }
 
 // HAC 4.24, Miller-Rabin
-function runMillerRabin(n, k) {
+function runMillerRabin(n) {
   // n1 = n - 1
   var n1 = n.subtract(BigInteger.ONE);
 
@@ -88,10 +83,14 @@ function runMillerRabin(n, k) {
   }
   var d = n1.shiftRight(s);
 
-  var a = new BigInteger(null);
+  var k = _getMillerRabinTests(n.bitLength());
+  var prng = getPrng();
+  var a;
   for(var i = 0; i < k; ++i) {
-    // 'a' should be selected at random, but lower primes are picked for speed
-    a.fromInt(LOW_PRIMES[i]);
+    // select witness 'a' at random from between 1 and n - 1
+    do {
+      a = new BigInteger(n.bitLength(), prng);
+    } while(a.compareTo(BigInteger.ONE) <= 0 || a.compareTo(n1) >= 0);
 
     /* See if 'a' is a composite witness. */
 
@@ -125,4 +124,42 @@ function runMillerRabin(n, k) {
   }
 
   return true;
+}
+
+// get pseudo random number generator
+function getPrng() {
+  // create prng with api that matches BigInteger secure random
+  return {
+    // x is an array to fill with bytes
+    nextBytes: function(x) {
+      for(var i = 0; i < x.length; ++i) {
+        x[i] = Math.floor(Math.random() * 0xFF);
+      }
+    }
+  };
+}
+
+/**
+ * Returns the required number of Miller-Rabin tests to generate a
+ * prime with an error probability of (1/2)^80.
+ *
+ * See Handbook of Applied Cryptography Chapter 4, Table 4.4.
+ *
+ * @param bits the bit size.
+ *
+ * @return the required number of iterations.
+ */
+function _getMillerRabinTests(bits) {
+  if(bits <= 100) return 27;
+  if(bits <= 150) return 18;
+  if(bits <= 200) return 15;
+  if(bits <= 250) return 12;
+  if(bits <= 300) return 9;
+  if(bits <= 350) return 8;
+  if(bits <= 400) return 7;
+  if(bits <= 500) return 6;
+  if(bits <= 600) return 5;
+  if(bits <= 800) return 4;
+  if(bits <= 1250) return 3;
+  return 2;
 }

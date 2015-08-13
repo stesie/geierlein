@@ -369,11 +369,11 @@ Task.prototype.unblock = function(n) {
 Task.prototype.sleep = function(n) {
   n = typeof(n) === 'undefined' ? 0 : n;
   this.state = sStateTable[this.state][SLEEP];
-  var task = this;
+  var self = this;
   this.timeoutId = setTimeout(function() {
-    task.timeoutId = null;
-    task.state = RUNNING;
-    runNext(task, 0);
+    self.timeoutId = null;
+    self.state = RUNNING;
+    runNext(self, 0);
   }, n);
 };
 
@@ -448,8 +448,7 @@ Task.prototype.fail = function(next) {
 
     // do next task as specified
     runNext(next, 0);
-  }
-  else {
+  } else {
     if(this.parent !== null) {
       // finish root task (ensures it is removed from task queue)
       var parent = this.parent;
@@ -516,12 +515,10 @@ var runNext = function(task, recurse) {
         subtask.swapTime = task.swapTime;
         subtask.userData = task.userData;
         subtask.run(subtask);
-        if(!subtask.error)
-        {
+        if(!subtask.error) {
            runNext(subtask, recurse);
         }
-      }
-      else {
+      } else {
         finish(task);
 
         if(!task.error) {
@@ -543,8 +540,7 @@ var runNext = function(task, recurse) {
   if(swap) {
     // we're swapping, so run asynchronously
     setTimeout(doNext, 0);
-  }
-  else {
+  } else {
     // not swapping, so run synchronously
     doNext(recurse);
   }
@@ -573,20 +569,17 @@ var finish = function(task, suppressCallbacks) {
       forge.log.error(cat,
         '[%s][%s] task queue missing [%s]',
         task.id, task.name, task.type);
-    }
-    // report error if queue is empty
-    else if(sTaskQueues[task.type].length === 0) {
+    } else if(sTaskQueues[task.type].length === 0) {
+      // report error if queue is empty
       forge.log.error(cat,
         '[%s][%s] task queue empty [%s]',
         task.id, task.name, task.type);
-    }
-    // report error if this task isn't the first in the queue
-    else if(sTaskQueues[task.type][0] !== task) {
+    } else if(sTaskQueues[task.type][0] !== task) {
+      // report error if this task isn't the first in the queue
       forge.log.error(cat,
         '[%s][%s] task not first in queue [%s]',
         task.id, task.name, task.type);
-    }
-    else {
+    } else {
       // remove ourselves from the queue
       sTaskQueues[task.type].shift();
       // clean up queue if it is empty
@@ -600,9 +593,8 @@ var finish = function(task, suppressCallbacks) {
          task type exists, then a task of that type is running.
          */
         delete sTaskQueues[task.type];
-      }
-      // dequeue the next task and start it
-      else {
+      } else {
+        // dequeue the next task and start it
         if(sVL >= 1) {
           forge.log.verbose(cat,
             '[%s][%s] queue start next [%s] remain:%s',
@@ -617,8 +609,7 @@ var finish = function(task, suppressCallbacks) {
       // call final callback if one exists
       if(task.error && task.failureCallback) {
         task.failureCallback(task);
-      }
-      else if(!task.error && task.successCallback) {
+      } else if(!task.error && task.successCallback) {
         task.successCallback(task);
       }
     }
@@ -669,8 +660,7 @@ forge.task.start = function(options) {
     // create the queue with the new task
     sTaskQueues[task.type] = [task];
     start(task);
-  }
-  else {
+  } else {
     // push the task onto the queue, it will be run after a task
     // with the same type completes
     sTaskQueues[options.type].push(task);
@@ -711,8 +701,7 @@ forge.task.createCondition = function() {
    */
   cond.wait = function(task) {
     // only block once
-    if(!(task.id in cond.tasks))
-    {
+    if(!(task.id in cond.tasks)) {
        task.block();
        cond.tasks[task.id] = task;
     }
@@ -745,9 +734,8 @@ if(typeof define !== 'function') {
     define = function(ids, factory) {
       factory(require, module);
     };
-  }
-  // <script>
-  else {
+  } else {
+    // <script>
     if(typeof forge === 'undefined') {
       forge = {};
     }
