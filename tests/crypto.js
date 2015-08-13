@@ -28,7 +28,7 @@ exports.testEncryptBlock = function(test) {
 
     /* inject our key from above to skip RSA decryption, which is not
        possible since we don't know the Elster project's private key. */
-    p7.encContent.key = key;
+    p7.encryptedContent.key = key;
     p7.decrypt();
 
     /* gzip decode string */
