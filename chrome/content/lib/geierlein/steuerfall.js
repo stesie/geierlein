@@ -108,7 +108,7 @@ geierlein.Steuerfall.prototype = {
                 xml.writeEndElement();
 
                 xml.writeStartElement('Datei');
-                    xml.writeElementString('Verschluesselung', 'PKCS#7v1.5');
+                    xml.writeElementString('Verschluesselung', 'CMSEncryptedData');
                     xml.writeElementString('Kompression', 'GZIP');
                     xml.writeElementString('DatenGroesse',
                         datenteil.length.toString());

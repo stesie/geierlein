@@ -93,7 +93,13 @@ crypto.encryptBlock = function(data, key) {
 
     // encrypt data
     var p7 = forge.pkcs7.createEnvelopedData();
-    p7.addRecipient(elsterCert);
+    p7.addRecipient(elsterCert, {
+        algorithm: forge.pki.oids['RSAES-OAEP'],
+        schemeOptions: {
+            md: forge.md.sha256.create(),
+            mgf: forge.mgf.mgf1.create(forge.md.sha256.create())
+        }
+    });
     p7.content = out;
     p7.encrypt(key.copy(), forge.pki.oids['des-EDE3-CBC']);
 
