@@ -64,7 +64,7 @@ tested against it (or you use an old version).
 
 The maximum version number can easily be edited in the application.ini
 file.  You can just bump it to whichever version of Firefox you use.
-Simply keep in mind that you might come accross incompatibilities due
+Simply keep in mind that you might come across incompatibilities due
 to changed Firefox APIs.  In that case simply open an issue ticket at
 GitHub.
 
