@@ -19,7 +19,7 @@ EOF
   exit 0
 fi
 
-for search in firefox iceweasel xulrunner; do
+for search in firefox firefox-bin iceweasel xulrunner; do
   if [ "$XULRUNNER" = "" ]; then
     XULRUNNER="$(which $search)"
   fi
