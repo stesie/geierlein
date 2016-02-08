@@ -3,7 +3,7 @@
  *
  * @author Stefan Siegl
  *
- * Copyright (c) 2012, 2013 Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2012, 2013, 2016 Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -47,6 +47,11 @@
      * the iframe.  File ustva.xsl is extended accordingly.
      *
      * http://stackoverflow.com/questions/472951/how-do-i-print-an-iframe-from-javascript-in-safari-chrome
+     * meanwhile changed to window.postMessage to support Google Chrome
+     *
+     * issue #53
+     * https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage
+     * http://caniuse.com/#search=postMessage
      *
      * @param id The iframe element's ID.
      */
@@ -54,7 +59,7 @@
         var iframe = document.frames ? document.frames[id] : document.getElementById(id);
         var ifWin = iframe.contentWindow || iframe;
         ifWin.focus();
-        ifWin.printPage();
+        ifWin.postMessage('print-the-frame', '*');
         return false;
     }
 

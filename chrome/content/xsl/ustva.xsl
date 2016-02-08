@@ -946,7 +946,11 @@
 					</xsl:text>
 				</style>
 				<script>
-				    function printPage() { print(); }
+					window.addEventListener('message', function(event) {
+						if(event.data === 'print-the-frame') {
+							print();
+						}
+					}, false);
 				</script>
 			</head>
 			<body>
