@@ -206,6 +206,7 @@ autodist-run:
 		-e "s/V[0-9\.]\+\/geierlein-[0-9\.]\+-installer.exe/V$(VERSION)\/geierlein-$(VERSION)-installer.exe/" \
 		-i~ _layouts/default.html
 	git commit _layouts/default.html -m "Update links to version $(VERSION)"
+	git push
 	git checkout master
 
 test:
