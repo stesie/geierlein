@@ -114,7 +114,7 @@ geierlein.Steuerfall.prototype = {
                         datenteil.length.toString());
                     xml.writeElementString('TransportSchluessel', '');
                 xml.writeEndElement();  // Datei
-                xml.writeElementString('VersionClient', '0.9.3');
+                xml.writeElementString('VersionClient', '0.9.4');
             xml.writeEndElement();  // TransferHeader
 
             xml.writeStartElement('DatenTeil');
@@ -185,7 +185,7 @@ geierlein.Steuerfall.prototype = {
 
                 datenteil.writeStartElement('Hersteller');
                     datenteil.writeElementString('ProduktName', 'Geierlein');
-                    datenteil.writeElementString('ProduktVersion', '0.9.3');
+                    datenteil.writeElementString('ProduktVersion', '0.9.4');
                 datenteil.writeEndElement();
 
                 datenteil.writeStartElement('DatenLieferant')
