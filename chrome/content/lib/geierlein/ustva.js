@@ -3,7 +3,7 @@
  *
  * @author Stefan Siegl
  *
- * Copyright (c) 2012 Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2012,2013,2016,2017 Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -60,7 +60,7 @@ var validationRules = {
 
     jahr: [
         rules.required,
-        rules.range(2010, 2016)
+        rules.range(2010, 2017)
     ],
 
     zeitraum: [
