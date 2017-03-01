@@ -35,5 +35,10 @@
                 <button label="Wählen..." oncommand="prefMain.chooseFolder();"/>
             </hbox>
         </groupbox>
+
+        <hbox>
+            <spacer flex="1"/>
+            <button label="Schließen" oncommand="window.close();"/>
+        </hbox>
     </prefpane>
 </overlay>
