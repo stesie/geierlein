@@ -191,7 +191,7 @@ geierlein-$(VERSION).tar.xz: geierlein-$(VERSION).tar.gz
 	gzip -cd $< | xz -ezcv > $@
 
 dist: dist-nsis geierlein-$(VERSION).zip geierlein-$(VERSION).tar.xz
-	git tag -f V$(VERSION)
+	git tag -s -f -m "Version $(VERSION)" V$(VERSION)
 
 autodist: dist
 	cp Makefile Makefile.autodist
