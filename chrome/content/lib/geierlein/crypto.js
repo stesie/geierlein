@@ -50,24 +50,30 @@ var crypto = geierlein.crypto = geierlein.crypto || {};
  * The public key is used to encrypt the tax case.
  */
 var elsterPem = '-----BEGIN CERTIFICATE-----\n' +
-                'MIIDKjCCAhICAQAwDQYJKoZIhvcNAQEEBQAwWTELMAkGA1UEBhMCREUxDzANBgNV\n' +
-                'BAoTBkVMU1RFUjEMMAoGA1UECxMDRUJBMQ8wDQYDVQQDEwZDb2RpbmcxGjAYBgNV\n' +
-                'BAUTETIwMDMwOTMwMTQzMzIzeDAwMCIYDzIwMDMwMTAxMDAwMDAwWhgPMjAwOTEy\n' +
-                'MzEyMzU5NTlaMFkxCzAJBgNVBAYTAkRFMQ8wDQYDVQQKEwZFTFNURVIxDDAKBgNV\n' +
-                'BAsTA0VCQTEPMA0GA1UEAxMGQ29kaW5nMRowGAYDVQQFExEyMDAzMDkzMDE0MzMy\n' +
-                'M3gwMDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAIKjQAK3+1WlW6Az\n' +
-                'bp5C0UISN7+H7KFydsH3xvmvtVHV2XpAlQJxpMt3APH1NzSAmsz7FQlsVPYcTqgd\n' +
-                'tzwd6s/2bINLm/owNXTjCNRjmf2NLI2cTe9Gq+ovcujFVxVLO1IYjEpj6K09KJc4\n' +
-                'e9F+LTyJujaRg/W/cSY7aBwPhv/+1o49IoG7nXSwmpMp6CyRZwCVT26RbVAuTJ2R\n' +
-                'fmDgSmcc5Tostd/gQGSwVcreElrrN2LJM2MP5xDzP5tTQGmB8tMFwEYa7otPuhjF\n' +
-                'eV5ry3GSlgrFqUdt8JaZ03WQD2dbPZYbNGUvuzb4GebuEdnKCwRrOiGG6bUCx8Qk\n' +
-                'xXy6sMsCAwEAATANBgkqhkiG9w0BAQQFAAOCAQEABu72l9QUIng2n08p5uzffJA2\n' +
-                'Zx04ZfKWC+dBJB6an03ax8YqxUPm+e83D341NQtLlgJ4qKn9ShNZW85YoL/I02mU\n' +
-                '/sj50O4NAX72RwzHe/rPi+sS5BU5p4fi8YL+xN00r8R+Mbqctg8QJXleMmvuS/JF\n' +
-                'qB8F9m72Ud9kmZsV1Letl/qog0El4QHNnU9rSoI+MpchfDaoGvdqoVa+729SEBlc\n' +
-                'agWaHE8RNF43+aaVZQScvuwQZBrTJq2kqKmPm4Kg7GYuIGMqrm2/g0ldRrm8KfI2\n' +
-                'vxZIknBdmDknjnQHGMuLXmV3HKZTeN1F6I9BgmBXXqzTJu4gEDpY5n/h7mM+bA==\n' +
-                '-----END CERTIFICATE-----';
+                'MIIETDCCAwCgAwIBAgIEO5rKADBBBgkqhkiG9w0BAQowNKAPMA0GCWCGSAFlAwQC\n' +
+                'AQUAoRwwGgYJKoZIhvcNAQEIMA0GCWCGSAFlAwQCAQUAogMCASAwRDELMAkGA1UE\n' +
+                'BhMCREUxDzANBgNVBAoTBkVsc3RlcjELMAkGA1UECxMCQ0ExFzAVBgNVBAMTDkVs\n' +
+                'c3RlcktyeXB0b0NBMB4XDTE1MDMyNTEzMDMwNFoXDTIwMDkyNTEzMDMwNFowNDEL\n' +
+                'MAkGA1UEBhMCREUxDzANBgNVBAoTBkVsc3RlcjEUMBIGA1UEAxMLRnJvbnRlbmRL\n' +
+                'ZXkwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC++P7lo9wZ6XOpGhUo\n' +
+                '5WBwEROXrO0hp4qToUbNOB9lPKqOAkDGTFRcDL++4eydzYx3g/y/5NBWJLeefw7R\n' +
+                'Vxxjrh2ODCswL/KZLYLn89KlLpWHd7PQlV9xN05GRUv794VghxUo2s0y0FNzyIWc\n' +
+                'dZYNr4wbo41A/5dFQq1Nv/l4UJdDzNurSDz/1yX77tCF3PwFoa7RAYnp/SziPRiw\n' +
+                'D/WGF53rjdydo28ZGaDSPLzXh+u91H7MzMUblfvf5ngA8XMAHvPDvw7wllg2UCk/\n' +
+                'zEPPOxDUDCdqb6hkg7QHDjhn1sIPv88hDIP1wSc3uZPyNmEUDwmQkSGbypvddTKc\n' +
+                'gXBLAgMBAAGjge0wgeowDgYDVR0PAQH/BAQDAgUgMAwGA1UdEwEB/wQCMAAwHQYD\n' +
+                'VR0OBBYEFJX2qVD6AgF7W7TBh6SMhMe6lcY/MDgGA1UdHwQxMC8wLaAroCmGJ2h0\n' +
+                'dHA6Ly9jcmwuZWxzdGVyLmRlL0Vsc3RlcktyeXB0b0NBLmNybDBxBgNVHSMEajBo\n' +
+                'gBRVy4hMb7o37P9MFxbVcSdzyGHC3KFKpEgwRjELMAkGA1UEBhMCREUxDzANBgNV\n' +
+                'BAoTBkVsc3RlcjEPMA0GA1UECxMGUm9vdENBMRUwEwYDVQQDEwxFbHN0ZXJSb290\n' +
+                'Q0GCBDuay5kwQQYJKoZIhvcNAQEKMDSgDzANBglghkgBZQMEAgEFAKEcMBoGCSqG\n' +
+                'SIb3DQEBCDANBglghkgBZQMEAgEFAKIDAgEgA4IBAQBDuEPIzq0uBt1Bx6v+9j7i\n' +
+                'ACT6XFWkXTTmLWjAL3hPwTiSe5DMZrTbPAjSSJUxrtY0AQEFhdAE6yYYRgoNfJGI\n' +
+                '6UNjVYshRkPVUJr0zTGXAtPVcWFkzAqGcMEmNyyVth0cfiWa3hUld4b194ivdO1o\n' +
+                'epju3PHXjmbIKvk2DYeI3/4IoE5pPCbRax0A6ht+jdoyqRZcr7/QgmUQPUeqjMhn\n' +
+                'v6G8aKT0GSkarXIwEC9fDSg9ElEYelLdZsjCcEQW+wOqJDLLxJCom7v7gsrxexLt\n' +
+                'xa9kWSHVcmC+UVLqI/yQp2xI66KILFRSp9c4BXuO1V0Rbj64P/ZMQUDFE9Ef256h\n' +
+                '-----END CERTIFICATE-----\n';
 
 /**
  * The Elster project's X.509 certificate as a Forge PKI instance.
