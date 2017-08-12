@@ -4,7 +4,7 @@
   "author": "Stefan Siegl <stesie@brokenpipe.de>",
   "private": true,
   "bin": "bin/geierlein",
-  "version": "0.9.11",
+  "version": "0.9.12",
   "dependencies": {
     "iconv": "*",
     "optimist": "*"
