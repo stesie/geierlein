@@ -134,14 +134,14 @@ var xulapp = (function() {
 
             if(loadFlag.substr(0, 1) === '/') {
                 /* Absolute path name */
-                fp = C["@mozilla.org/file/local;1"].createInstance(I.nsILocalFile);
+                fp = C["@mozilla.org/file/local;1"].createInstance(I.nsIFile);
                 fp.initWithPath(loadFlag);
             } else {
                 /* Relative path name */
                 var dirService = C["@mozilla.org/file/directory_service;1"].getService(I.nsIProperties);
                 var curProcDir = dirService.get("CurWorkD", I.nsIFile);
 
-                fp = curProcDir.clone().QueryInterface(I.nsILocalFile);
+                fp = curProcDir.clone().QueryInterface(I.nsIFile);
                 fp.appendRelativePath(loadFlag);
             }
 
@@ -242,7 +242,7 @@ var xulapp = (function() {
             }
         },
 
-        /* Get autosave-dir as nsILocalFile instance.
+        /* Get autosave-dir as nsIFile instance.
          *
          * If the geierlein.autosave.dir preference is set, the path specified
          * by the preference is returned.  If it doesn't exist, a folder named
@@ -251,12 +251,12 @@ var xulapp = (function() {
         getAutosaveDir: function() {
             var fp;
             try {
-                fp = cW.geierlein.prefstore.prefs.getComplexValue("autosave.dir", I.nsILocalFile);
+                fp = cW.geierlein.prefstore.prefs.getComplexValue("autosave.dir", I.nsIFile);
             } catch(e) {
                 var dirService = C["@mozilla.org/file/directory_service;1"].getService(I.nsIProperties);
                 var curProcDir = dirService.get("PrefD", I.nsIFile);
 
-                fp = curProcDir.clone().QueryInterface(I.nsILocalFile);
+                fp = curProcDir.clone().QueryInterface(I.nsIFile);
                 fp.append('protos');
                 if(!fp.exists()) {
                     fp.create(I.nsIFile.DIRECTORY_TYPE, 448 /* octal 0700 */);
