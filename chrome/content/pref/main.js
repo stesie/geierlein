@@ -31,16 +31,22 @@ var prefMain = (function() {
             fp.appendFilters(I.nsIFilePicker.filterAll);
             fp.displayDirectory = xulapp.getAutosaveDir();
 
-            if(fp.show() == I.nsIFilePicker.returnOK) {
-                var file = fp.file.QueryInterface(I.nsILocalFile);
-                var autosaveDirPref = document.getElementById("geierlein.autosave.dir");
-                autosaveDirPref.value = file;
-            }
+            fp.open(function(result) {
+                if(result == I.nsIFilePicker.returnOK) {
+                    var file = fp.file.QueryInterface(I.nsIFile);
+                    var autosaveDirPref = document.getElementById("geierlein.autosave.dir");
+                    autosaveDirPref.value = file;
+
+                    var autosaveFolder = document.getElementById("autosaveFolder");
+                    autosaveFolder.file = file;
+                    autosaveFolder.label = file.path;
+                }
+            });
         },
 
         displayAutosaveDir: function() {
             var autosaveFolder = document.getElementById("autosaveFolder");
-            fp = xulapp.getAutosaveDir();
+            var fp = xulapp.getAutosaveDir();
             autosaveFolder.file = fp;
             autosaveFolder.label = fp.path;
         }
