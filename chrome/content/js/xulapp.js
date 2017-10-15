@@ -64,9 +64,15 @@ var xulapp = (function() {
         fp.init(window, 'Datei speichern', nsIFilePicker.modeSave);
         fp.appendFilters(nsIFilePicker.filterText | nsIFilePicker.filterAll);
 
-        var res = fp.show();
-        return (res === nsIFilePicker.returnOK ||
-            res === nsIFilePicker.returnReplace) ? fp : undefined;
+        return new Promise(function(resolve, reject) {
+            var res = fp.open(function(res) {
+                if (res === nsIFilePicker.returnOK || res === nsIFilePicker.returnReplace) {
+                    resolve(fp.file);
+                } else {
+                    reject();
+                }
+            });
+        });
     }
 
     function modalAskSaveChanges() {
@@ -163,14 +169,11 @@ var xulapp = (function() {
 
         /* Bind save-button in protocol popup. */
         cW.$('#protocol-save').click(function() {
-            var fp = modalFileSaveAsDialog();
-            if(fp === undefined) {
-                return; /* user hit cancel */
-            }
-
-            var src = cW.$('#protocol-frame')[0].src;
-            src = decodeURIComponent(src.substr(src.indexOf(',') + 1));
-            storeStringToFile(src, fp.file);
+            modalFileSaveAsDialog().then(function(file) {
+                var src = cW.$('#protocol-frame')[0].src;
+                src = decodeURIComponent(src.substr(src.indexOf(',') + 1));
+                storeStringToFile(src, file);
+            });
         });
 
         /* Bind external links to open in default browser. */
@@ -302,41 +305,48 @@ var xulapp = (function() {
                 return; /* User asked to cancel. */
             }
 
-            if(loadFilePath === undefined) {
+            if(loadFilePath !== undefined) {
+                loadFilePath = Promise.resolve(loadFilePath);
+            } else {
                 var nsIFilePicker = I.nsIFilePicker;
                 var fp = C["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
 
                 fp.init(window, 'Datei öffnen', nsIFilePicker.modeOpen);
                 fp.appendFilters(nsIFilePicker.filterText | nsIFilePicker.filterAll);
 
-                var res = fp.show();
-                if (res !== nsIFilePicker.returnOK) {
-                    return;
-                }
-
-                loadFilePath = fp.file;
+                loadFilePath = new Promise(function(resolve, reject) {
+                    fp.open(function(res) {
+                        if (res !== nsIFilePicker.returnOK) {
+                            reject();
+                        } else {
+                            resolve(fp.file);
+                        }
+                    });
+                });
             }
 
-            var channel = NetUtil.newChannel(loadFilePath);
-            channel.contentType = 'text/xml';
-            channel.contentCharset = 'UTF-8';
+            loadFilePath.then(function(file) {
+                var channel = NetUtil.newChannel(file);
+                channel.contentType = 'text/xml';
+                channel.contentCharset = 'UTF-8';
 
-            NetUtil.asyncFetch(channel, function(inStream, status) {
-                if(!Components.isSuccessCode(status)) {
-                    alert('Beim Lesen der Datei ist ein Fehler aufgetreten!');
-                    return;
-                }
+                NetUtil.asyncFetch(channel, function(inStream, status) {
+                    if(!Components.isSuccessCode(status)) {
+                        alert('Beim Lesen der Datei ist ein Fehler aufgetreten!');
+                        return;
+                    }
 
-                var data = NetUtil.readInputStreamToString(inStream,
-                    inStream.available(), { charset: 'UTF-8' });
+                    var data = NetUtil.readInputStreamToString(inStream,
+                        inStream.available(), { charset: 'UTF-8' });
 
-                if(cW.geierlein.unserialize(data)) {
-                    filePath = loadFilePath;
-                    fileChanged = false;
-                } else {
-                    alert('Das Format der Datei ist fehlerhaft.  ' +
-                        'Die Datei kann nicht geöffnet werden');
-                }
+                    if(cW.geierlein.unserialize(data)) {
+                        filePath = file;
+                        fileChanged = false;
+                    } else {
+                        alert('Das Format der Datei ist fehlerhaft.  ' +
+                            'Die Datei kann nicht geöffnet werden');
+                    }
+                });
             });
         },
 
@@ -352,14 +362,11 @@ var xulapp = (function() {
         },
 
         saveFileAs: function() {
-            var fp = modalFileSaveAsDialog();
-            if(fp === undefined) {  /* action cancelled by user. */
-                return;
-            }
-
-            /* Store chosen filepath and call the saveFile function (again). */
-            filePath = fp.file;
-            xulapp.saveFile();
+            modalFileSaveAsDialog().then(function(file) {
+                /* Store chosen filepath and call the saveFile function (again). */
+                filePath = file;
+                xulapp.saveFile();
+            });
         },
 
         send: function(asTestcase) {
@@ -381,25 +388,26 @@ var xulapp = (function() {
             fp.init(window, 'Protokoll nachdrucken', nsIFilePicker.modeOpen);
             fp.appendFilters(nsIFilePicker.filterText | nsIFilePicker.filterAll);
 
-            var res = fp.show();
-            if (res !== nsIFilePicker.returnOK) {
-                return;
-            }
-
-            var channel = NetUtil.newChannel(fp.file);
-            channel.contentType = 'text/xml';
-            channel.contentCharset = 'UTF-8';
-
-            NetUtil.asyncFetch(channel, function(inStream, status) {
-                if(!Components.isSuccessCode(status)) {
-                    alert('Beim Lesen der Datei ist ein Fehler aufgetreten!');
+            fp.open(function(res) {
+                if (res !== nsIFilePicker.returnOK) {
                     return;
                 }
 
-                var data = NetUtil.readInputStreamToString(inStream,
-                    inStream.available(), { charset: 'UTF-8' });
+                var channel = NetUtil.newChannel(fp.file);
+                channel.contentType = 'text/xml';
+                channel.contentCharset = 'UTF-8';
 
-		cW.geierlein.showProtocol(data);
+                NetUtil.asyncFetch(channel, function(inStream, status) {
+                    if(!Components.isSuccessCode(status)) {
+                        alert('Beim Lesen der Datei ist ein Fehler aufgetreten!');
+                        return;
+                    }
+
+                    var data = NetUtil.readInputStreamToString(inStream,
+                        inStream.available(), { charset: 'UTF-8' });
+
+                    cW.geierlein.showProtocol(data);
+                });
             });
         },
 
