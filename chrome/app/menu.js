@@ -26,10 +26,12 @@ app.once('ready', () => {
           type: 'separator'
         },
         {
-          label: 'Daten senden ...'
+          label: 'Daten senden ...',
+          click: () => ipcSend('start-send-data', { asTestcase: false })
         },
         {
-          label: 'Übertragung testen ...'
+          label: 'Übertragung testen ...',
+          click: () => ipcSend('start-send-data', { asTestcase: true })
         },
         {
           type: 'separator'

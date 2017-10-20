@@ -3,7 +3,8 @@
 
   ipc.on('show-about-dialog', () => $('#about').modal());
 
+  ipc.on('start-send-data', (sender, data) => geierlein.startSendData(data.asTestcase));
+
   // We're running in chrome context, no need for reverse proxying.
-  debugger;
   geierlein.transfer = geierlein.transferDirect;
 })(__tmpModule);
