@@ -3,6 +3,7 @@
   "description": "Elster UStVA implementation in pure JavaScript",
   "author": "Stefan Siegl <stesie@brokenpipe.de>",
   "private": true,
+  "main": "chrome/app/main.js",
   "bin": "bin/geierlein",
   "version": "0.9.13",
   "dependencies": {
@@ -13,8 +14,11 @@
     "test": "nodeunit tests/"
   },
   "repository": {
-	"type": "git",
-	"url": "https://github.com/stesie/geierlein.git"
+    "type": "git",
+    "url": "https://github.com/stesie/geierlein.git"
   },
-  "license": "AGPLv3+"
+  "license": "AGPLv3+",
+  "devDependencies": {
+    "electron": "1.7.5"
+  }
 }
