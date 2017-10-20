@@ -56,7 +56,11 @@ app.on('activate', function () {
   }
 })
 
-require('./menu')(
+hostipc = require('./hostipc')(
   (...args) => mainWindow.send(...args)
+);
+
+require('./menu')(
+  hostipc
 );
 

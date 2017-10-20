@@ -1,25 +1,6 @@
-const {Menu, app, dialog, ipcMain} = require('electron');
-const fs = require('fs');
+const {Menu, app} = require('electron');
 
-module.exports = (ipcSend) => {
-  let filePath;
-
-  function save() {
-    if (filePath === undefined) {
-      saveAs();
-    } else {
-      ipcMain.once('serialize-result', (sender, data) => fs.writeFileSync(filePath, data));
-      ipcSend('serialize');
-    }
-  }
-
-  function saveAs() {
-    const newFilePath = dialog.showSaveDialog({});
-    if (newFilePath !== undefined) {
-      filePath = newFilePath;
-      save();
-    }
-  }
+module.exports = (hostipc) => {
 
   app.once('ready', () => {
     const template = [
@@ -37,23 +18,23 @@ module.exports = (ipcSend) => {
           {
             label: 'Speichern',
             accelerator: 'CmdOrCtrl+S',
-            click: save
+            click: hostipc.save
           },
           {
             label: 'Speichern unter ...',
             accelerator: 'CmdOrCtrl+Shift+S',
-            click: saveAs
+            click: hostipc.saveAs
           },
           {
             type: 'separator'
           },
           {
             label: 'Daten senden ...',
-            click: () => ipcSend('start-send-data', { asTestcase: false })
+            click: () => hostipc.sendData(false)
           },
           {
             label: 'Übertragung testen ...',
-            click: () => ipcSend('start-send-data', { asTestcase: true })
+            click: () => hostipc.sendData(true)
           },
           {
             type: 'separator'
@@ -79,18 +60,11 @@ module.exports = (ipcSend) => {
         submenu: [
           {
             label: 'Dauerfristverlängerung ...',
-            click: () => ipcSend('show-ustsvza')
+            click: hostipc.showUStSVzA
           },
           {
             label: 'Protokoll nachdrucken ...',
-            click: () => {
-              const files = dialog.showOpenDialog({
-                filters: [{ name: 'Protokoll XML-Datei', extensions: ['xml']}],
-                properties: ['openFile']
-              });
-              if (typeof files === 'object' && files.__proto__.constructor === Array)
-                ipcSend('reprint-protocol', fs.readFileSync(files[0], 'UTF-8'));
-            }
+            click: hostipc.reprintProtocol
           },
           {
             type: 'separator'
@@ -117,7 +91,7 @@ module.exports = (ipcSend) => {
           {
             label: 'Info',
             role: 'about',
-            click: () => ipcSend('show-about-dialog')
+            click: hostipc.showAboutDialog
           },
         ]
       },
