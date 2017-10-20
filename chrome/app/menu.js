@@ -56,7 +56,8 @@ app.once('ready', () => {
       label: 'Werkzeuge',
       submenu: [
         {
-          label: 'Dauerfristverlängerung ...'
+          label: 'Dauerfristverlängerung ...',
+          click: () => ipcSend('show-ustsvza')
         },
         {
           label: 'Protokoll nachdrucken ...'
