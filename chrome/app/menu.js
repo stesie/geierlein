@@ -63,7 +63,10 @@ app.once('ready', () => {
         {
           label: 'Protokoll nachdrucken ...',
           click: () => {
-            const files = dialog.showOpenDialog({properties: ['openFile']});
+            const files = dialog.showOpenDialog({
+              filters: [{ name: 'Protokoll XML-Datei', extensions: ['xml']}],
+              properties: ['openFile']
+            });
             if (typeof files === 'object' && files.__proto__.constructor === Array)
               ipcSend('reprint-protocol', fs.readFileSync(files[0], 'UTF-8'));
           }
