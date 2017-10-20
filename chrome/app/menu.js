@@ -1,4 +1,5 @@
-const {Menu, app} = require('electron');
+const {Menu, app, dialog} = require('electron');
+const fs = require('fs');
 
 module.exports = (ipcSend) =>
 app.once('ready', () => {
@@ -60,7 +61,12 @@ app.once('ready', () => {
           click: () => ipcSend('show-ustsvza')
         },
         {
-          label: 'Protokoll nachdrucken ...'
+          label: 'Protokoll nachdrucken ...',
+          click: () => {
+            const files = dialog.showOpenDialog({properties: ['openFile']});
+            if (typeof files === 'object' && files.__proto__.constructor === Array)
+              ipcSend('reprint-protocol', fs.readFileSync(files[0], 'UTF-8'));
+          }
         },
         {
           type: 'separator'
