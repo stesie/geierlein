@@ -159,8 +159,9 @@ wininst.nsi: wininst.nsi.in Makefile
 	    -e "s;@INSTSIZE@;$(shell du --apparent-size --block-size=1024 --total $(xulapp_wininst) | awk 'END { print $$1 }');g" \
 	    $< > $@
 
-dist-nsis: wininst.nsi
-	makensis $<
+geierlein-$(VERSION)-installer.exe: wininst.nsi
+	docker build -t makensis -f Dockerfile.makensis .
+	docker run -t --rm -v $(PWD):/app makensis makensis $<
 
 install: bin/xgeierlein
 	for file in $(xulapp_essentials); do \
@@ -190,7 +191,7 @@ geierlein-$(VERSION).zip:
 geierlein-$(VERSION).tar.xz: geierlein-$(VERSION).tar.gz
 	gzip -cd $< | xz -ezcv > $@
 
-dist: dist-nsis geierlein-$(VERSION).zip geierlein-$(VERSION).tar.xz
+dist: geierlein-$(VERSION)-installer.exe geierlein-$(VERSION).zip geierlein-$(VERSION).tar.xz
 	git tag -s -f -m "Version $(VERSION)" V$(VERSION)
 
 autodist: dist
@@ -242,4 +243,4 @@ bump-version: $(version_files)
 	sed -e "s/^BuildID=.*/BuildID=`date +%Y%m%d`/" -i~ application.ini
 	git commit -m "Bump version to $(NEW_VERSION)" $^
 
-.PHONY: all clean autodist autodist-run dist install test test-forge test-all test-online test-offline uninstall bump-version dist-nsis
+.PHONY: all clean autodist autodist-run dist install test test-forge test-all test-online test-offline uninstall bump-version geierlein-$(VERSION)-installer.exe
