@@ -860,7 +860,8 @@
 
     <script>
         if (typeof module !== 'undefined') {
-            document.write('<script src="lib/electron-api.js"><' + '/script>');
+            // hide bootstrap .navbar
+            document.getElementsByTagName('body')[0].className = 'electron';
 
             // hide "module" object from electron, otherwise jquery & forge won't install to window
             // (... as they assume they're running in Node.js context, instead of browser)
@@ -927,5 +928,11 @@
          will fail, since the model expects a different (the old) sum. -->
     <script src="js/jquery.input.multiply.js"></script>
     <script src="js/jquery.input.totalize.js"></script>
+
+    <script>
+        if (typeof __tmpModule !== 'undefined') {
+            document.write('<script src="lib/electron-api.js"><' + '/script>');
+        }
+    </script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 
   ipc.on('show-about-dialog', () => $('#about').modal());
 
-  // hide bootstrap .navbar
-  document.getElementsByTagName('body')[0].className = 'electron';
-
-})(module);
+  // We're running in chrome context, no need for reverse proxying.
+  debugger;
+  geierlein.transfer = geierlein.transferDirect;
+})(__tmpModule);
