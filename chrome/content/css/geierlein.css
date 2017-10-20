@@ -3,11 +3,11 @@ body.native {
     padding-top: 60px;
 }
 
-body.xulapp {
+body.electron {
     padding-top: 18px;
 }
 
-body.xulapp #nav,
+body.electron #nav,
 body.native .hide-native {
     display: none;
 }

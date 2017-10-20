@@ -860,6 +860,8 @@
 
     <script>
         if (typeof module !== 'undefined') {
+            document.write('<script src="lib/electron-api.js"><' + '/script>');
+
             // hide "module" object from electron, otherwise jquery & forge won't install to window
             // (... as they assume they're running in Node.js context, instead of browser)
             __tmpModule = module;

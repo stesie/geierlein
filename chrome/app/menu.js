@@ -1,5 +1,6 @@
 const {Menu, app} = require('electron');
 
+module.exports = (ipcSend) =>
 app.once('ready', () => {
   const template = [
     {
@@ -82,8 +83,8 @@ app.once('ready', () => {
       submenu: [
         {
           label: 'Info',
-          role: 'about'
-          //click: function() { shell.openExternal('http://electron.atom.io') }
+          role: 'about',
+          click: () => ipcSend('show-about-dialog')
         },
       ]
     },

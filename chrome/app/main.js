@@ -56,5 +56,7 @@ app.on('activate', function () {
   }
 })
 
-require('./menu');
+require('./menu')(
+  (...args) => mainWindow.send(...args)
+);
 
