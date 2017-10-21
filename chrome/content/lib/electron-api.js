@@ -22,6 +22,14 @@ const {ipcRenderer} = require('electron');
     }
   });
 
+  // Replace toolbar
+  $('.nav')
+    .empty()
+    .append($('<li><a>Neu</a></li>').click(() => ipcRenderer.send('trigger-host-new')))
+    .append($('<li><a>Öffnen</a></li>').click(() => ipcRenderer.send('trigger-host-open')))
+    .append($('<li><a>Speichern</a></li>').click(() => ipcRenderer.send('trigger-host-save')))
+    .append($('<li><a>Daten senden</a></li>').click(() => geierlein.startSendData(false)));
+
   // We're running in chrome context, no need for reverse proxying.
   geierlein.transfer = geierlein.transferDirect;
 })(__tmpModule);

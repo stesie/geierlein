@@ -6,6 +6,10 @@ let filePath;
 
 module.exports = (ipcSend) => {
   const self = {
+    new: () => {
+      // @todo
+    },
+
     open: () => {
       // @todo ask save changes
 
@@ -56,6 +60,10 @@ module.exports = (ipcSend) => {
 
     showAboutDialog: () => ipcSend('show-about-dialog')
   };
+
+  ipcMain.on('trigger-host-new', self.new);
+  ipcMain.on('trigger-host-open', self.open);
+  ipcMain.on('trigger-host-save', self.save);
 
   return self;
 };
