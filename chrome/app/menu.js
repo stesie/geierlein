@@ -47,7 +47,7 @@ module.exports = (hostipc) => {
           }
         ]
       },
-      {
+      /* {
         label: 'Bearbeiten',
         submenu: [
           {
@@ -55,7 +55,7 @@ module.exports = (hostipc) => {
             accelerator: 'CmdOrCtrl+,'
           },
         ]
-      },
+      }, */
       {
         label: 'Werkzeuge',
         submenu: [
