@@ -25,10 +25,13 @@ const {ipcRenderer} = require('electron');
   // Replace toolbar
   $('.nav')
     .empty()
-    .append($('<li><a>Neu</a></li>').click(() => ipcRenderer.send('trigger-host-new')))
-    .append($('<li><a>Öffnen</a></li>').click(() => ipcRenderer.send('trigger-host-open')))
-    .append($('<li><a>Speichern</a></li>').click(() => ipcRenderer.send('trigger-host-save')))
-    .append($('<li><a>Daten senden</a></li>').click(() => geierlein.startSendData(false)));
+    .append($('<li><a href="#">Neu</a></li>').click(() => ipcRenderer.send('trigger-host-new')))
+    .append($('<li><a href="#">Öffnen</a></li>').click(() => ipcRenderer.send('trigger-host-open')))
+    .append($('<li><a href="#">Speichern</a></li>').click(() => ipcRenderer.send('trigger-host-save')))
+    .append($('<li><a href="#">Daten senden</a></li>').click(() => geierlein.startSendData(false)));
+
+  // Drop focus after click, no matter what
+  $('.nav li a').click((ev) => ev.target.blur())
 
   // We're running in chrome context, no need for reverse proxying.
   geierlein.transfer = geierlein.transferDirect;
