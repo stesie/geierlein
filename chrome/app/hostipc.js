@@ -6,6 +6,22 @@ let filePath;
 
 module.exports = (ipcSend) => {
   const self = {
+    open: () => {
+      // @todo ask save changes
+
+      const files = dialog.showOpenDialog({
+        properties: ['openFile']
+      });
+
+      if (typeof files === 'object' && files.__proto__.constructor === Array) {
+        ipcMain.once('unserialize-success', () => {
+          fileChanged = false;
+          filePath = files[0];
+        });
+        ipcSend('unserialize', fs.readFileSync(files[0], 'UTF-8'));
+      }
+    },
+
     save: () => {
       if (filePath === undefined) {
         self.saveAs();

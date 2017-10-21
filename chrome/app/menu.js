@@ -13,7 +13,8 @@ module.exports = (hostipc) => {
           },
           {
             label: 'Öffnen ...',
-            accelerator: 'CmdOrCtrl+O'
+            accelerator: 'CmdOrCtrl+O',
+            click: hostipc.open
           },
           {
             label: 'Speichern',
