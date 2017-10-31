@@ -25,6 +25,28 @@ function createWindow () {
   // Open the DevTools.
   mainWindow.webContents.openDevTools()
 
+  let ignoreFileChanged = false;
+  mainWindow.on('close', (e) => {
+    if (ignoreFileChanged) {
+      return;
+    }
+
+    // don't close dialog for now
+    e.preventDefault();
+
+    hostipc.askSaveChanges()
+    .then((saveChanges) => {
+      if (saveChanges) {
+        hostipc.save();
+      }
+
+      ignoreFileChanged = true;
+      mainWindow.close();
+    })
+    // do nothing on cancel
+    .catch((x) => undefined);
+  });
+
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
     // Dereference the window object, usually you would store windows

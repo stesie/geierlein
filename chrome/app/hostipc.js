@@ -7,8 +7,7 @@ let filePath;
 module.exports = (ipcSend) => {
   const self = {
     new: () => {
-      askSaveChanges()
-      .catch((x) => undefined)
+      self.askSaveChanges()
       .then((saveChanges) => {
         if (saveChanges) {
           self.save();
@@ -18,12 +17,12 @@ module.exports = (ipcSend) => {
 
         filePath = undefined;
         fileChanged = false;
-      });
+      })
+      .catch((x) => undefined);
     },
 
     open: () => {
-      askSaveChanges()
-      .catch((x) => undefined)
+      self.askSaveChanges()
       .then((saveChanges) => {
         if (saveChanges) {
           self.save();
@@ -38,9 +37,11 @@ module.exports = (ipcSend) => {
             fileChanged = false;
             filePath = files[0];
           });
+
           ipcSend('unserialize', fs.readFileSync(files[0], 'UTF-8'));
         }
-      });
+      })
+      .catch((x) => undefined);
     },
 
     save: () => {
@@ -53,10 +54,10 @@ module.exports = (ipcSend) => {
 
         ipcMain.once('serialize-result', (sender, data) => {
           fs.writeFileSync(keptFilePath, data);
-          fileChanged = false;
         });
 
         ipcSend('serialize');
+        fileChanged = false;
       }
     },
 
@@ -82,7 +83,36 @@ module.exports = (ipcSend) => {
         ipcSend('reprint-protocol', fs.readFileSync(files[0], 'UTF-8'));
     },
 
-    showAboutDialog: () => ipcSend('show-about-dialog')
+    showAboutDialog: () => ipcSend('show-about-dialog'),
+
+    askSaveChanges: () => {
+      if (!fileChanged) {
+        // no need to save changes, just go on
+        return Promise.resolve(false);
+      }
+
+      return new Promise((resolve, reject) => {
+        dialog.showMessageBox({
+          type: 'question',
+          buttons: ['Ja', 'Nein', 'Abbrechen'],
+          cancelId: 2,
+          title: 'Änderungen speichern?',
+          message: 'Am Formular wurden Änderungen vorgenommen, die noch nicht gespeichert wurden. Sollen diese gespeichert werden?'
+        }, function (response) {
+          switch (response) {
+            case 0: // yes, save
+              resolve(true);
+            break;
+
+            case 1: // no, don't save
+              resolve(false);
+
+            case 2: // cancle
+              reject('dialog cancelled');
+          }
+        });
+      });
+    }
   };
 
   ipcMain.on('trigger-host-new', self.new);
@@ -93,33 +123,4 @@ module.exports = (ipcSend) => {
   ipcMain.on('form-reset', () => fileChanged = false);
 
   return self;
-
-  function askSaveChanges() {
-    if (!fileChanged) {
-      // no need to save changes, just go on
-      return Promise.resolve(false);
-    }
-
-    return new Promise((resolve, reject) => {
-      dialog.showMessageBox({
-        type: 'question',
-        buttons: ['Ja', 'Nein', 'Abbrechen'],
-        cancelId: 2,
-        title: 'Änderungen speichern?',
-        message: 'Am Formular wurden Änderungen vorgenommen, die noch nicht gespeichert wurden. Sollen diese gespeichert werden?'
-      }, function (response) {
-        switch (response) {
-          case 0: // yes, save
-            resolve(true);
-          break;
-
-          case 1: // no, don't save
-            resolve(false);
-
-          case 2: // cancle
-            reject('dialog cancelled');
-        }
-      });
-    });
-  }
 };
