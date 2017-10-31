@@ -35,6 +35,10 @@ const {ipcRenderer} = require('electron');
   // Drop focus after click, no matter what
   $('.nav li a').click((ev) => ev.target.blur())
 
+  // Notify main-thread if form's changed, so it can track changes
+  $('.ustva, .datenlieferant').on('change keyup', () => ipcRenderer.send('form-changed'));
+  $('body').on('reset-form', () => ipcRenderer.send('form-reset'));
+
   // We're running in chrome context, no need for reverse proxying.
   geierlein.transfer = geierlein.transferDirect;
 })(__tmpModule);

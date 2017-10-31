@@ -249,8 +249,6 @@
 
         geierlein.loadDefaultAddressData();
 
-        $('body').trigger('reset-form');
-
         if(location.hash === '#importLocalStorage') {
             importData = geierlein.prefstore.getCharPref('import');
             geierlein.prefstore.setCharPref('import', '');
@@ -282,6 +280,9 @@
          * auto-fill data, etc.pp
          */
         $('.datenlieferant, .ustva, .ustsvza').change();
+
+        /* Last but not least run reset-form "hook", i.e. possibly notify application */
+        $('body').trigger('reset-form');
     };
 
     geierlein.serialize = function() {

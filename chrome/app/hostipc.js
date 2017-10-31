@@ -7,36 +7,56 @@ let filePath;
 module.exports = (ipcSend) => {
   const self = {
     new: () => {
-      // @todo ask save changes
-      ipcSend('reset-form');
+      askSaveChanges()
+      .catch((x) => undefined)
+      .then((saveChanges) => {
+        if (saveChanges) {
+          self.save();
+        }
 
-      filePath = undefined;
-      fileChanged = false;
+        ipcSend('reset-form');
+
+        filePath = undefined;
+        fileChanged = false;
+      });
     },
 
     open: () => {
-      // @todo ask save changes
+      askSaveChanges()
+      .catch((x) => undefined)
+      .then((saveChanges) => {
+        if (saveChanges) {
+          self.save();
+        }
 
-      const files = dialog.showOpenDialog({
-        properties: ['openFile']
-      });
-
-      if (typeof files === 'object' && files.__proto__.constructor === Array) {
-        ipcMain.once('unserialize-success', () => {
-          fileChanged = false;
-          filePath = files[0];
+        const files = dialog.showOpenDialog({
+          properties: ['openFile']
         });
-        ipcSend('unserialize', fs.readFileSync(files[0], 'UTF-8'));
-      }
+
+        if (typeof files === 'object' && files.__proto__.constructor === Array) {
+          ipcMain.once('unserialize-success', () => {
+            fileChanged = false;
+            filePath = files[0];
+          });
+          ipcSend('unserialize', fs.readFileSync(files[0], 'UTF-8'));
+        }
+      });
     },
 
     save: () => {
       if (filePath === undefined) {
         self.saveAs();
       } else {
-        ipcMain.once('serialize-result', (sender, data) => fs.writeFileSync(filePath, data));
+        // keep a reference to the filePath, since as may be reset between serialize call and
+        // the result callback
+        const keptFilePath = filePath;
+
+        ipcMain.once('serialize-result', (sender, data) => {
+          fs.writeFileSync(keptFilePath, data);
+          fileChanged = false;
+        });
+
         ipcSend('serialize');
-        fileChanged = false;
       }
     },
 
@@ -69,5 +89,37 @@ module.exports = (ipcSend) => {
   ipcMain.on('trigger-host-open', self.open);
   ipcMain.on('trigger-host-save', self.save);
 
+  ipcMain.on('form-changed', () => fileChanged = true);
+  ipcMain.on('form-reset', () => fileChanged = false);
+
   return self;
+
+  function askSaveChanges() {
+    if (!fileChanged) {
+      // no need to save changes, just go on
+      return Promise.resolve(false);
+    }
+
+    return new Promise((resolve, reject) => {
+      dialog.showMessageBox({
+        type: 'question',
+        buttons: ['Ja', 'Nein', 'Abbrechen'],
+        cancelId: 2,
+        title: 'Änderungen speichern?',
+        message: 'Am Formular wurden Änderungen vorgenommen, die noch nicht gespeichert wurden. Sollen diese gespeichert werden?'
+      }, function (response) {
+        switch (response) {
+          case 0: // yes, save
+            resolve(true);
+          break;
+
+          case 1: // no, don't save
+            resolve(false);
+
+          case 2: // cancle
+            reject('dialog cancelled');
+        }
+      });
+    });
+  }
 };
