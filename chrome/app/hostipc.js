@@ -7,7 +7,11 @@ let filePath;
 module.exports = (ipcSend) => {
   const self = {
     new: () => {
-      // @todo
+      // @todo ask save changes
+      ipcSend('reset-form');
+
+      filePath = undefined;
+      fileChanged = false;
     },
 
     open: () => {

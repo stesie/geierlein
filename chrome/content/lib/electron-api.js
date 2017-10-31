@@ -11,6 +11,8 @@ const {ipcRenderer} = require('electron');
 
   ipc.on('reprint-protocol', (sender, data) => geierlein.showProtocol(data));
 
+  ipc.on('reset-form', () => geierlein.resetForm());
+
   ipc.on('serialize', () => ipcRenderer.send('serialize-result', geierlein.serialize()));
 
   ipc.on('unserialize', (sender, data) => {

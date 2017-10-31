@@ -9,7 +9,8 @@ module.exports = (hostipc) => {
         submenu: [
           {
             label: 'Neu',
-            accelerator: 'CmdOrCtrl+N'
+            accelerator: 'CmdOrCtrl+N',
+            click: hostipc.new
           },
           {
             label: 'Öffnen ...',
