@@ -126,5 +126,12 @@ module.exports = (ipcSend) => {
   ipcMain.on('form-changed', () => fileChanged = true);
   ipcMain.on('form-reset', () => fileChanged = false);
 
+  ipcMain.on('save-protocol-html', (ev, html) => {
+    const newFilePath = dialog.showSaveDialog({});
+    if (newFilePath !== undefined) {
+      fs.writeFileSync(newFilePath, html);
+    }
+  });
+
   return self;
 };

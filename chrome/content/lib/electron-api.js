@@ -32,6 +32,13 @@ const {ipcRenderer} = require('electron');
     .append($('<li><a href="#">Speichern</a></li>').click(() => ipcRenderer.send('trigger-host-save')))
     .append($('<li><a href="#">Daten senden</a></li>').click(() => geierlein.startSendData(false)));
 
+  $('body').removeClass('native');
+  $('#protocol-save').on('click', () => {
+    let src = $('#protocol-frame')[0].src;
+    src = decodeURIComponent(src.substr(src.indexOf(',') + 1));
+    ipcRenderer.send('save-protocol-html', src);
+  });
+
   // Drop focus after click, no matter what
   $('.nav li a').click((ev) => ev.target.blur())
 
