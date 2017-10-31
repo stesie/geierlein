@@ -33,15 +33,19 @@ module.exports = (ipcSend) => {
         });
 
         if (typeof files === 'object' && files.__proto__.constructor === Array) {
-          ipcMain.once('unserialize-success', () => {
-            fileChanged = false;
-            filePath = files[0];
-          });
-
-          ipcSend('unserialize', fs.readFileSync(files[0], 'UTF-8'));
+          self.openFile(files[0])
         }
       })
       .catch((x) => undefined);
+    },
+
+    openFile: (file) => {
+      ipcMain.once('unserialize-success', () => {
+        fileChanged = false;
+        filePath = file;
+      });
+
+      ipcSend('unserialize', fs.readFileSync(file, 'UTF-8'));
     },
 
     save: () => {
