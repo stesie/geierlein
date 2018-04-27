@@ -23,50 +23,17 @@ do so.
 -------------------
 
 Geierlein can be used in varios ways, i.e. has multiple interfaces.
-This file merely discusses installation and use of the Mozilla XUL-based
+This file merely discusses installation and use of the Electron-based
 graphical desktop application.  For others consult the wiki pages
 hosted on Github.
 
-As the Geierlein desktop application is based on Mozilla XUL, you need
-to have [Mozilla XUL-Runner](https://developer.mozilla.org/de/xulrunner)
-installed.  Newer Mozilla Firefox versions (all from version 3 on) also
-ship a XUL-Runner instance and hence are sufficient to run Geierlein.
+As the Geierlein desktop application is based on Electron, you need
+to have that installed.
 
-If you've unpacked Geierlein's ZIP-archive and besides have a Firefox
-installation around, you simply need to run
+If you've unpacked Geierlein's ZIP-archive you simply need to run
 
-    firefox -app application.ini
-
-
-If you'd like to use XUL-Runner instead of Firefox, you may omit the
-_-app_ argument.
-
-It's furthermore possible to specify a Geierline file to be opened
-right on the command line.
-
-    firefox -app application.ini -load pfad/zur/datei
-
-
- Frequently Asked Questions
--------------------------------
-
-Q: Firefox/XUL-Runner complains about incompatible platform versions:
-
-    Error: Platform version '20.0a1' is not compatible with
-    minVersion >= 3.5
-    maxVersion <= 16.*
-
-Due to the error message Geierlein does not start (any longer).
-
-A: Geierlein is _not_ incompatible to the Firefox/XUL-Runner version
-you use, as stated in the error message.  It just has not been
-tested against it (or you use an old version).
-
-The maximum version number can easily be edited in the application.ini
-file.  You can just bump it to whichever version of Firefox you use.
-Simply keep in mind that you might come across incompatibilities due
-to changed Firefox APIs.  In that case simply open an issue ticket at
-GitHub.
+    npm install
+    ./node_modules/.bin/electron .
 
 
  License
