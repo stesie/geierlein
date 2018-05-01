@@ -21,7 +21,7 @@
 
 /*global
   document, location, window, alert,
-  LocalStoragePrefstore, XulPrefstore, Components,
+  LocalStoragePrefstore,
   jsxml,
   FileReader, Blob, saveAs
  */
@@ -92,7 +92,7 @@
     /**
      * Handle send button event in signature control dialog.
      */
-    function doSendFinal(ev) {
+    function doSendFinal() {
         var asTestcase = $('#prepare-send').data('asTestcase');
         var formClass = $('#prepare-send').data('formClass');
 
@@ -171,7 +171,7 @@
      *
      * @param asTestcase Whether to set test-marker in the declaration or not.
      * @param formClass Which form to send (ustva or ustsvza)
-     * @return void
+     * @return boolean
      */
     geierlein.startSendData = function(asTestcase, formClass) {
         formClass = formClass || ustva;
@@ -195,6 +195,7 @@
      *
      * @param asTestcase Whether to set test-marker in the declaration or not.
      * @param signer Geierlein signer context (undefined for no signature)
+     * @param formClass Which form to send (ustva or ustsvza)
      * @return void
      */
     geierlein.sendData = function(asTestcase, signer, formClass) {
@@ -318,7 +319,7 @@
      * Unserialize data from "geierlein file format" into the form.
      *
      * @param data The file's content as a string.
-     * @return <boolean> True if file was loaded successfully, false otherwise.
+     * @return boolean True if file was loaded successfully, false otherwise.
      */
     geierlein.unserialize = function(data) {
         var key;
@@ -408,22 +409,22 @@
     /* Bind datenlieferant input fields to the model.  We bind change as
        well as keyup, so we are able to revalidate the form on every keystroke
        and still don't miss events in case our user copy & pastes the data. */
-    $('.datenlieferant').on('change keyup', function(ev) {
+    $('.datenlieferant').on('change keyup', function() {
         return updateModelHandler(this, datenlieferant);
     });
 
     /* Bind UStVA form fields to the corresponding model.  Like as for the
        datenlieferant fields we bind to both, change and keyup, events. */
-    $('.ustva').on('change keyup', function(ev) {
+    $('.ustva').on('change keyup', function() {
         return updateModelHandler(this, ustva);
     });
 
     /* Likewise for UStSvzA. */
-    $('.ustsvza').on('change keyup', function(ev) {
+    $('.ustsvza').on('change keyup', function() {
         return updateModelHandler(this, ustsvza);
     });
 
-    $('#land').on('change keyup', function(ev) {
+    $('#land').on('change keyup', function() {
         $('#steuernummer').attr('placeholder', ustva.getTaxNumberSample());
     });
 
@@ -438,7 +439,7 @@
         $('#accordion-unternehmer').collapse();
     }
 
-    $('#zeitraum').on('change', function(ev) {
+    $zeitraum.on('change', function() {
       var selected = $('option:selected', this);
       var grouplabel = selected.parent().attr('label');
       $('label[for="'+this.id+'"]').text(grouplabel);
@@ -472,7 +473,7 @@
     /**
      * Send-as-testcase button, click event.
      */
-    $('#send-testcase').on('click', function(ev) {
+    $('#send-testcase').on('click', function() {
         geierlein.startSendData(true);
         return false;
     });
@@ -480,7 +481,7 @@
     /**
      * "signature enable" checkbox, click event
      */
-    $('#sig-enable').on('click', function(ev) {
+    $('#sig-enable').on('click', function() {
         $('.sig-controls').prop('disabled', !$('#sig-enable').prop('checked'));
     });
 
@@ -522,7 +523,7 @@
         ev.preventDefault();
     });
 
-    $('#file-select').change(function(ev) {
+    $('#file-select').change(function() {
         var reader = new FileReader();
         reader.onload = function(data) {
             if(!geierlein.unserialize(data.target.result)) {
@@ -557,13 +558,13 @@
         geierlein.showUStSvzA();
     });
 
-    $('#SVZ-type').change(function(ev) {
+    $('#SVZ-type').change(function() {
         var elname = '#ustsvza-svz-' + $('#SVZ-type').val();
         $('.ustsvza-svz').not(elname).hide();
         $(elname).show();
     });
 
-    $('#SVZ-vjsum').on('change keyup', function(ev) {
+    $('#SVZ-vjsum').on('change keyup', function() {
         var vjsum = $('#SVZ-vjsum').val();
 
         if(vjsum === '' || isNaN(+vjsum)) {
@@ -574,14 +575,14 @@
         }
     });
 
-    $('#SVZ-send').on('click', function(ev) {
+    $('#SVZ-send').on('click', function() {
         if(geierlein.startSendData(false, ustsvza)) {
             $('#ustsvza').modal('hide');
         }
         return false;
     });
 
-    $('#SVZ-send-testcase').on('click', function(ev) {
+    $('#SVZ-send-testcase').on('click', function() {
         if(geierlein.startSendData(true, ustsvza)) {
             $('#ustsvza').modal('hide');
         }
