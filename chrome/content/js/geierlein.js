@@ -3,7 +3,7 @@
  *
  * @author Stefan Siegl
  *
- * Copyright (c) 2012, 2013, 2016 Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2012, 2013, 2016, 2018 Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -379,27 +379,11 @@
     };
 
 
-    /* Initialize localStorage-based Prefstore, if not running
-       in XUL-environment.  Otherwise use XUL-based storage. */
-    var useLocalStore = typeof Components === 'undefined';
-    if(!useLocalStore) {
-        /* Test whether we are just seeing the Components object, which is true
-           even in Mozilla Firefox, but are denied permission to access it. */
-        try {
-            useLocalStore = typeof Components.classes !== 'object';
-        } catch(e) {
-            useLocalStore = true;
-        }
-    }
+    /* Initialize localStorage-based Prefstore. */
+    geierlein.prefstore = new LocalStoragePrefstore('geierlein');
 
-    if(useLocalStore) {
-        geierlein.prefstore = new LocalStoragePrefstore('geierlein');
-
-        if(geierlein.prefstore.getCharPref('defaultAddress.land') === undefined) {
-            geierlein.prefstore.setCharPref('defaultAddress.land', '1');
-        }
-    } else {
-        geierlein.prefstore = new XulPrefstore('geierlein');
+    if(geierlein.prefstore.getCharPref('defaultAddress.land') === undefined) {
+        geierlein.prefstore.setCharPref('defaultAddress.land', '1');
     }
 
 
