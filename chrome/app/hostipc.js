@@ -1,4 +1,4 @@
-const {Menu, app, dialog, ipcMain} = require('electron');
+const {dialog, ipcMain} = require('electron');
 const fs = require('fs');
 
 let fileChanged = false;
@@ -18,7 +18,7 @@ module.exports = (ipcSend) => {
         filePath = undefined;
         fileChanged = false;
       })
-      .catch((x) => undefined);
+      .catch(() => undefined);
     },
 
     open: () => {
@@ -36,7 +36,7 @@ module.exports = (ipcSend) => {
           self.openFile(files[0])
         }
       })
-      .catch((x) => undefined);
+      .catch(() => undefined);
     },
 
     openFile: (file) => {
@@ -103,7 +103,8 @@ module.exports = (ipcSend) => {
           title: 'Änderungen speichern?',
           message: 'Am Formular wurden Änderungen vorgenommen, die noch nicht gespeichert wurden. Sollen diese gespeichert werden?'
         }, function (response) {
-          switch (response) {
+            // noinspection FallThroughInSwitchStatementJS
+            switch (response) {
             case 0: // yes, save
               resolve(true);
             break;
@@ -111,7 +112,7 @@ module.exports = (ipcSend) => {
             case 1: // no, don't save
               resolve(false);
 
-            case 2: // cancle
+            case 2: // cancel
               reject('dialog cancelled');
           }
         });

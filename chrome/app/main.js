@@ -90,7 +90,7 @@ app.on('activate', function () {
   }
 })
 
-hostipc = require('./hostipc')(
+var hostipc = require('./hostipc')(
   (...args) => mainWindow.send(...args)
 );
 

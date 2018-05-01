@@ -863,7 +863,7 @@
         if (typeof module !== 'undefined') {
             // hide "module" object from electron, otherwise jquery & forge won't install to window
             // (... as they assume they're running in Node.js context, instead of browser)
-            __tmpModule = module;
+            window.__tmpModule = module;
             module = undefined;
         }
     </script>
@@ -927,7 +927,7 @@
     <script src="js/jquery.input.totalize.js"></script>
 
     <script>
-        if (typeof __tmpModule !== 'undefined') {
+        if (typeof window.__tmpModule !== 'undefined') {
             document.write('<script src="lib/electron-api.js"><' + '/script>');
         }
     </script>
