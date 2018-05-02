@@ -1,19 +1,20 @@
-const electron = require('electron')
-// Module to control application life.
-const app = electron.app
-// Module to create native browser window.
-const BrowserWindow = electron.BrowserWindow
+const electron = require('electron');
 
-const path = require('path')
-const url = require('url')
+// Module to control application life.
+const app = electron.app;
+// Module to create native browser window.
+const BrowserWindow = electron.BrowserWindow;
+
+const path = require('path');
+const url = require('url');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let mainWindow
+let mainWindow, hostipc;
 
 function createWindow () {
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 800, height: 600, show: false})
+  mainWindow = new BrowserWindow({width: 800, height: 600, show: false});
 
   mainWindow.once('ready-to-show', mainWindow.show);
 
@@ -22,10 +23,7 @@ function createWindow () {
     pathname: path.join(__dirname, '../content/index.html'),
     protocol: 'file:',
     slashes: true
-  }))
-
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools()
+  }));
 
   let ignoreFileChanged = false;
   mainWindow.on('close', (e) => {
@@ -46,7 +44,7 @@ function createWindow () {
       mainWindow.close();
     })
     // do nothing on cancel
-    .catch((x) => undefined);
+    .catch(() => undefined);
   });
 
   // Emitted when the window is closed.
@@ -80,7 +78,7 @@ app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') {
     app.quit()
   }
-})
+});
 
 app.on('activate', function () {
   // On OS X it's common to re-create a window in the app when the
@@ -88,9 +86,9 @@ app.on('activate', function () {
   if (mainWindow === null) {
     createWindow()
   }
-})
+});
 
-var hostipc = require('./hostipc')(
+hostipc = require('./hostipc')(
   (...args) => mainWindow.send(...args)
 );
 
