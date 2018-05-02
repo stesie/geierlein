@@ -50,6 +50,11 @@
     "win": {
       "target": "nsis"
     },
-    "publish": null
+    "publish": {
+      "provider": "github",
+      "owner": "stesie",
+      "repo": "geierlein",
+      "publishAutoUpdate": true
+    }
   }
 }
