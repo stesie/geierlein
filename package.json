@@ -21,7 +21,8 @@
   "license": "AGPLv3+",
   "devDependencies": {
     "electron": "1.7.5",
-    "electron-builder": "^20.11.1"
+    "electron-builder": "^20.11.1",
+    "nodeunit": "^0.11.2"
   },
   "build": {
     "appId": "de.brokenpipe.geierlein",
@@ -32,12 +33,15 @@
       "node_modules/**/*",
       "package.json"
     ],
-    "directories": {
-    },
+    "directories": {},
     "linux": {
       "target": [
-        { "target": "deb" },
-        { "target": "rpm" }
+        {
+          "target": "deb"
+        },
+        {
+          "target": "rpm"
+        }
       ],
       "category": "Office",
       "synopsis": "Elster-Client",
