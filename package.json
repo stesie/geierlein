@@ -11,6 +11,7 @@
     "optimist": "*"
   },
   "scripts": {
+    "start": "electron .",
     "test": "nodeunit tests/"
   },
   "repository": {
@@ -19,6 +20,36 @@
   },
   "license": "AGPLv3+",
   "devDependencies": {
-    "electron": "1.7.5"
+    "electron": "1.7.5",
+    "electron-builder": "^20.11.1"
+  },
+  "build": {
+    "appId": "de.brokenpipe.geierlein",
+    "productName": "Geierlein",
+    "copyright": "Copyright © 2018 Stefan Siegl",
+    "files": [
+      "chrome/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "directories": {
+    },
+    "linux": {
+      "target": [
+        { "target": "deb" },
+        { "target": "rpm" }
+      ],
+      "category": "Office",
+      "synopsis": "Elster-Client",
+      "description": "Umsatzsteuervoranmeldungen an das Finanzamt übertragen"
+    },
+    "mac": {
+      "target": "zip",
+      "category": "public.app-category.business"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "publish": null
   }
 }
