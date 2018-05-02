@@ -5,7 +5,7 @@
   "private": true,
   "main": "chrome/app/main.js",
   "bin": "bin/geierlein",
-  "version": "0.10.0",
+  "version": "1.0.0",
   "dependencies": {
     "iconv": "*",
     "optimist": "*"

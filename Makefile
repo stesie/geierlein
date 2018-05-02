@@ -5,8 +5,8 @@ pixmapdir := $(datadir)/pixmaps
 desktopfiledir := $(datadir)/applications
 pkgdatadir := $(datadir)/geierlein
 
-VERSIONMAJOR := 0
-VERSIONMINOR := 10
+VERSIONMAJOR := 1
+VERSIONMINOR := 0
 VERSIONBUILD := 0
 VERSION := $(VERSIONMAJOR).$(VERSIONMINOR).$(VERSIONBUILD)
 INSTALL := /usr/bin/install -c
@@ -15,7 +15,6 @@ INSTALL_DATA := $(INSTALL) -m 644
 
 version_files := \
 	Makefile \
-	application.ini \
 	chrome/content/lib/geierlein/steuerfall.js \
 	package.json \
 	tests/_files/ustsvza_datenteil_echt.xml \
@@ -25,7 +24,6 @@ version_files := \
 	tests/_files/ustva_datenteil_echt.xml \
 	tests/_files/ustva_datenteil_test.xml
 
-all: bin/xgeierlein wininst.nsi
 all:
 
 autodist: dist
@@ -47,7 +45,7 @@ autodist-run:
 bump-version: $(version_files)
 	@if [ "$(NEW_VERSION)" = "" ]; then \
 	  echo NEW_VERSION argument not provided.; \
-	  echo Usage: make bump-version NEW_VERSION=0.10.0; \
+	  echo Usage: make bump-version NEW_VERSION=1.0.0; \
 	  exit 1; \
 	fi
 	(bump_version() { \
@@ -56,7 +54,6 @@ bump-version: $(version_files)
 			-e "s/\(VERSIONBUILD :=\) .*/\1 $$3/"; \
 	}; IFS=.; version="$(NEW_VERSION)"; bump_version $$version; unset IFS;)
 	sed -e 's;$(subst .,\.,$(VERSION));$(NEW_VERSION);g' -i~ $^
-	sed -e "s/^BuildID=.*/BuildID=`date +%Y%m%d`/" -i~ application.ini
 	git commit -m "Bump version to $(NEW_VERSION)" $^
 
 .PHONY: all autodist autodist-run bump-version
