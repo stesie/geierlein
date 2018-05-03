@@ -3,7 +3,7 @@
  *
  * @author Stefan Siegl
  *
- * Copyright (c) 2012, 2013 Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2012, 2013, 2018 Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -20,6 +20,8 @@
  */
 
 (function() {
+
+var geierlein = {};
 
 var clientKey = 
     '-----BEGIN ENCRYPTED PRIVATE KEY-----\n' +
@@ -91,56 +93,52 @@ function getRandomHost() {
     return hostNames[i];
 }
 
-var geierlein = {};
+function transferDirect(encData, callback) {
+    var http = require('https');
+    var ipaddr = getRandomHost();
+    var post_options = {
+        host: ipaddr,
+        port: 443,
+        path: '/Elster2/EMS/ElsterAnmeldung',
+        method: 'POST',
+        key: clientKey,
+        cert: clientCert,
+        passphrase: 'fcacc8c19458068c',
+        headers: {
+            'Content-Type': 'text/xml',
+            'Content-Length': encData.length
+        }
+    };
+
+    var post_request = http.request(post_options, function(res) {
+        if(res.statusCode != 200) {
+            callback(false);
+            return;
+        }
+
+        var buf = new Buffer(parseInt(res.headers['content-length'], 10));
+        var ptr = 0;
+
+        /* Receive chunks and add them to the Buffer object. */
+        res.on('data', function(chunk) {
+            chunk.copy(buf, ptr);
+            ptr += chunk.length;
+        });
+
+        res.on('end', function() {
+            var resData = buf.toString('utf8');
+            callback(geierlein.util.rewriteEncoding(resData, 'UTF-8'));
+        });
+    });
+
+    post_request.write(encData);
+    post_request.end();
+}
 
 if(typeof(window) !== 'undefined') {
     geierlein = window.geierlein = window.geierlein || {};
 
-    geierlein.transferDirect = function(encData, callback) {
-        var targetUrl = 'http://' + getRandomHost() +
-            '/Elster2/EMS/ElsterAnmeldung';
-
-        var http = require('https');
-        var ipaddr = getRandomHost();
-        var post_options = {
-            host: ipaddr,
-            port: 443,
-            path: '/Elster2/EMS/ElsterAnmeldung',
-            method: 'POST',
-            key: clientKey,
-            cert: clientCert,
-            passphrase: 'fcacc8c19458068c',
-            headers: {
-                'Content-Type': 'text/xml',
-                'Content-Length': encData.length
-            }
-        };
-
-        var post_request = http.request(post_options, function(res) {
-            console.log('request resolved', res);
-            if(res.statusCode != 200) {
-                callback(false);
-                return;
-            }
-
-            var buf = new Buffer(parseInt(res.headers['content-length'], 10));
-            var ptr = 0;
-
-            /* Receive chunks and add them to the Buffer object. */
-            res.on('data', function(chunk) {
-                chunk.copy(buf, ptr);
-                ptr += chunk.length;
-            });
-
-            res.on('end', function() {
-                var resData = buf.toString('utf8');
-                callback(geierlein.util.rewriteEncoding(resData, 'UTF-8'));
-            });
-        });
-
-        post_request.write(encData);
-        post_request.end();
-    };
+    geierlein.transferDirect = transferDirect;
 
     geierlein.transferReverseProxy = function(encData, callback) {
         _doXhr('proxy/Elster2/EMS/ElsterAnmeldung', encData, callback);
@@ -171,49 +169,7 @@ else if(typeof(module) !== 'undefined' && module.exports) {
         util: require('./util.js')
     };
 
-    var Iconv = require('iconv').Iconv;
-
-    module.exports = function(encData, callback) {
-        var http = require('http');
-        var ipaddr = getRandomHost();
-        var post_options = {
-            host: ipaddr,
-            port: '80',
-            path: '/Elster2/EMS/ElsterAnmeldung',
-            method: 'POST',
-            headers: {
-                'Content-Type': 'text/xml',
-                'Content-Length': encData.length
-            }
-        };
-
-        var post_request = http.request(post_options, function(res) {
-            if(res.statusCode != 200) {
-                callback(false);
-                return;
-            }
-
-            var buf = new Buffer(parseInt(res.headers['content-length'], 10));
-            var ptr = 0;
-
-            /* Receive chunks and add them to the Buffer object. */
-            res.on('data', function(chunk) {
-                chunk.copy(buf, ptr);
-                ptr += chunk.length;
-            });
-
-            /* Convert buffer from ISO8859-1 to UTF-8 to conveniently
-               handle it in Node.js. */
-            res.on('end', function() {
-                var iconv = new Iconv('ISO8859-1', 'UTF-8');
-                var resData = iconv.convert(buf).toString('utf8');
-                callback(geierlein.util.rewriteEncoding(resData, 'UTF-8'));
-            });
-        });
-
-        post_request.write(encData);
-        post_request.end();
-    };
+    module.exports = transferDirect;
 }
 
 })();
