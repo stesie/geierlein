@@ -7,7 +7,6 @@
   "bin": "bin/geierlein",
   "version": "1.0.0",
   "dependencies": {
-    "iconv": "*",
     "optimist": "*"
   },
   "scripts": {
