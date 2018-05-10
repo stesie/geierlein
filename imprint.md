@@ -1,6 +1,6 @@
 ---
 layout: default
-title: COALA - quo vadis?
+title: Impressum
 ---
 
 Impressum
@@ -9,7 +9,7 @@ Impressum
 ### Für diese Seite verantwortlich:
 
 Stefan Siegl  
-Philipp-Zorn-Str. 30  
-91522 Ansbach
+Annastraße 17a
+97072 Würzburg
 
 E-Mail: stesie@brokenpipe.de
