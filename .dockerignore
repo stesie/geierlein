@@ -1,0 +1,13 @@
+.*.sw[po]
+.project
+.settings
+node_modules
+Testzertifikate
+*~
+*#
+.#*
+
+bin
+dist
+doc
+tests
