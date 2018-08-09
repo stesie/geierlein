@@ -83,7 +83,7 @@ geierlein.Steuerfall.prototype = {
 
         var datenteil = encCb(this.getDatenteilXml(testcase, signer));
 
-        var xml = new geierlein.util.Xml('ISO-8859-1', '1.0');
+        var xml = new geierlein.util.Xml('ISO-8859-15', '1.0');
         xml.writeStartDocument();
         xml.writeStartElement('Elster');
         xml.writeAttributeString('xmlns', schemaUri);
