@@ -3,7 +3,7 @@ pipeline {
         dockerfile { filename 'Dockerfile.jenkins' }
     }
     environment {
-        HOME = workspace
+        HOME = pwd()
     }
     stages {
         stage('Prepare') {
