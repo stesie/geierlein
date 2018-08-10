@@ -4,7 +4,7 @@ pipeline {
     }
     environment {
         HOME = pwd()
-        GH_TOKEN = credential('GH_TOKEN')
+        GH_TOKEN = credentials('GH_TOKEN')
     }
     stages {
         stage('Prepare') {
