@@ -3,13 +3,12 @@ pipeline {
         dockerfile { filename 'Dockerfile.jenkins' }
     }
     environment {
-        // Provide HOME environment, otherwise npm bails out
-        // (... and we're not running as a real user, just some externally provided uid)
-        HOME = '/tmp'
+        HOME = workspace
     }
     stages {
         stage('Prepare') {
             steps {
+                sh 'echo HOME=$HOME'
                 sh 'npm install'
             }
         }
