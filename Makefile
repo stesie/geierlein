@@ -7,7 +7,7 @@ pkgdatadir := $(datadir)/geierlein
 
 VERSIONMAJOR := 1
 VERSIONMINOR := 0
-VERSIONBUILD := 0
+VERSIONBUILD := 1
 VERSION := $(VERSIONMAJOR).$(VERSIONMINOR).$(VERSIONBUILD)
 INSTALL := /usr/bin/install -c
 INSTALL_DATA := $(INSTALL) -m 644
@@ -45,7 +45,7 @@ autodist-run:
 bump-version: $(version_files)
 	@if [ "$(NEW_VERSION)" = "" ]; then \
 	  echo NEW_VERSION argument not provided.; \
-	  echo Usage: make bump-version NEW_VERSION=1.0.0; \
+	  echo Usage: make bump-version NEW_VERSION=1.0.1; \
 	  exit 1; \
 	fi
 	(bump_version() { \

@@ -4,7 +4,7 @@
 		<Empfaenger id="F">9203</Empfaenger>
 		<Hersteller>
 			<ProduktName>Geierlein</ProduktName>
-			<ProduktVersion>1.0.0</ProduktVersion>
+			<ProduktVersion>1.0.1</ProduktVersion>
 		</Hersteller>
 		<DatenLieferant>Steuer Sklave, Finstere Gasse 23, Sklavengrube, 12345</DatenLieferant>
 	</NutzdatenHeader>
