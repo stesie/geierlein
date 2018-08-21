@@ -1,4 +1,4 @@
-const {Menu, app} = require('electron');
+const { Menu, app } = require('electron');
 
 module.exports = (hostipc) => {
 
@@ -48,15 +48,22 @@ module.exports = (hostipc) => {
           }
         ]
       },
-      /* {
+      {
         label: 'Bearbeiten',
         submenu: [
-          {
+          { label: 'Rückgängig', role: 'undo' },
+          { label: 'Wiederherstellen', role: 'redo' },
+          { type: 'separator' },
+          { label: 'Ausschneiden', role: 'cut' },
+          { label: 'Kopieren', role: 'copy' },
+          { label: 'Einfügen', role: 'paste' },
+          { label: 'Alles auswählen', role: 'selectall' }
+          /*{
             label: 'Einstellungen',
             accelerator: 'CmdOrCtrl+,'
-          },
+          },*/
         ]
-      }, */
+      },
       {
         label: 'Werkzeuge',
         submenu: [
@@ -73,13 +80,13 @@ module.exports = (hostipc) => {
           },
           {
             label: 'Entwickler-Tools anzeigen',
-            accelerator: (function() {
+            accelerator: (function () {
               if (process.platform === 'darwin')
                 return 'Alt+Command+I';
               else
                 return 'Ctrl+Shift+I';
             })(),
-            click: function(item, focusedWindow) {
+            click: function (item, focusedWindow) {
               if (focusedWindow)
                 focusedWindow.toggleDevTools();
             }
@@ -139,7 +146,7 @@ module.exports = (hostipc) => {
           {
             label: 'Quit',
             accelerator: 'Command+Q',
-            click: function() { app.quit(); }
+            click: function () { app.quit(); }
           },
         ]
       });
