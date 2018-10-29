@@ -12,11 +12,36 @@ hence it should be rather platform independent.  From this it also
 follows that no compilation whatsoever is needed to get Geierlein to
 run.
 
-Currently it is *not* possible to send returns that are due annually
-(especially the income tax return) since the fiscal authority doesn't
-allow to do that off the ERiC library (which is proprietary however).
-It's not clear at the moment whether one day it will be possible to
-do so.
+
+ Project abandoned
+---------------------
+
+This project is now abandoned.
+
+The reason for this is that the backend servers, which are used by
+this project, will no longer be available from mid January 2019 on.
+
+Quote from Oct 26, 2018 newsletter by German fiscal authorities
+(Bayerisches Landesamt für Steuern):
+
+> 3.) Abschaltung ElsterAnmeldung bei der offenen Schnittstelle zum Januar 2019
+> ----------------------------------------------------------------------------------------------------------
+> Sofern Sie ERiC für den Versand Ihrer Daten an ELSTER verwenden, ist dieser
+> Abschnitt für Sie nicht relevant, da ERiC für den Versand von Daten bereits
+> die korrekte Version verwendet.
+> 
+> Auf dem Herstellertreffen am 16. April 2018 wurde die Schließung der offenen
+> Schnittstelle für die Datenarten
+> - Lohnsteueranmeldung (LStA)
+> - Umsatzsteuervoranmeldung (UStVA)
+> bekanntgegeben.
+> 
+> Die offene Schnittstelle für UStVA und LStA soll demnach Mitte Januar 2019
+> serverseitig deaktiviert werden.
+> Sobald dies geschieht, werden alle Steuerfälle mit dem XML-Verfahren
+> ElsterAnmeldung mit dem Fehlercode 600015007 abgewiesen
+
+
 
 
  Getting Started
